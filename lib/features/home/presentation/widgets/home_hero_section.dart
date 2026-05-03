@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
 import 'package:food_solutions/core/utils/app_styles.dart';
+import 'package:food_solutions/core/utils/assets.dart';
 
 import 'home_stats_card.dart';
 
@@ -27,8 +28,8 @@ class HomeHeroSection extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Image.network(
-                'https://images.unsplash.com/photo-1556155092-490a1ba16284?auto=format&fit=crop&w=800&q=80',
+              Image.asset(
+                Assets.homePhoto,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => const SizedBox(),
               ),
