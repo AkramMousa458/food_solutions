@@ -16,7 +16,7 @@ class HomeScreenBody extends StatelessWidget {
       child: Column(
         children: [
           const HomeHeroSection(),
-          SizedBox(height: 50.h),
+          SizedBox(height: 55.h),
           const HomeServicesList(),
           SizedBox(height: 18.h),
           const HomeSectionsWidget(),
