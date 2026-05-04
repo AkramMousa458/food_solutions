@@ -32,15 +32,19 @@ class ServiceItemModel {
       icon: json['icon'] as String? ?? '-',
       shortDescriptionAr: json['short_description_ar'] as String? ?? '',
       longDescriptionAr: json['long_description_ar'] as String? ?? '',
-      points: (json['points'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      points:
+          (json['points'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
       image: json['image'] as String?,
       sortOrder: json['sort_order'] as int? ?? 0,
       isActive: json['is_active'] as bool? ?? false,
-      createdAt: json['created_at'] != null 
-          ? DateTime.tryParse(json['created_at']) ?? DateTime.now() 
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at']) ?? DateTime.now()
           : DateTime.now(),
-      updatedAt: json['updated_at'] != null 
-          ? DateTime.tryParse(json['updated_at']) ?? DateTime.now() 
+      updatedAt: json['updated_at'] != null
+          ? DateTime.tryParse(json['updated_at']) ?? DateTime.now()
           : DateTime.now(),
     );
   }

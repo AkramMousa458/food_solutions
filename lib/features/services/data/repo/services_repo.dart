@@ -1,5 +1,6 @@
 import '../models/service_item_model.dart';
 
 abstract class ServicesRepo {
-  Future<List<ServiceItemModel>> getServices();
+  /// Emits cached services first (if available), then fresh data from the API.
+  Stream<List<ServiceItemModel>> getServices();
 }

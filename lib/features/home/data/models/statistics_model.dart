@@ -19,4 +19,13 @@ class StatisticsModel {
       projectsCount: json['projects_count'] as int,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'years_of_experience': yearsOfExperience,
+      'clients_count': clientsCount,
+      'projects_count': projectsCount,
+    };
+  }
 }

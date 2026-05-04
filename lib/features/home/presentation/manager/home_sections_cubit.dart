@@ -12,16 +12,19 @@ class HomeSectionsCubit extends Cubit<HomeSectionsState> {
   Future<void> getHomeSections() async {
     if (!isClosed) emit(HomeSectionsLoading());
     try {
-      final sections = await _repo.getHomeSections();
-      if (!isClosed) emit(HomeSectionsSuccess(sections));
-    } catch (e) {
-      String errorMessage;
-      if (e is DioException) {
-        errorMessage = ServerFailure.fromDioError(e).message;
-      } else {
-        errorMessage = e.toString();
+      await for (final sections in _repo.getHomeSections()) {
+        if (!isClosed) emit(HomeSectionsSuccess(sections));
       }
-      if (!isClosed) emit(HomeSectionsFailure(errorMessage));
+    } catch (e) {
+      if (state is! HomeSectionsSuccess) {
+        String errorMessage;
+        if (e is DioException) {
+          errorMessage = ServerFailure.fromDioError(e).message;
+        } else {
+          errorMessage = e.toString();
+        }
+        if (!isClosed) emit(HomeSectionsFailure(errorMessage));
+      }
     }
   }
 }

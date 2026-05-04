@@ -25,4 +25,15 @@ class HomeSectionModel {
       sortOrder: (json['sort_order'] as int?) ?? 0,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'image': image,
+      'title': title,
+      'subtitle': subtitle,
+      'description': description,
+      'sort_order': sortOrder,
+    };
+  }
 }

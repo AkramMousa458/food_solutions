@@ -29,6 +29,15 @@ class ContactResponseModel {
           [],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total_contacts': totalContacts,
+      'contacts': contacts.map((e) => e.toJson()).toList(),
+      'total_socials': totalSocials,
+      'socials': socials.map((e) => e.toJson()).toList(),
+    };
+  }
 }
 
 class ContactItemModel {
@@ -51,6 +60,10 @@ class ContactItemModel {
       value: json['value'] as String? ?? '',
       link: json['link'] as String? ?? '',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'title': title, 'icon': iconImage, 'value': value, 'link': link};
   }
 
   // IconData get iconData {
@@ -106,6 +119,15 @@ class SocialItemModel {
       link: json['link'] as String? ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'platform': platfrom?.toJson(),
+      'icon': iconImage,
+      'value': value,
+      'link': link,
+    };
+  }
 }
 
 class PlatformModel {
@@ -129,5 +151,13 @@ class PlatformModel {
             )
           : Colors.white,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'color': '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
+    };
   }
 }

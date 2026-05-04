@@ -7,7 +7,7 @@ class AppBlocObserver extends BlocObserver {
   final Logger _logger;
 
   AppBlocObserver({Logger? logger})
-      : _logger = logger ?? Logger(printer: PrettyPrinter(methodCount: 0));
+    : _logger = logger ?? Logger(printer: PrettyPrinter(methodCount: 0));
 
   @override
   void onCreate(BlocBase<dynamic> bloc) {
@@ -30,7 +30,10 @@ class AppBlocObserver extends BlocObserver {
   }
 
   @override
-  void onTransition(Bloc<dynamic, dynamic> bloc, Transition<dynamic, dynamic> transition) {
+  void onTransition(
+    Bloc<dynamic, dynamic> bloc,
+    Transition<dynamic, dynamic> transition,
+  ) {
     super.onTransition(bloc, transition);
     _logger.v('Transition: ${bloc.runtimeType} -> ${transition.event}');
   }

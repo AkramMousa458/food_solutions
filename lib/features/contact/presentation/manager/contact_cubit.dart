@@ -10,8 +10,9 @@ class ContactLoading extends ContactState {}
 
 class ContactLoaded extends ContactState {
   final ContactResponseModel contactData;
+  final bool isFromCache;
 
-  ContactLoaded(this.contactData);
+  ContactLoaded({required this.contactData, required this.isFromCache});
 }
 
 class ContactError extends ContactState {
@@ -27,11 +28,20 @@ class ContactCubit extends Cubit<ContactState> {
 
   Future<void> fetchContacts() async {
     emit(ContactLoading());
+    bool isFirstEmit = true;
     try {
-      final contactData = await _contactRepo.getContacts();
-      emit(ContactLoaded(contactData));
+      await for (final contactData in _contactRepo.getContacts()) {
+        if (isFirstEmit) {
+          isFirstEmit = false;
+          emit(ContactLoaded(contactData: contactData, isFromCache: true));
+        } else {
+          emit(ContactLoaded(contactData: contactData, isFromCache: false));
+        }
+      }
     } catch (e) {
-      emit(ContactError(e.toString()));
+      if (state is! ContactLoaded) {
+        emit(ContactError(e.toString()));
+      }
     }
   }
 }

@@ -70,14 +70,13 @@ class AppColors {
   static Color shimmerLightCardColor = Colors.white;
 }
 
-
 // class AppColors {
 //   static const Color primary = Color(0xFF2667ec); // Updated primary color
-  // static const Color secondary = Color(0xFF39e965);
-  // static const Color primarySoft = Color(0xFF397ff6);
-  // static const Color primaryDark = Color(0xFF142247);
-  // static const Color error = Color(0xFFD32F2F);
-  // static const Color error500 = Color(0xFFF04438);
+// static const Color secondary = Color(0xFF39e965);
+// static const Color primarySoft = Color(0xFF397ff6);
+// static const Color primaryDark = Color(0xFF142247);
+// static const Color error = Color(0xFFD32F2F);
+// static const Color error500 = Color(0xFFF04438);
 //   static const Color scaffoldBackground = Color(0xFFF5F5F5);
 //   static const Color surface = Color(0xFF1E2028);
 //   static const Color white = Color(0xFFFFFFFF);
@@ -88,7 +87,7 @@ class AppColors {
 //   static const Color blackText = Color(0xFF1E1E1E);
 //   static const Color appBarBackground = Color(0xFFEFF6FE);
 //   static const Color secondText2 = Color(0xFFB5B5B5);
-  // static const Color warning500= Color(0xFFF79009);
-  // static const Color baseSurface= Color(0xFF4D5168);
-  // static const Color success500= Color(0xFF12B76A);
+// static const Color warning500= Color(0xFFF79009);
+// static const Color baseSurface= Color(0xFF4D5168);
+// static const Color success500= Color(0xFF12B76A);
 // }

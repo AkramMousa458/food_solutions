@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -206,11 +207,23 @@ class _SectionImage extends StatelessWidget {
           Container(
             color: isDark ? AppColors.darkInputFill : AppColors.lightScaffold,
           ),
-          Image.network(
-            imageUrl,
+          CachedNetworkImage(
+            imageUrl: imageUrl,
             fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
+            errorWidget: (context, url, error) => Container(
+              color: isDark ? AppColors.darkInputFill : AppColors.lightScaffold,
+              child: Center(
+                child: Icon(
+                  Icons.image_not_supported_outlined,
+                  size: 40.sp,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.grey.withValues(alpha: 0.5),
+                ),
+              ),
+            ),
+            fadeInDuration: const Duration(milliseconds: 200),
+            placeholder: (context, url) {
               return Shimmer.fromColors(
                 baseColor: isDark
                     ? AppColors.shimmerDarkBaseColor
@@ -223,18 +236,6 @@ class _SectionImage extends StatelessWidget {
                 ),
               );
             },
-            errorBuilder: (context, error, stackTrace) => Container(
-              color: isDark ? AppColors.darkInputFill : AppColors.lightScaffold,
-              child: Center(
-                child: Icon(
-                  Icons.image_outlined,
-                  size: 40.sp,
-                  color: isDark
-                      ? AppColors.darkTextSecondary
-                      : AppColors.grey.withValues(alpha: 0.5),
-                ),
-              ),
-            ),
           ),
           // Subtle gradient overlay at bottom
           Positioned(

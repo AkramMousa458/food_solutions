@@ -8,10 +8,19 @@ class ServicesInitial extends ServicesState {}
 
 class ServicesLoading extends ServicesState {}
 
+/// Emitted when services are loaded from local cache or API for the first time.
 class ServicesLoaded extends ServicesState {
   final List<ServiceItemModel> services;
+  final bool isFromCache;
 
-  ServicesLoaded(this.services);
+  ServicesLoaded({required this.services, required this.isFromCache});
+}
+
+/// Emitted while a background API refresh is in progress after cache was served.
+class ServicesUpdating extends ServicesState {
+  final List<ServiceItemModel> cachedServices;
+
+  ServicesUpdating(this.cachedServices);
 }
 
 class ServicesError extends ServicesState {
@@ -27,11 +36,23 @@ class ServicesCubit extends Cubit<ServicesState> {
 
   Future<void> fetchServices() async {
     emit(ServicesLoading());
+    bool isFirstEmit = true;
     try {
-      final services = await _servicesRepo.getServices();
-      emit(ServicesLoaded(services));
+      await for (final services in _servicesRepo.getServices()) {
+        if (isFirstEmit) {
+          isFirstEmit = false;
+          // First yield: may be cache or direct API result
+          emit(ServicesLoaded(services: services, isFromCache: true));
+        } else {
+          // Subsequent yield: fresh data from API
+          emit(ServicesLoaded(services: services, isFromCache: false));
+        }
+      }
     } catch (e) {
-      emit(ServicesError(e.toString()));
+      // Only emit an error if we haven't loaded any cached data.
+      if (state is! ServicesLoaded) {
+        emit(ServicesError(e.toString()));
+      }
     }
   }
 }
