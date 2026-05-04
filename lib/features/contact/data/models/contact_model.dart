@@ -157,7 +157,8 @@ class PlatformModel {
     return {
       'id': id,
       'name': name,
-      'color': '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
+      'color':
+          '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
     };
   }
 }

@@ -6,6 +6,8 @@ import 'package:food_solutions/core/utils/theme_utils.dart';
 import 'package:food_solutions/features/home/presentation/manager/statistics_cubit.dart';
 import 'package:food_solutions/features/home/presentation/manager/statistics_state.dart';
 
+import 'package:flutter_animate/flutter_animate.dart';
+
 import 'home_stat_item.dart';
 
 class HomeStatsCard extends StatelessWidget {
@@ -34,27 +36,39 @@ class HomeStatsCard extends StatelessWidget {
             StatisticsSuccess() => Row(
               children: [
                 Expanded(
-                  child: HomeStatItem(
-                    icon: Icons.calendar_month,
-                    value: '+${state.statistics.yearsOfExperience}',
-                    label: 'سنوات خبرة',
-                  ),
+                  child:
+                      HomeStatItem(
+                            icon: Icons.calendar_month,
+                            value: '+${state.statistics.yearsOfExperience}',
+                            label: 'سنوات خبرة',
+                          )
+                          .animate()
+                          .fade(duration: 400.ms)
+                          .scale(begin: const Offset(0.8, 0.8)),
                 ),
                 _buildDivider(isDark),
                 Expanded(
-                  child: HomeStatItem(
-                    icon: Icons.handshake_outlined,
-                    value: '+${state.statistics.clientsCount}',
-                    label: 'عميل راضي',
-                  ),
+                  child:
+                      HomeStatItem(
+                            icon: Icons.handshake_outlined,
+                            value: '+${state.statistics.clientsCount}',
+                            label: 'عميل راضي',
+                          )
+                          .animate()
+                          .fade(duration: 400.ms, delay: 100.ms)
+                          .scale(begin: const Offset(0.8, 0.8)),
                 ),
                 _buildDivider(isDark),
                 Expanded(
-                  child: HomeStatItem(
-                    icon: Icons.business,
-                    value: '+${state.statistics.projectsCount}',
-                    label: 'مشروع مكتمل',
-                  ),
+                  child:
+                      HomeStatItem(
+                            icon: Icons.business,
+                            value: '+${state.statistics.projectsCount}',
+                            label: 'مشروع مكتمل',
+                          )
+                          .animate()
+                          .fade(duration: 400.ms, delay: 200.ms)
+                          .scale(begin: const Offset(0.8, 0.8)),
                 ),
               ],
             ),

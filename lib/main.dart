@@ -33,9 +33,10 @@ Future<void> main() async {
     );
 
     // Get initial theme brightness (saved or device)
-    final initialBrightness = await ThemeCubit.getInitialBrightness(
-      localStorage,
-    );
+    final initialBrightness = Brightness.light;
+    // final initialBrightness = await ThemeCubit.getInitialBrightness(
+    //   localStorage,
+    // );
 
     // Get initial locale (saved or default)
     final initialLocale = await LanguageCubit.getInitialLocale(localStorage);

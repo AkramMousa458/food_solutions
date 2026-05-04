@@ -8,6 +8,8 @@ import 'package:food_solutions/core/utils/theme_utils.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
 import 'package:shimmer/shimmer.dart';
 
+import 'package:flutter_animate/flutter_animate.dart';
+
 import '../manager/services_cubit.dart';
 import 'service_tile_card.dart';
 
@@ -37,7 +39,10 @@ class ServicesScreenBody extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
             itemCount: services.length,
             itemBuilder: (context, index) {
-              return ServiceTileCard(service: services[index]);
+              return ServiceTileCard(service: services[index])
+                  .animate()
+                  .fade(duration: 400.ms, delay: (index * 100).ms)
+                  .slideY(begin: 0.1, duration: 400.ms, curve: Curves.easeOut);
             },
           );
         }

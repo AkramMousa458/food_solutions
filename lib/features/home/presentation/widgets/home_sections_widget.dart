@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_translate/flutter_translate.dart';
@@ -70,7 +71,7 @@ class _HomeSectionsList extends StatelessWidget {
               ),
             ],
           ),
-        ),
+        ).animate().fade(duration: 400.ms).slideX(begin: -0.1),
 
         SizedBox(height: 12.h),
 
@@ -81,7 +82,14 @@ class _HomeSectionsList extends StatelessWidget {
           itemCount: sections.length,
           separatorBuilder: (_, __) => SizedBox(height: 16.h),
           itemBuilder: (context, index) =>
-              _SectionCard(section: sections[index], index: index),
+              _SectionCard(section: sections[index], index: index)
+                  .animate()
+                  .fade(duration: 500.ms, delay: (index * 150).ms)
+                  .slideY(
+                    begin: 0.1,
+                    duration: 500.ms,
+                    curve: Curves.easeOutQuad,
+                  ),
         ),
       ],
     );

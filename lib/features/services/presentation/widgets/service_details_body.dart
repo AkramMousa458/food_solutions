@@ -6,6 +6,8 @@ import 'package:food_solutions/features/services/data/models/service_item_model.
 import 'package:go_router/go_router.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';
 
+import 'package:flutter_animate/flutter_animate.dart';
+
 import 'request_service_button.dart';
 import 'service_image_header.dart';
 import 'service_info_section.dart';
@@ -27,37 +29,55 @@ class ServiceDetailsBody extends StatelessWidget {
           if (service.image != null)
             Stack(
               children: [
-                ServiceImageHeader(imageUrl: service.image!),
+                ServiceImageHeader(imageUrl: service.image!)
+                    .animate()
+                    .fade(duration: 500.ms)
+                    .slideY(
+                      begin: -0.05,
+                      duration: 500.ms,
+                      curve: Curves.easeOutQuad,
+                    ),
                 PositionedDirectional(
                   top: MediaQuery.of(context).padding.top,
-                  // end: 20.w,
                   start: 20.w,
-                  child: InkWell(
-                    onTap: () => context.pop(),
-                    borderRadius: BorderRadius.circular(12.r),
-                    child: Container(
-                      padding: EdgeInsets.all(10.w),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? AppColors.darkCard.withValues(alpha: 0.9)
-                            : AppColors.white.withValues(alpha: 0.85),
-                        borderRadius: BorderRadius.circular(12.r),
-                        boxShadow: [
-                          if (!isDark)
-                            BoxShadow(
-                              color: AppColors.black.withValues(alpha: 0.12),
-                              blurRadius: 10,
-                              offset: Offset(0, 4),
+                  child:
+                      InkWell(
+                            onTap: () => context.pop(),
+                            borderRadius: BorderRadius.circular(12.r),
+                            child: Container(
+                              padding: EdgeInsets.all(10.w),
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? AppColors.darkCard.withValues(alpha: 0.9)
+                                    : AppColors.white.withValues(alpha: 0.85),
+                                borderRadius: BorderRadius.circular(12.r),
+                                boxShadow: [
+                                  if (!isDark)
+                                    BoxShadow(
+                                      color: AppColors.black.withValues(
+                                        alpha: 0.12,
+                                      ),
+                                      blurRadius: 10,
+                                      offset: Offset(0, 4),
+                                    ),
+                                ],
+                              ),
+                              child: Icon(
+                                Icons.arrow_back_rounded,
+                                color: isDark
+                                    ? AppColors.white
+                                    : AppColors.black,
+                                size: 22.sp,
+                              ),
                             ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.arrow_back_rounded,
-                        color: isDark ? AppColors.white : AppColors.black,
-                        size: 22.sp,
-                      ),
-                    ),
-                  ),
+                          )
+                          .animate()
+                          .fade(duration: 400.ms, delay: 200.ms)
+                          .slideX(
+                            begin: 0.2,
+                            duration: 400.ms,
+                            curve: Curves.easeOut,
+                          ),
                 ),
               ],
             )
@@ -80,7 +100,13 @@ class ServiceDetailsBody extends StatelessWidget {
               children: [
                 ServiceInfoSection(service: service),
                 SizedBox(height: 65.h),
-                RequestServiceButton(service: service),
+                RequestServiceButton(service: service)
+                    .animate()
+                    .fade(duration: 500.ms, delay: 300.ms)
+                    .scale(
+                      begin: const Offset(0.95, 0.95),
+                      curve: Curves.easeOutQuad,
+                    ),
                 SizedBox(height: MediaQuery.of(context).padding.bottom + 20.h),
               ],
             ),

@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_solutions/core/theme/theme_dark.dart';
@@ -33,16 +31,16 @@ class ThemeCubit extends Cubit<ThemeData> {
     }
   }
 
-  static Brightness getDeviceBrightness() {
-    return PlatformDispatcher.instance.platformBrightness;
-  }
+  // static Brightness getDeviceBrightness() {
+  //   return PlatformDispatcher.instance.platformBrightness;
+  // }
 
-  static Future<Brightness> getInitialBrightness(
-    LocalStorage localStorage,
-  ) async {
-    final saved = localStorage.getString(_themeKey);
-    if (saved == 'dark') return Brightness.dark;
-    if (saved == 'light') return Brightness.light;
-    return getDeviceBrightness();
-  }
+  // static Future<Brightness> getInitialBrightness(
+  //   LocalStorage localStorage,
+  // ) async {
+  //   final saved = localStorage.getString(_themeKey);
+  //   if (saved == 'dark') return Brightness.dark;
+  //   if (saved == 'light') return Brightness.light;
+  //   return getDeviceBrightness();
+  // }
 }
