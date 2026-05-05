@@ -47,6 +47,17 @@ class ContactScreenBody extends StatelessWidget {
               break;
             }
           }
+          if (whatsappNumber.isEmpty) {
+            for (var s in socials) {
+              if (s.value.toLowerCase().contains('whatsapp') ||
+                  s.value.toLowerCase().contains('واتساب') ||
+                  s.platfrom!.name.toLowerCase().contains('whatsapp') ||
+                  s.platfrom!.name.toLowerCase().contains('واتساب')) {
+                whatsappNumber = s.link.replaceAll("https://wa.me/", "");
+                break;
+              }
+            }
+          }
 
           int animIndex = 0;
 

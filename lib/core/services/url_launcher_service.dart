@@ -27,4 +27,9 @@ abstract class UrlLauncherService {
     final encoded = Uri.encodeComponent(address);
     await launchExternalUrl('https://maps.google.com/?q=$encoded');
   }
+
+  static Future<void> launchCall(String phone) async {
+    final sanitized = phone.replaceAll(RegExp(r'[\s+\-()]'), '');
+    await launchUrl(Uri.parse('tel:$sanitized'), mode: LaunchMode.externalApplication);
+  }
 }

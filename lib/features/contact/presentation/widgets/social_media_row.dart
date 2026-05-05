@@ -46,27 +46,17 @@ class _SocialButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = ThemeUtils.isDark(context);
+    // final isDark = ThemeUtils.isDark(context);
     return Material(
-      color:
-          item.platfrom?.color ??
-          (isDark ? AppColors.darkInputFill : AppColors.white),
-      shape: const CircleBorder(),
-      clipBehavior: Clip.hardEdge,
+      color: AppColors.transparent,
+      // shape: const CircleBorder(),
+      // clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: () => UrlLauncherService.launchExternalUrl(item.link),
-        child: Container(
-          padding: EdgeInsets.all(8.r),
-          color:
-              item.platfrom?.color ??
-              (isDark ? AppColors.darkInputFill : AppColors.white),
-          width: 52.w,
-          height: 52.w,
-          child: CachedNetworkImage(
-            imageUrl: item.iconImage,
-            width: 26,
-            height: 26,
-          ),
+        child: CachedNetworkImage(
+          imageUrl: item.iconImage,
+          width: 48.w,
+          height: 48.w,
         ),
       ),
     );

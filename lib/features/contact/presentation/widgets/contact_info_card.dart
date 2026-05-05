@@ -43,7 +43,15 @@ class ContactInfoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         child: InkWell(
           borderRadius: BorderRadius.circular(16.r),
-          onTap: () => UrlLauncherService.launchExternalUrl(info.link),
+          onTap: () {
+            if (info.value.contains('+')) {
+              UrlLauncherService.launchCall(info.value);
+            } else if (info.value.contains('@')) {
+              UrlLauncherService.launchEmail(info.value);
+            } else {
+              UrlLauncherService.launchExternalUrl(info.link);
+            }
+          },
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 18.h),
             child: Row(
@@ -80,6 +88,9 @@ class ContactInfoCard extends StatelessWidget {
                       SizedBox(height: 4.h),
                       Text(
                         info.value,
+                        textDirection: info.value.contains('+')
+                            ? TextDirection.ltr
+                            : TextDirection.rtl,
                         style: TextStyle(
                           fontSize: 13.sp,
                           height: 1.5,

@@ -37,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 130.w),
           child: TweenAnimationBuilder<double>(
-            tween: Tween<double>(begin: 0.0, end: 1.0),
+            tween: Tween<double>(begin: 0.0, end: 1.15),
             duration: const Duration(milliseconds: 1000),
             curve: Curves.easeInOut,
             builder: (context, value, child) {

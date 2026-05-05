@@ -66,6 +66,7 @@ class _HomeSectionsList extends StatelessWidget {
               Text(
                 translate('sections'),
                 style: AppStyles.textstyle18.copyWith(
+                  fontWeight: FontWeight.w500,
                   color: isDark ? AppColors.white : AppColors.black,
                 ),
               ),
@@ -138,6 +139,20 @@ class _SectionCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Title
+                if (section.title.isNotEmpty)
+                  Text(
+                    section.title,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: isDark
+                          ? AppColors.white
+                          : AppColors.lightTextPrimary,
+                      height: 1.4,
+                    ),
+                  ),
+
                 // Subtitle chip
                 if (section.subtitle.isNotEmpty)
                   Container(
@@ -157,20 +172,6 @@ class _SectionCard extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                         color: primaryColor,
                       ),
-                    ),
-                  ),
-
-                // Title
-                if (section.title.isNotEmpty)
-                  Text(
-                    section.title,
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                      color: isDark
-                          ? AppColors.white
-                          : AppColors.lightTextPrimary,
-                      height: 1.4,
                     ),
                   ),
 
