@@ -27,36 +27,42 @@ class HomeServicesList extends StatelessWidget {
           final services = state.services;
           if (services.isEmpty) return const SizedBox();
 
-          return SizedBox(
-            height: 100.h,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
-              itemCount: services.length,
-              separatorBuilder: (_, __) => SizedBox(width: 12.w),
-              itemBuilder: (context, index) {
-                final service = services[index];
-                return SizedBox(
-                      width: 130.w,
-                      child: HomeServiceCard(
-                        title: service.titleAr,
-                        imageIcon: service.icon,
-                        onTap: () {
-                          context.push(
-                            ServiceDetailsScreen.routeName,
-                            extra: service,
-                          );
-                        },
-                      ),
-                    )
-                    .animate()
-                    .fade(duration: 400.ms, delay: (index * 50).ms)
-                    .slideX(
-                      begin: 0.1,
-                      duration: 400.ms,
-                      curve: Curves.easeOut,
-                    );
-              },
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final entry in services.asMap().entries) ...[
+                    if (entry.key > 0) SizedBox(width: 12.w),
+                    SizedBox(
+                      width: 150.w,
+                      child:
+                          HomeServiceCard(
+                                title: entry.value.titleAr,
+                                imageIcon: entry.value.icon,
+                                onTap: () {
+                                  context.push(
+                                    ServiceDetailsScreen.routeName,
+                                    extra: entry.value,
+                                  );
+                                },
+                              )
+                              .animate()
+                              .fade(
+                                duration: 400.ms,
+                                delay: (entry.key * 50).ms,
+                              )
+                              .slideX(
+                                begin: 0.1,
+                                duration: 400.ms,
+                                curve: Curves.easeOut,
+                              ),
+                    ),
+                  ],
+                ],
+              ),
             ),
           );
         }
@@ -71,52 +77,74 @@ class HomeServicesList extends StatelessWidget {
     final highlightColor = isDark ? AppColors.darkInputFill : Colors.grey[100]!;
     final cardColor = isDark ? AppColors.darkCard : AppColors.white;
 
-    return SizedBox(
-      height: 100.h,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 20.w),
-        itemCount: 4,
-        separatorBuilder: (_, __) => SizedBox(width: 14.w),
-        itemBuilder: (context, index) {
-          return Shimmer.fromColors(
-            baseColor: baseColor,
-            highlightColor: highlightColor,
-            child: Container(
-              width: 130.w,
-              decoration: BoxDecoration(
-                color: cardColor,
-                borderRadius: BorderRadius.circular(15.r),
-                boxShadow: [
-                  if (!isDark)
-                    BoxShadow(
-                      color: AppColors.black.withValues(alpha: 0.04),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (int index = 0; index < 4; index++) ...[
+              if (index > 0) SizedBox(width: 14.w),
+              Shimmer.fromColors(
+                baseColor: baseColor,
+                highlightColor: highlightColor,
+                child: Container(
+                  width: 150.w,
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(15.r),
+                    boxShadow: [
+                      if (!isDark)
+                        BoxShadow(
+                          color: AppColors.black.withValues(alpha: 0.04),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.w,
+                      vertical: 10.h,
                     ),
-                ],
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 36.sp,
-                      height: 36.sp,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 36.sp,
+                          height: 36.sp,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        SizedBox(height: 8.h),
+                        Container(
+                          width: 70.w,
+                          height: 10.sp,
+                          color: Colors.white,
+                        ),
+                        SizedBox(height: 6.h),
+                        Container(
+                          width: 90.w,
+                          height: 10.sp,
+                          color: Colors.white,
+                        ),
+                        SizedBox(height: 6.h),
+                        Container(
+                          width: 60.w,
+                          height: 10.sp,
+                          color: Colors.white,
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 8.h),
-                    Container(width: 70.w, height: 12.sp, color: Colors.white),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            ],
+          ],
+        ),
       ),
     );
   }

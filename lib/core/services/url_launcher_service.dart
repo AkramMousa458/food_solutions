@@ -20,7 +20,7 @@ abstract class UrlLauncherService {
   }
 
   static Future<void> launchEmail(String email) async {
-    await launchExternalUrl('mailto:$email');
+    await launchUrl(Uri.parse('mailto:$email'), mode: LaunchMode.externalApplication);
   }
 
   static Future<void> launchMaps(String address) async {

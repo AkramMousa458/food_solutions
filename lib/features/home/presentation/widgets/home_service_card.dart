@@ -45,9 +45,8 @@ class HomeServiceCard extends StatelessWidget {
           onTap: onTap ?? () {},
           borderRadius: BorderRadius.circular(15.r),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.w),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
             child: Column(
-              // mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 imageIcon.isEmpty
@@ -69,13 +68,13 @@ class HomeServiceCard extends StatelessWidget {
                           );
                         },
                       ),
-                SizedBox(height: 6.h),
+                SizedBox(height: 8.h),
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppStyles.textstyle14Bold.copyWith(
+                  softWrap: true,
+                  style: AppStyles.textstyle12.copyWith(
+                    fontWeight: FontWeight.bold,
                     color: isDark
                         ? AppColors.white
                         : AppColors.black.withValues(alpha: 0.87),
