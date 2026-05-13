@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_translate/flutter_translate.dart';
+import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:food_solutions/core/services/url_launcher_service.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';

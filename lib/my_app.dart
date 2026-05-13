@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_translate/flutter_translate.dart';
+import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/language/language_cubit.dart';
 import 'package:food_solutions/core/router/app_router.dart';
 import 'package:food_solutions/core/theme/theme_cubit.dart';
@@ -52,3 +52,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+

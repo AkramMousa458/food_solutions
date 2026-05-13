@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_translate/flutter_translate.dart';
+import 'package:food_solutions/core/language/app_translations.dart';
 
 /// Constants for error messages with translation support
 class ApiErrorMessages {
