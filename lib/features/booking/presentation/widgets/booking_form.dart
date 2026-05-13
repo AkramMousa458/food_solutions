@@ -37,16 +37,7 @@ class _BookingFormState extends State<BookingForm> {
       _selectedServiceId = widget.initialService!.id;
     }
   }
-
-  // @override
-  // void dispose() {
-  // context.read<BookingCubit>().nameController.dispose();
-  // context.read<BookingCubit>().phoneController.dispose();
-  // context.read<BookingCubit>().emailController.dispose();
-  // context.read<BookingCubit>().detailsController.dispose();
-  //   super.dispose();
-  // }
-
+  
   void _submitForm() {
     if (_formKey.currentState?.validate() ?? false) {
       context.read<BookingCubit>().submitBooking(
