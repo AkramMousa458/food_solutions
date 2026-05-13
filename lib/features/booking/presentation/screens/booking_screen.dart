@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_translate/flutter_translate.dart';
+import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
 import 'package:food_solutions/core/utils/service_locator.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';

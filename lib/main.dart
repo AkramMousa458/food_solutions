@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_translate/flutter_translate.dart';
+import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/language/language_cubit.dart';
 import 'package:food_solutions/core/theme/theme_cubit.dart';
 import 'package:food_solutions/core/utils/bloc_observer.dart';
@@ -25,11 +25,11 @@ Future<void> main() async {
     // Initialize local storage
     final localStorage = await LocalStorage.init(logger: logger);
 
-    // Initialize flutter_translate with explicit basePath
-    var delegate = await LocalizationDelegate.create(
+    // Initialize custom translations (replaces flutter_translate)
+    final translations = await AppTranslations.init(
       fallbackLocale: 'en',
       supportedLocales: ['en', 'ar'],
-      basePath: 'assets/i18n', // Explicitly specify the i18n folder
+      basePath: 'assets/i18n',
     );
 
     // Get initial theme brightness (saved or device)
@@ -41,10 +41,13 @@ Future<void> main() async {
     // Get initial locale (saved or default)
     final initialLocale = await LanguageCubit.getInitialLocale(localStorage);
 
+    // Set the initial locale in translations
+    await translations.setLocale(initialLocale);
+
     // Run the app
     runApp(
       LocalizedApp(
-        delegate,
+        translations,
         MultiBlocProvider(
           providers: [
             BlocProvider(
