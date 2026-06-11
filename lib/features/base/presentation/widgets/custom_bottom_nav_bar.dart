@@ -124,12 +124,12 @@ class CustomBottomNavBar extends StatelessWidget {
                 size: 26.sp,
               ),
             ),
-            SizedBox(height: 4.h),
+            // SizedBox(height: 4.h),
             AnimatedDefaultTextStyle(
               duration: const Duration(milliseconds: 200),
               style: AppStyles.textstyle10.copyWith(
                 color: color,
-                fontSize: 12.sp,
+                fontSize: 11.sp,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
               ),
               child: Text(translatedText),
