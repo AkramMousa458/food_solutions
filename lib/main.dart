@@ -1,16 +1,27 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/language/language_cubit.dart';
+import 'package:food_solutions/core/services/firebase_messaging_background_handler.dart';
+import 'package:food_solutions/core/services/push_notification_service.dart';
 import 'package:food_solutions/core/theme/theme_cubit.dart';
 import 'package:food_solutions/core/utils/bloc_observer.dart';
 import 'package:food_solutions/core/utils/local_storage.dart';
 import 'package:food_solutions/core/utils/service_locator.dart';
+import 'package:food_solutions/features/favorites/presentation/manager/favorites_cubit.dart';
+import 'package:food_solutions/features/reviews/presentation/manager/reviews_cubit.dart';
 import 'package:food_solutions/my_app.dart';
 import 'package:logger/logger.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+   await Firebase.initializeApp();
+
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  await PushNotificationService.instance.initialize();
 
   // Initialize logger
   final logger = Logger();
@@ -18,6 +29,8 @@ Future<void> main() async {
   try {
     // Initialize service locator with logger
     await setupLocator(logger: logger);
+    locator<FavoritesCubit>().loadFavorites();
+    locator<ReviewsCubit>().loadReviews();
 
     // Initialize BLoC observer
     Bloc.observer = AppBlocObserver(logger: logger);
@@ -62,6 +75,8 @@ Future<void> main() async {
                 initialLocale: initialLocale,
               ),
             ),
+            BlocProvider.value(value: locator<FavoritesCubit>()),
+            BlocProvider.value(value: locator<ReviewsCubit>()),
           ],
           child: MyApp(localStorage: localStorage),
         ),

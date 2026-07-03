@@ -17,6 +17,8 @@ class AppConstants {
   static const String homeSectionsKey = 'cached_home_sections';
   static const String statisticsKey = 'cached_statistics';
   static const String contactKey = 'cached_contact';
+  static const String favoritesKey = 'favorite_service_ids';
+  static const String reviewsKey = 'service_reviews';
 
   // Log messages
   static const String saveSuccessLog = 'Saved to local storage';

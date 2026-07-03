@@ -10,6 +10,8 @@ import '../screens/service_details_screen.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:food_solutions/features/favorites/presentation/widgets/favorite_button.dart';
+import 'package:food_solutions/features/reviews/presentation/widgets/service_rating_badge.dart';
 
 class ServiceTileCard extends StatelessWidget {
   final ServiceItemModel service;
@@ -118,6 +120,15 @@ class ServiceTileCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                    PositionedDirectional(
+                      top: 10.h,
+                      end: 10.w,
+                      child: FavoriteButton(
+                        serviceId: service.id,
+                        size: 22,
+                        showBackground: true,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -157,15 +168,27 @@ class ServiceTileCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            service.titleAr,
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.bold,
-                              color: isDark
-                                  ? AppColors.white
-                                  : AppColors.black.withValues(alpha: 0.87),
-                            ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  service.titleAr,
+                                  style: TextStyle(
+                                    fontSize: 18.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark
+                                        ? AppColors.white
+                                        : AppColors.black.withValues(
+                                            alpha: 0.87,
+                                          ),
+                                  ),
+                                ),
+                              ),
+                              ServiceRatingBadge(
+                                serviceId: service.id,
+                                compact: true,
+                              ),
+                            ],
                           ),
                           SizedBox(height: 6.h),
                           Text(

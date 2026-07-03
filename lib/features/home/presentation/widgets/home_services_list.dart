@@ -42,6 +42,7 @@ class HomeServicesList extends StatelessWidget {
                           HomeServiceCard(
                                 title: entry.value.titleAr,
                                 imageIcon: entry.value.icon,
+                                serviceId: entry.value.id,
                                 onTap: () {
                                   context.push(
                                     ServiceDetailsScreen.routeName,

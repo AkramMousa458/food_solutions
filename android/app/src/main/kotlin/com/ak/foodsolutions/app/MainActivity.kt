@@ -1,4 +1,4 @@
-package com.ak.app.food.solutions
+package com.ak.foodsolutions.app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -29,7 +29,7 @@ class ThemeToggleButton extends StatelessWidget {
                   size: 20.w,
                   color: Theme.of(context).appBarTheme.foregroundColor,
                 ),
-                SizedBox(width: 4.w),
+                // SizedBox(width: 4.w),
                 // Text(
                 //   isDark ? 'Light' : 'Dark',
                 //   style: TextStyle(

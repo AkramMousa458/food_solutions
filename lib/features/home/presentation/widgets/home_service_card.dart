@@ -6,15 +6,19 @@ import 'package:food_solutions/core/utils/app_styles.dart';
 
 import 'package:food_solutions/core/utils/theme_utils.dart';
 
+import 'package:food_solutions/features/favorites/presentation/widgets/favorite_button.dart';
+
 class HomeServiceCard extends StatelessWidget {
   final String title;
   final String imageIcon;
+  final int? serviceId;
   final VoidCallback? onTap;
 
   const HomeServiceCard({
     super.key,
     required this.title,
     required this.imageIcon,
+    this.serviceId,
     this.onTap,
   });
 
@@ -44,11 +48,13 @@ class HomeServiceCard extends StatelessWidget {
         child: InkWell(
           onTap: onTap ?? () {},
           borderRadius: BorderRadius.circular(15.r),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+          child: Stack(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                 imageIcon.isEmpty
                     ? Icon(
                         Icons.room_service_outlined,
@@ -81,8 +87,16 @@ class HomeServiceCard extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 4.h),
-              ],
-            ),
+                  ],
+                ),
+              ),
+              if (serviceId != null)
+                PositionedDirectional(
+                  top: 4.h,
+                  end: 4.w,
+                  child: FavoriteButton(serviceId: serviceId!, size: 18),
+                ),
+            ],
           ),
         ),
       ),

@@ -34,6 +34,16 @@ import 'package:food_solutions/features/home/data/repo/home_sections_repo.dart';
 import 'package:food_solutions/features/home/data/repo/home_sections_repo_impl.dart';
 import 'package:food_solutions/features/home/presentation/manager/home_sections_cubit.dart';
 
+import 'package:food_solutions/features/favorites/data/data_sources/favorites_local_data_source.dart';
+import 'package:food_solutions/features/favorites/data/repo/favorites_repo.dart';
+import 'package:food_solutions/features/favorites/data/repo/favorites_repo_impl.dart';
+import 'package:food_solutions/features/favorites/presentation/manager/favorites_cubit.dart';
+
+import 'package:food_solutions/features/reviews/data/data_sources/reviews_local_data_source.dart';
+import 'package:food_solutions/features/reviews/data/repo/reviews_repo.dart';
+import 'package:food_solutions/features/reviews/data/repo/reviews_repo_impl.dart';
+import 'package:food_solutions/features/reviews/presentation/manager/reviews_cubit.dart';
+
 final locator = GetIt.instance;
 
 Future<void> setupLocator({Logger? logger}) async {
@@ -158,5 +168,27 @@ Future<void> setupLocator({Logger? logger}) async {
   );
   locator.registerLazySingleton<HomeSectionsCubit>(
     () => HomeSectionsCubit(locator<HomeSectionsRepo>()),
+  );
+
+  // Favorites
+  locator.registerLazySingleton<FavoritesLocalDataSource>(
+    () => FavoritesLocalDataSourceImpl(locator<LocalStorage>()),
+  );
+  locator.registerLazySingleton<FavoritesRepo>(
+    () => FavoritesRepoImpl(locator<FavoritesLocalDataSource>()),
+  );
+  locator.registerLazySingleton<FavoritesCubit>(
+    () => FavoritesCubit(locator<FavoritesRepo>()),
+  );
+
+  // Reviews
+  locator.registerLazySingleton<ReviewsLocalDataSource>(
+    () => ReviewsLocalDataSourceImpl(locator<LocalStorage>()),
+  );
+  locator.registerLazySingleton<ReviewsRepo>(
+    () => ReviewsRepoImpl(locator<ReviewsLocalDataSource>()),
+  );
+  locator.registerLazySingleton<ReviewsCubit>(
+    () => ReviewsCubit(locator<ReviewsRepo>()),
   );
 }

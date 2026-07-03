@@ -48,5 +48,22 @@
   "contact_whatsapp_btn": "تواصل عبر واتساب",
   "loading": "جارى التحميل...",
   "sections": "الأقسام",
-  "error_try_again": "خطأ, حاول مرة أخرى"
+  "error_try_again": "خطأ, حاول مرة أخرى",
+  "favorites": "المفضلة",
+  "favorites_empty_title": "لا توجد خدمات مفضلة",
+  "favorites_empty_desc": "اضغط على أيقونة القلب في أي خدمة لحفظها هنا للوصول السريع.",
+  "browse_services": "تصفح الخدمات",
+  "reviews_title": "التقييمات والمراجعات",
+  "write_review": "اكتب مراجعة",
+  "your_rating": "تقييمك",
+  "review_name_label": "اسمك",
+  "review_name_hint": "أدخل اسمك",
+  "review_comment_label": "مراجعتك",
+  "review_comment_hint": "شاركنا تجربتك مع هذه الخدمة...",
+  "review_submit": "إرسال المراجعة",
+  "review_rating_required": "يرجى اختيار تقييم بالنجوم",
+  "review_submit_success": "شكراً لك! تم إرسال مراجعتك بنجاح.",
+  "review_count": "{count} مراجعة",
+  "no_reviews_yet": "لا توجد مراجعات بعد",
+  "be_first_reviewer": "كن أول من يشارك تجربته!"
 }
