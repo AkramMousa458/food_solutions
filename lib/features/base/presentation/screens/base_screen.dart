@@ -12,6 +12,7 @@ import 'package:food_solutions/features/services/presentation/manager/services_c
 import 'package:food_solutions/features/contact/presentation/manager/contact_cubit.dart';
 import 'package:food_solutions/features/favorites/presentation/manager/favorites_cubit.dart';
 import 'package:food_solutions/features/reviews/presentation/manager/reviews_cubit.dart';
+import 'package:food_solutions/core/services/push_notification_service.dart';
 import 'package:food_solutions/core/utils/service_locator.dart';
 
 class BaseScreen extends StatefulWidget {
@@ -47,6 +48,9 @@ class _BaseScreenState extends State<BaseScreen> {
     locator<ContactCubit>().fetchContacts();
     locator<StatisticsCubit>().getStatistics();
     locator<HomeSectionsCubit>().getHomeSections();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      PushNotificationService.instance.handlePendingNotificationNavigation();
+    });
   }
 
   void _onItemTapped(int index) {

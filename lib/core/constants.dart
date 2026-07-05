@@ -19,6 +19,7 @@ class AppConstants {
   static const String contactKey = 'cached_contact';
   static const String favoritesKey = 'favorite_service_ids';
   static const String reviewsKey = 'service_reviews';
+  static const String fcmTokenKey = 'fcm_token';
 
   // Log messages
   static const String saveSuccessLog = 'Saved to local storage';

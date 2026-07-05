@@ -4,7 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:food_solutions/core/router/app_router.dart';
-import 'package:food_solutions/features/home/presentation/screens/home_screen.dart';
+import 'package:food_solutions/features/base/presentation/screens/base_screen.dart';
 
 /// Handles FCM in all app states: foreground, background, and terminated.
 ///
@@ -20,6 +20,7 @@ class PushNotificationService {
   static const String channelId = 'food_solutions_high_importance';
   static const String channelName = 'Food Solutions notifications';
   static const String channelDescription = 'Food Solutions notifications';
+  static const String allUsersTopic = 'all_users';
 
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotifications =
@@ -27,8 +28,13 @@ class PushNotificationService {
 
   bool _initialized = false;
 
+  Map<String, dynamic>? _pendingNavigationData;
+
   /// Latest FCM registration token (updated on refresh).
   String? fcmToken;
+
+  /// Called when FCM issues a new registration token.
+  void Function(String token)? onFcmTokenRefreshed;
 
   /// Called when the user opens a notification (tap), with payload data.
   void Function(Map<String, dynamic> data)? onNotificationOpened;
@@ -47,6 +53,7 @@ class PushNotificationService {
     _messaging.onTokenRefresh.listen((token) {
       fcmToken = token;
       log('FCM token refreshed: $token');
+      onFcmTokenRefreshed?.call(token);
     });
 
     _initialized = true;
@@ -122,13 +129,43 @@ class PushNotificationService {
   Future<void> _handleInitialMessage() async {
     final message = await _messaging.getInitialMessage();
     if (message != null) {
-      _dispatchOpenedNotification(message);
+      _dispatchOpenedNotification(message, defer: true);
     }
   }
 
+  /// Processes a notification tap that arrived before the router was ready.
+  void handlePendingNotificationNavigation() {
+    final data = _pendingNavigationData;
+    if (data == null) return;
+    _pendingNavigationData = null;
+    _navigateFromData(data);
+  }
+
   Future<void> _refreshToken() async {
-    fcmToken = await _messaging.getToken();
+    fcmToken = await getFcmToken();
     log('FCM token: $fcmToken');
+  }
+
+  /// Returns the current FCM registration token, fetching it if needed.
+  Future<String?> getFcmToken() async {
+    try {
+      fcmToken = await _messaging.getToken();
+      return fcmToken;
+    } catch (e, st) {
+      log('Failed to get FCM token', error: e, stackTrace: st);
+      return null;
+    }
+  }
+
+  /// Subscribes this device to an FCM topic (e.g. broadcast notifications).
+  Future<void> subscribeToTopic(String topic) async {
+    try {
+      await _messaging.subscribeToTopic(topic);
+      log('Subscribed to FCM topic: $topic');
+    } catch (e, st) {
+      log('Failed to subscribe to FCM topic: $topic', error: e, stackTrace: st);
+      rethrow;
+    }
   }
 
   Future<void> _onForegroundMessage(RemoteMessage message) async {
@@ -143,13 +180,23 @@ class PushNotificationService {
 
   void _onLocalNotificationTapped(NotificationResponse response) {
     final payload = response.payload;
-    if (payload == null || payload.isEmpty) return;
-    _navigateFromData({'payload': payload});
+    if (payload == null || payload.isEmpty) {
+      _navigateFromData({});
+      return;
+    }
+    _navigateFromData(_decodePayload(payload));
   }
 
-  void _dispatchOpenedNotification(RemoteMessage message) {
+  void _dispatchOpenedNotification(
+    RemoteMessage message, {
+    bool defer = false,
+  }) {
     final data = Map<String, dynamic>.from(message.data);
     onNotificationOpened?.call(data);
+    if (defer) {
+      _pendingNavigationData = data;
+      return;
+    }
     _navigateFromData(data);
   }
 
@@ -206,8 +253,32 @@ class PushNotificationService {
     return data.entries.map((e) => '${e.key}=${e.value}').join('&');
   }
 
+  Map<String, dynamic> _decodePayload(String payload) {
+    final map = <String, dynamic>{};
+    for (final part in payload.split('&')) {
+      final separatorIndex = part.indexOf('=');
+      if (separatorIndex > 0) {
+        map[part.substring(0, separatorIndex)] =
+            part.substring(separatorIndex + 1);
+      }
+    }
+    return map;
+  }
+
+  /// Maps notification routes to registered GoRouter paths.
+  String? _resolveRoute(String? route) {
+    if (route == null || route.isEmpty) return null;
+
+    const aliases = <String, String>{
+      '/home-screen': BaseScreen.routeName,
+      '/home': BaseScreen.routeName,
+    };
+
+    return aliases[route] ?? route;
+  }
+
   void _navigateFromData(Map<String, dynamic> data) {
-    final route = data['route']?.toString();
+    final route = _resolveRoute(data['route']?.toString());
     if (route != null && route.isNotEmpty) {
       try {
         AppRouter.router.go(route);
@@ -217,9 +288,8 @@ class PushNotificationService {
       return;
     }
 
-    // Default: open in-app notifications screen.
     try {
-      AppRouter.router.go(HomeScreen.routeName);
+      AppRouter.router.go(BaseScreen.routeName);
     } catch (e, st) {
       log('Default notification navigation failed', error: e, stackTrace: st);
     }
