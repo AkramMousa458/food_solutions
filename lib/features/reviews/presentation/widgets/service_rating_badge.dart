@@ -8,11 +8,15 @@ import 'star_rating_widget.dart';
 
 class ServiceRatingBadge extends StatelessWidget {
   final int serviceId;
+  final double? averageRate;
+  final int? reviewCount;
   final bool compact;
 
   const ServiceRatingBadge({
     super.key,
     required this.serviceId,
+    this.averageRate,
+    this.reviewCount,
     this.compact = false,
   });
 
@@ -20,12 +24,12 @@ class ServiceRatingBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ReviewsCubit, ReviewsState>(
       builder: (context, state) {
-        if (state is! ReviewsLoaded) return const SizedBox.shrink();
+        final avg = averageRate ??
+            (state is ReviewsLoaded ? state.averageRating(serviceId) : 0);
+        final count = reviewCount ??
+            (state is ReviewsLoaded ? state.reviewCount(serviceId) : 0);
 
-        final count = state.reviewCount(serviceId);
         if (count == 0) return const SizedBox.shrink();
-
-        final avg = state.averageRating(serviceId);
 
         if (compact) {
           return Row(

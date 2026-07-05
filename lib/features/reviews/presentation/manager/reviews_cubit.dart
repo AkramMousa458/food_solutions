@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_solutions/features/services/data/models/service_item_model.dart';
 import '../../data/repo/reviews_repo.dart';
 import 'reviews_state.dart';
 
@@ -8,38 +9,34 @@ class ReviewsCubit extends Cubit<ReviewsState> {
   ReviewsCubit(this._repo) : super(ReviewsInitial());
 
   void loadReviews() {
-    try {
-      emit(ReviewsLoaded(allReviews: _repo.getAllReviews()));
-    } catch (e) {
-      emit(ReviewsError(e.toString()));
-    }
+    emit(ReviewsLoaded(reviewsByService: _repo.getAllServiceReviews()));
+  }
+
+  void seedServiceReviews(int serviceId, ServiceReviewsModel? reviews) {
+    _repo.seedServiceReviews(serviceId, reviews);
+    emit(ReviewsLoaded(reviewsByService: _repo.getAllServiceReviews()));
   }
 
   Future<void> submitReview({
     required int serviceId,
-    required String userName,
+    required String name,
     required int rating,
     required String comment,
   }) async {
-    final current = state is ReviewsLoaded
-        ? (state as ReviewsLoaded).allReviews
-        : _repo.getAllReviews();
-    emit(ReviewsLoaded(allReviews: current, isSubmitting: true));
+    final current = _repo.getAllServiceReviews();
+    emit(ReviewsLoaded(reviewsByService: current, isSubmitting: true));
+
     try {
       await _repo.submitReview(
         serviceId: serviceId,
-        userName: userName,
-        rating: rating,
+        name: name,
+        rate: rating,
         comment: comment,
       );
-      emit(ReviewsLoaded(allReviews: _repo.getAllReviews()));
+      emit(ReviewsLoaded(reviewsByService: _repo.getAllServiceReviews()));
     } catch (e) {
-      emit(ReviewsError(e.toString()));
-      loadReviews();
+      emit(ReviewsLoaded(reviewsByService: current));
+      rethrow;
     }
   }
-
-  double getAverageRating(int serviceId) => _repo.getAverageRating(serviceId);
-
-  int getReviewCount(int serviceId) => _repo.getReviewCount(serviceId);
 }

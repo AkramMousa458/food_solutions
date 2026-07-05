@@ -23,10 +23,7 @@ class ReviewsSection extends StatelessWidget {
     return BlocBuilder<ReviewsCubit, ReviewsState>(
       builder: (context, state) {
         if (state is! ReviewsLoaded) {
-          return Padding(
-            padding: EdgeInsets.symmetric(vertical: 24.h),
-            child: const Center(child: CircularProgressIndicator()),
-          );
+          return const SizedBox.shrink();
         }
 
         final reviews = state.reviewsForService(serviceId);

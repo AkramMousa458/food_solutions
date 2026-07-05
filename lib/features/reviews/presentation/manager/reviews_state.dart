@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../data/models/review_model.dart';
+import '../../data/repo/reviews_repo.dart';
 
 abstract class ReviewsState extends Equatable {
   const ReviewsState();
@@ -11,28 +12,32 @@ abstract class ReviewsState extends Equatable {
 class ReviewsInitial extends ReviewsState {}
 
 class ReviewsLoaded extends ReviewsState {
-  final List<ReviewModel> allReviews;
+  final Map<int, ServiceReviewsEntry> reviewsByService;
   final bool isSubmitting;
 
-  const ReviewsLoaded({required this.allReviews, this.isSubmitting = false});
+  const ReviewsLoaded({
+    required this.reviewsByService,
+    this.isSubmitting = false,
+  });
+
+  ServiceReviewsEntry _entryFor(int serviceId) {
+    return reviewsByService[serviceId] ?? ServiceReviewsEntry.empty;
+  }
 
   List<ReviewModel> reviewsForService(int serviceId) {
-    return allReviews
-        .where((r) => r.serviceId == serviceId)
-        .toList()
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return _entryFor(serviceId).reviews;
   }
 
   double averageRating(int serviceId) {
-    final reviews = reviewsForService(serviceId);
-    if (reviews.isEmpty) return 0;
-    return reviews.fold<int>(0, (sum, r) => sum + r.rating) / reviews.length;
+    return _entryFor(serviceId).averageRate;
   }
 
-  int reviewCount(int serviceId) => reviewsForService(serviceId).length;
+  int reviewCount(int serviceId) {
+    return _entryFor(serviceId).total;
+  }
 
   @override
-  List<Object?> get props => [allReviews, isSubmitting];
+  List<Object?> get props => [reviewsByService, isSubmitting];
 }
 
 class ReviewsError extends ReviewsState {

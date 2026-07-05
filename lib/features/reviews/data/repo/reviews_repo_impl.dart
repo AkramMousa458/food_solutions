@@ -1,45 +1,73 @@
-import '../data_sources/reviews_local_data_source.dart';
+import 'package:food_solutions/features/services/data/models/service_item_model.dart';
+import '../data_sources/reviews_remote_data_source.dart';
 import '../models/review_model.dart';
 import 'reviews_repo.dart';
 
 class ReviewsRepoImpl implements ReviewsRepo {
-  final ReviewsLocalDataSource _localDataSource;
+  final ReviewsRemoteDataSource _remoteDataSource;
+  final Map<int, ServiceReviewsEntry> _reviewsByService = {};
 
-  ReviewsRepoImpl(this._localDataSource);
-
-  @override
-  List<ReviewModel> getAllReviews() => _localDataSource.getAllReviews();
+  ReviewsRepoImpl(this._remoteDataSource);
 
   @override
-  List<ReviewModel> getReviewsForService(int serviceId) =>
-      _localDataSource.getReviewsForService(serviceId);
+  Map<int, ServiceReviewsEntry> getAllServiceReviews() =>
+      Map.unmodifiable(_reviewsByService);
 
   @override
-  Future<void> submitReview({
+  ServiceReviewsEntry getServiceReviews(int serviceId) {
+    return _reviewsByService[serviceId] ?? ServiceReviewsEntry.empty;
+  }
+
+  @override
+  void seedServiceReviews(int serviceId, ServiceReviewsModel? reviews) {
+    if (reviews == null) {
+      _reviewsByService[serviceId] = ServiceReviewsEntry.empty;
+      return;
+    }
+
+    _reviewsByService[serviceId] = ServiceReviewsEntry(
+      total: reviews.total,
+      averageRate: reviews.averageRate,
+      reviews: reviews.reviews
+          .map(
+            (item) => ReviewModel.fromServiceReviewItem(
+              serviceId: serviceId,
+              item: item,
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  @override
+  Future<ReviewModel> submitReview({
     required int serviceId,
-    required String userName,
-    required int rating,
+    required String name,
+    required int rate,
     required String comment,
   }) async {
-    final review = ReviewModel(
-      id: '${DateTime.now().microsecondsSinceEpoch}_$serviceId',
+    final review = await _remoteDataSource.submitReview(
       serviceId: serviceId,
-      userName: userName,
-      rating: rating,
+      name: name,
       comment: comment,
-      createdAt: DateTime.now(),
+      rate: rate,
     );
-    await _localDataSource.addReview(review);
-  }
 
-  @override
-  double getAverageRating(int serviceId) {
-    final reviews = getReviewsForService(serviceId);
-    if (reviews.isEmpty) return 0;
-    final total = reviews.fold<int>(0, (sum, r) => sum + r.rating);
-    return total / reviews.length;
-  }
+    final current = getServiceReviews(serviceId);
+    final updatedReviews = [...current.reviews, review];
+    final newTotal = current.total + 1;
+    final newAverage = updatedReviews.fold<double>(
+          0,
+          (sum, item) => sum + item.rate,
+        ) /
+        updatedReviews.length;
 
-  @override
-  int getReviewCount(int serviceId) => getReviewsForService(serviceId).length;
+    _reviewsByService[serviceId] = ServiceReviewsEntry(
+      total: newTotal,
+      averageRate: newAverage,
+      reviews: updatedReviews,
+    );
+
+    return review;
+  }
 }

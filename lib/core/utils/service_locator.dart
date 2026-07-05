@@ -39,7 +39,7 @@ import 'package:food_solutions/features/favorites/data/repo/favorites_repo.dart'
 import 'package:food_solutions/features/favorites/data/repo/favorites_repo_impl.dart';
 import 'package:food_solutions/features/favorites/presentation/manager/favorites_cubit.dart';
 
-import 'package:food_solutions/features/reviews/data/data_sources/reviews_local_data_source.dart';
+import 'package:food_solutions/features/reviews/data/data_sources/reviews_remote_data_source.dart';
 import 'package:food_solutions/features/reviews/data/repo/reviews_repo.dart';
 import 'package:food_solutions/features/reviews/data/repo/reviews_repo_impl.dart';
 import 'package:food_solutions/features/reviews/presentation/manager/reviews_cubit.dart';
@@ -182,11 +182,11 @@ Future<void> setupLocator({Logger? logger}) async {
   );
 
   // Reviews
-  locator.registerLazySingleton<ReviewsLocalDataSource>(
-    () => ReviewsLocalDataSourceImpl(locator<LocalStorage>()),
+  locator.registerLazySingleton<ReviewsRemoteDataSource>(
+    () => ReviewsRemoteDataSourceImpl(locator<ApiService>()),
   );
   locator.registerLazySingleton<ReviewsRepo>(
-    () => ReviewsRepoImpl(locator<ReviewsLocalDataSource>()),
+    () => ReviewsRepoImpl(locator<ReviewsRemoteDataSource>()),
   );
   locator.registerLazySingleton<ReviewsCubit>(
     () => ReviewsCubit(locator<ReviewsRepo>()),

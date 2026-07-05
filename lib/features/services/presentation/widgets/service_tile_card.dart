@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
-
 import 'package:food_solutions/core/utils/theme_utils.dart';
-import '../../data/models/service_item_model.dart';
-
-import 'package:go_router/go_router.dart';
-import '../screens/service_details_screen.dart';
-
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:food_solutions/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:food_solutions/features/reviews/presentation/widgets/service_rating_badge.dart';
+import '../../data/models/service_item_model.dart';
+import 'package:go_router/go_router.dart';
+import '../screens/service_details_screen.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ServiceTileCard extends StatelessWidget {
   final ServiceItemModel service;
@@ -186,6 +183,8 @@ class ServiceTileCard extends StatelessWidget {
                               ),
                               ServiceRatingBadge(
                                 serviceId: service.id,
+                                averageRate: service.serviceReviews?.averageRate,
+                                reviewCount: service.serviceReviews?.total,
                                 compact: true,
                               ),
                             ],

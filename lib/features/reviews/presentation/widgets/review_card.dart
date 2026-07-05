@@ -41,8 +41,8 @@ class ReviewCard extends StatelessWidget {
                   alpha: 0.15,
                 ),
                 child: Text(
-                  review.userName.isNotEmpty
-                      ? review.userName[0].toUpperCase()
+                  review.name.isNotEmpty
+                      ? review.name[0].toUpperCase()
                       : '?',
                   style: TextStyle(
                     fontSize: 14.sp,
@@ -57,27 +57,29 @@ class ReviewCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      review.userName,
+                      review.name,
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.white : AppColors.black,
                       ),
                     ),
-                    SizedBox(height: 2.h),
-                    Text(
-                      _formatDate(review.createdAt),
-                      style: TextStyle(
-                        fontSize: 11.sp,
-                        color: isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.grey,
+                    if (review.createdAt != null) ...[
+                      SizedBox(height: 2.h),
+                      Text(
+                        _formatDate(review.createdAt!),
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.grey,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
-              StarRatingWidget(rating: review.rating.toDouble(), size: 16),
+              StarRatingWidget(rating: review.rate, size: 16),
             ],
           ),
           if (review.comment.isNotEmpty) ...[

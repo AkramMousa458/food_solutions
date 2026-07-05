@@ -38,7 +38,6 @@ class _AddReviewSheetState extends State<AddReviewSheet> {
   final _nameController = TextEditingController();
   final _commentController = TextEditingController();
   int _selectedRating = 0;
-  bool _submitted = false;
 
   @override
   void dispose() {
@@ -47,7 +46,7 @@ class _AddReviewSheetState extends State<AddReviewSheet> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_selectedRating == 0) {
       showTopSnackBar(
         Overlay.of(context),
@@ -55,13 +54,27 @@ class _AddReviewSheetState extends State<AddReviewSheet> {
       );
       return;
     }
-    if (_formKey.currentState?.validate() ?? false) {
-      _submitted = true;
-      context.read<ReviewsCubit>().submitReview(
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    try {
+      await context.read<ReviewsCubit>().submitReview(
         serviceId: widget.serviceId,
-        userName: _nameController.text.trim(),
+        name: _nameController.text.trim(),
         rating: _selectedRating,
         comment: _commentController.text.trim(),
+      );
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      showTopSnackBar(
+        Overlay.of(context),
+        CustomSnackBar.success(message: translate('review_submit_success')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      final message = e.toString().replaceFirst('Exception: ', '');
+      showTopSnackBar(
+        Overlay.of(context),
+        CustomSnackBar.error(message: message),
       );
     }
   }
@@ -71,35 +84,20 @@ class _AddReviewSheetState extends State<AddReviewSheet> {
     final isDark = ThemeUtils.isDark(context);
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    return BlocListener<ReviewsCubit, ReviewsState>(
-      listener: (context, state) {
-        if (_submitted && state is ReviewsLoaded && !state.isSubmitting) {
-          Navigator.of(context).pop();
-          showTopSnackBar(
-            Overlay.of(context),
-            CustomSnackBar.success(message: translate('review_submit_success')),
-          );
-        } else if (state is ReviewsError) {
-          showTopSnackBar(
-            Overlay.of(context),
-            CustomSnackBar.error(message: state.message),
-          );
-        }
-      },
-      child: Container(
-        padding: EdgeInsets.only(bottom: bottomInset),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.darkCard : AppColors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-        ),
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(24.w, 12.h, 24.w, 24.h),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+    return Container(
+      padding: EdgeInsets.only(bottom: bottomInset),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : AppColors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(24.w, 12.h, 24.w, 24.h),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
                 Center(
                   child: Container(
                     width: 40.w,
@@ -183,7 +181,6 @@ class _AddReviewSheetState extends State<AddReviewSheet> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }
