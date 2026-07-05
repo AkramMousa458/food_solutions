@@ -45,7 +45,7 @@ class HomeActionButtons extends StatelessWidget {
             height: 55.h,
             child: OutlinedButton(
               onPressed: () {
-                BaseScreen.changeTab(context, 3);
+                BaseScreen.changeTab(context, 4);
               },
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: primaryColor, width: 2),

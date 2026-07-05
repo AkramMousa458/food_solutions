@@ -8,6 +8,7 @@ import 'package:food_solutions/features/services/presentation/screens/services_s
 import 'package:food_solutions/features/booking/presentation/screens/booking_screen.dart';
 import 'package:food_solutions/features/contact/presentation/screens/contact_screen.dart';
 import 'package:food_solutions/features/favorites/presentation/screens/favorites_screen.dart';
+import 'package:food_solutions/features/calculator/presentation/screens/calculator_screen.dart';
 import 'package:food_solutions/features/services/presentation/manager/services_cubit.dart';
 import 'package:food_solutions/features/contact/presentation/manager/contact_cubit.dart';
 import 'package:food_solutions/features/favorites/presentation/manager/favorites_cubit.dart';
@@ -36,6 +37,7 @@ class _BaseScreenState extends State<BaseScreen> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const ServicesScreen(),
+    const CalculatorScreen(),
     const FavoritesScreen(),
     const BookingScreen(),
     const ContactScreen(),
