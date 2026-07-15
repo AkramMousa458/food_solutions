@@ -6,6 +6,7 @@ import 'package:food_solutions/core/constants.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/language/language_cubit.dart';
 import 'package:food_solutions/core/services/firebase_messaging_background_handler.dart';
+import 'package:food_solutions/core/services/api_service.dart';
 import 'package:food_solutions/core/services/push_notification_service.dart';
 import 'package:food_solutions/core/theme/theme_cubit.dart';
 import 'package:food_solutions/core/utils/bloc_observer.dart';
@@ -53,12 +54,15 @@ Future<void> main() async {
 
     await setupLocator(logger: logger);
 
+    final localStorage = locator<LocalStorage>();
+    final initialLocale = await LanguageCubit.getInitialLocale(localStorage);
+    locator<ApiService>().updateLanguage(initialLocale.languageCode);
+
     locator<FavoritesCubit>().loadFavorites();
 
     locator<ReviewsCubit>().loadReviews();
 
     Bloc.observer = AppBlocObserver(logger: logger);
-    final localStorage = await LocalStorage.init(logger: logger);
     await _persistFcmToken(localStorage, fcmToken);
     PushNotificationService.instance.onFcmTokenRefreshed = (token) {
       logger.i('FCM token refreshed: $token');
@@ -75,7 +79,6 @@ Future<void> main() async {
     );
 
     final initialBrightness = Brightness.light;
-    final initialLocale = await LanguageCubit.getInitialLocale(localStorage);
     await translations.setLocale(initialLocale);
 
     runApp(

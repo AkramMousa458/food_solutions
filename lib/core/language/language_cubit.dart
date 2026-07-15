@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
+import 'package:food_solutions/core/services/api_service.dart';
 import 'package:food_solutions/core/utils/local_storage.dart';
+import 'package:food_solutions/core/utils/service_locator.dart';
 
 class LanguageCubit extends Cubit<Locale> {
   final LocalStorage localStorage;
@@ -13,12 +15,14 @@ class LanguageCubit extends Cubit<Locale> {
   Future<void> setArabic() async {
     emit(const Locale('ar', ''));
     await localStorage.saveLanguage('ar');
+    locator<ApiService>().updateLanguage('ar');
   }
 
   /// Sets the language to English
   Future<void> setEnglish() async {
     emit(const Locale('en', ''));
     await localStorage.saveLanguage('en');
+    locator<ApiService>().updateLanguage('en');
   }
 
   /// Toggles between Arabic and English

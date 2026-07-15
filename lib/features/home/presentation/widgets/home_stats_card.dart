@@ -40,7 +40,7 @@ class HomeStatsCard extends StatelessWidget {
                       HomeStatItem(
                             icon: Icons.calendar_month,
                             value: '+${state.statistics.yearsOfExperience}',
-                            label: 'سنوات خبرة',
+                            label: 'years_of_experience',
                           )
                           .animate()
                           .fade(duration: 400.ms)
@@ -52,7 +52,7 @@ class HomeStatsCard extends StatelessWidget {
                       HomeStatItem(
                             icon: Icons.handshake_outlined,
                             value: '+${state.statistics.clientsCount}',
-                            label: 'عميل راضي',
+                            label: 'satisfied_clients',
                           )
                           .animate()
                           .fade(duration: 400.ms, delay: 100.ms)
@@ -64,7 +64,7 @@ class HomeStatsCard extends StatelessWidget {
                       HomeStatItem(
                             icon: Icons.business,
                             value: '+${state.statistics.projectsCount}',
-                            label: 'مشروع مكتمل',
+                            label: 'completed_projects',
                           )
                           .animate()
                           .fade(duration: 400.ms, delay: 200.ms)

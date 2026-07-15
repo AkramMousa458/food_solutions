@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
 
 import 'package:food_solutions/core/utils/theme_utils.dart';
@@ -44,7 +45,7 @@ class HomeStatItem extends StatelessWidget {
         ),
         SizedBox(height: 6.h),
         Text(
-          label,
+          translate(label),
           style: TextStyle(
             fontSize: 11.sp,
             fontWeight: FontWeight.w600,

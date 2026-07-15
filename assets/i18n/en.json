@@ -7,6 +7,7 @@
   "login": "Login",
   "home": "Home",
   "services": "Our Services",
+  "services_nav_title": "Services",
   "services_menu_design_title": "Menu Design",
   "services_menu_design_desc": "Designing professional food menus that attract customers.",
   "services_digital_marketing_title": "Digital Marketing",
@@ -96,5 +97,10 @@
   "calc_at_35": "At 35% (Max)",
   "calc_cta_text": "Maximize Your Profits Today. Get professional consulting to optimize your menu.",
   "calc_validation_number": "Please enter a valid number",
-  "calc_validation_positive": "Please enter a value greater than zero"
+  "calc_validation_positive": "Please enter a value greater than zero",
+  "years_of_experience": "Experience",
+  "satisfied_clients": "Clients",
+  "completed_projects": "Projects",
+  "home_title": "Our Partner in the World of Restaurants",
+  "home_subtitle": "We Help You Develop and Manage Your Restaurant Efficiently and Professionally"
 }

@@ -6,6 +6,7 @@
   "login": "تسجيل الدخول",
   "home": "الرئيسية",
   "services": "خدماتنا",
+  "services_nav_title": "الخدمات",
   "services_menu_design_title": "تصميم القوائم",
   "services_menu_design_desc": "تصميم قوائم طعام احترافية تجذب العملاء",
   "services_digital_marketing_title": "التسويق الرقمي",
@@ -95,5 +96,10 @@
   "calc_at_35": "عند 35% (الحد الأقصى)",
   "calc_cta_text": "حقق أقصى أرباح اليوم. احصل على استشارة احترافية لتحسين قائمتك.",
   "calc_validation_number": "يرجى إدخال رقم صحيح",
-  "calc_validation_positive": "يرجى إدخال قيمة أكبر من صفر"
+  "calc_validation_positive": "يرجى إدخال قيمة أكبر من صفر",
+  "years_of_experience": "سنوات خبرة",
+  "satisfied_clients": "عميل راضي",
+  "completed_projects": "مشروع مكتمل",
+  "home_title": "شريكك في عالم المطاعم",
+  "home_subtitle": "نساعدك في تطوير وإدارة مطعمك بكفاءة واحترافية"
 }

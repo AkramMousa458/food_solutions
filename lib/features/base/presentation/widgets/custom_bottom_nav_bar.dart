@@ -54,7 +54,7 @@ class CustomBottomNavBar extends StatelessWidget {
                 context: context,
                 icon: Icons.format_list_bulleted,
                 selectedIcon: Icons.format_list_bulleted,
-                label: 'services',
+                label: 'services_nav_title',
                 fallbackText: 'الخدمات',
                 index: 1,
                 isDark: isDark,

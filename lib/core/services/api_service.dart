@@ -1,5 +1,4 @@
-import 'package:dio/dio.dart';
-import 'package:logger/logger.dart';
+import 'package:dio/dio.dart';import 'package:logger/logger.dart';
 import 'package:food_solutions/core/utils/local_storage.dart';
 import 'package:food_solutions/core/utils/service_locator.dart';
 
@@ -31,6 +30,11 @@ class ApiService {
       sendTimeout: const Duration(seconds: 30),
       connectTimeout: const Duration(seconds: 30),
     );
+  }
+
+  /// Updates the language used in API request headers.
+  void updateLanguage(String languageCode) {
+    _language = languageCode;
   }
 
   /// Initializes the service by loading the latest token and language.
@@ -173,10 +177,11 @@ class ApiService {
   Map<String, dynamic> _buildHeaders({
     String contentType = 'application/json',
   }) {
+    final language = _language ?? 'ar';
     final headers = <String, dynamic>{
       'Content-Type': contentType,
       'Accept': 'application/json',
-      'x-lang': _language ?? 'ar',
+      'Accept-Language': language,
       'x-country': 'EG',
     };
     if (_token != null && _token!.isNotEmpty) {

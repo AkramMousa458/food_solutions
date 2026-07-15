@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
 import 'package:food_solutions/core/utils/app_styles.dart';
 import 'package:food_solutions/core/utils/assets.dart';
@@ -42,15 +43,16 @@ class HomeHeroSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      'شريكك في عالم المطاعم',
+                      translate('home_title'),
                       textAlign: TextAlign.center,
-                      style: AppStyles.textstyle20Bold.copyWith(
+                      style: AppStyles.textstyle18.copyWith(
+                        fontWeight: FontWeight.bold,
                         color: AppColors.white,
                       ),
                     ),
                     SizedBox(height: 10.h),
                     Text(
-                      'نساعدك في تطوير وإدارة مطعمك بكفاءة واحترافية',
+                      translate('home_subtitle'),
                       textAlign: TextAlign.center,
                       style: AppStyles.textstyle12.copyWith(
                         color: AppColors.white,
