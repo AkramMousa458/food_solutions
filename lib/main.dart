@@ -35,12 +35,26 @@ Future<void> main() async {
     );
 
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  } catch (e, stackTrace) {
+    logger.e(
+      'Firebase initialization failed',
+      error: e,
+      stackTrace: stackTrace,
+    );
+  }
 
+  // Setup service locator first
+  await setupLocator(logger: logger);
+  final localStorage = locator<LocalStorage>();
+
+  String? fcmToken;
+  try {
     await PushNotificationService.instance.initialize();
 
-    final fcmToken = await PushNotificationService.instance.getFcmToken();
+    fcmToken = await PushNotificationService.instance.getFcmToken();
     if (fcmToken != null) {
       logger.i('FCM token obtained: $fcmToken');
+      await _persistFcmToken(localStorage, fcmToken);
     } else {
       logger.w('FCM token unavailable (permissions or APNS may be pending)');
     }
@@ -52,9 +66,19 @@ Future<void> main() async {
       'Subscribed to FCM topic: ${PushNotificationService.allUsersTopic}',
     );
 
-    await setupLocator(logger: logger);
+    PushNotificationService.instance.onFcmTokenRefreshed = (token) {
+      logger.i('FCM token refreshed: $token');
+      _persistFcmToken(localStorage, token);
+    };
+  } catch (e, stackTrace) {
+    logger.w(
+      'Push notification setup failed (likely simulator or missing capabilities)',
+      error: e,
+      stackTrace: stackTrace,
+    );
+  }
 
-    final localStorage = locator<LocalStorage>();
+  try {
     final initialLocale = await LanguageCubit.getInitialLocale(localStorage);
     locator<ApiService>().updateLanguage(initialLocale.languageCode);
 
@@ -63,12 +87,6 @@ Future<void> main() async {
     locator<ReviewsCubit>().loadReviews();
 
     Bloc.observer = AppBlocObserver(logger: logger);
-    await _persistFcmToken(localStorage, fcmToken);
-    PushNotificationService.instance.onFcmTokenRefreshed = (token) {
-      logger.i('FCM token refreshed: $token');
-
-      _persistFcmToken(localStorage, token);
-    };
 
     final translations = await AppTranslations.init(
       fallbackLocale: 'en',
