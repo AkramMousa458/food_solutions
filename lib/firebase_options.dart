@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '824294761230',
     projectId: 'food-solutions-27c92',
     storageBucket: 'food-solutions-27c92.firebasestorage.app',
-    iosBundleId: 'com.ak.foodsolutions.app',
+    iosBundleId: 'com.ak.app.food.solutions',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(

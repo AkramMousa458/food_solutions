@@ -164,7 +164,6 @@ class PushNotificationService {
       log('Subscribed to FCM topic: $topic');
     } catch (e, st) {
       log('Failed to subscribe to FCM topic: $topic', error: e, stackTrace: st);
-      rethrow;
     }
   }
 
