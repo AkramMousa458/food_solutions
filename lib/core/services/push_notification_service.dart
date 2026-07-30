@@ -48,12 +48,14 @@ class PushNotificationService {
     await _createAndroidChannel();
     _registerForegroundListeners();
     await _handleInitialMessage();
+    await _ensureApnsToken();
     await _refreshToken();
 
-    _messaging.onTokenRefresh.listen((token) {
+    _messaging.onTokenRefresh.listen((token) async {
       fcmToken = token;
       log('FCM token refreshed: $token');
       onFcmTokenRefreshed?.call(token);
+      await subscribeToTopic(allUsersTopic);
     });
 
     _initialized = true;
@@ -146,9 +148,36 @@ class PushNotificationService {
     log('FCM token: $fcmToken');
   }
 
+  /// iOS must receive an APNS token before FCM token / topic APIs work.
+  Future<bool> _ensureApnsToken({
+    int maxAttempts = 15,
+    Duration delay = const Duration(milliseconds: 400),
+  }) async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.iOS) {
+      return true;
+    }
+
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+      final apnsToken = await _messaging.getAPNSToken();
+      if (apnsToken != null && apnsToken.isNotEmpty) {
+        log('APNS token ready (attempt $attempt)');
+        return true;
+      }
+      await Future<void>.delayed(delay);
+    }
+
+    log('APNS token not available after $maxAttempts attempts');
+    return false;
+  }
+
   /// Returns the current FCM registration token, fetching it if needed.
   Future<String?> getFcmToken() async {
     try {
+      final apnsReady = await _ensureApnsToken();
+      if (!apnsReady && defaultTargetPlatform == TargetPlatform.iOS) {
+        return null;
+      }
+
       fcmToken = await _messaging.getToken();
       return fcmToken;
     } catch (e, st) {
@@ -158,13 +187,20 @@ class PushNotificationService {
   }
 
   /// Subscribes this device to an FCM topic (e.g. broadcast notifications).
-  Future<void> subscribeToTopic(String topic) async {
+  Future<bool> subscribeToTopic(String topic) async {
     try {
+      final apnsReady = await _ensureApnsToken();
+      if (!apnsReady && defaultTargetPlatform == TargetPlatform.iOS) {
+        log('Skipped FCM topic subscribe (APNS token pending): $topic');
+        return false;
+      }
+
       await _messaging.subscribeToTopic(topic);
       log('Subscribed to FCM topic: $topic');
+      return true;
     } catch (e, st) {
       log('Failed to subscribe to FCM topic: $topic', error: e, stackTrace: st);
-      rethrow;
+      return false;
     }
   }
 

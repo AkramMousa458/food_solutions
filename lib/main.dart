@@ -45,12 +45,19 @@ Future<void> main() async {
       logger.w('FCM token unavailable (permissions or APNS may be pending)');
     }
 
-    await PushNotificationService.instance.subscribeToTopic(
+    final subscribed = await PushNotificationService.instance.subscribeToTopic(
       PushNotificationService.allUsersTopic,
     );
-    logger.i(
-      'Subscribed to FCM topic: ${PushNotificationService.allUsersTopic}',
-    );
+    if (subscribed) {
+      logger.i(
+        'Subscribed to FCM topic: ${PushNotificationService.allUsersTopic}',
+      );
+    } else {
+      logger.w(
+        'Could not subscribe to FCM topic yet: '
+        '${PushNotificationService.allUsersTopic}',
+      );
+    }
 
     await setupLocator(logger: logger);
 

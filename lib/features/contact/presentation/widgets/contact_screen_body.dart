@@ -98,7 +98,7 @@ class ContactScreenBody extends StatelessWidget {
                   SizedBox(height: 50.h),
                   CustomButton(
                         text: translate('contact_whatsapp_btn'),
-                        icon: const Icon(
+                        icon: const FaIcon(
                           FontAwesomeIcons.whatsapp,
                           color: AppColors.white,
                           size: 20,
