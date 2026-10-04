@@ -10,6 +10,9 @@ class AuthTextField extends StatelessWidget {
   final String hintKey;
   final IconData icon;
   final TextInputType keyboardType;
+  final TextEditingController? controller;
+  final String? Function(String?)? validator;
+  final bool isEnabled;
 
   const AuthTextField({
     super.key,
@@ -17,6 +20,9 @@ class AuthTextField extends StatelessWidget {
     required this.hintKey,
     required this.icon,
     this.keyboardType = TextInputType.text,
+    this.controller,
+    this.validator,
+    this.isEnabled = true,
   });
 
   @override
@@ -40,8 +46,11 @@ class AuthTextField extends StatelessWidget {
           ),
         ),
         SizedBox(height: 8.h),
-        TextField(
+        TextFormField(
+          controller: controller,
+          enabled: isEnabled,
           keyboardType: keyboardType,
+          validator: validator,
           style: AppStyles.textstyle14.copyWith(
             color: textColor,
             fontWeight: FontWeight.w500,
@@ -58,6 +67,7 @@ class AuthTextField extends StatelessWidget {
                 ? AppColors.darkInputFill
                 : AppColors.lightInputFill,
             isDense: true,
+            errorMaxLines: 2,
             contentPadding: EdgeInsets.symmetric(
               horizontal: 14.w,
               vertical: 16.h,

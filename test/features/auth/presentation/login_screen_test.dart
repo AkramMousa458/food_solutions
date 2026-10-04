@@ -1,14 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:dartz/dartz.dart';
+import 'package:food_solutions/core/error/failure.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/utils/assets.dart';
+import 'package:food_solutions/core/utils/service_locator.dart';
+import 'package:food_solutions/features/auth/data/models/send_otp_request_model.dart';
+import 'package:food_solutions/features/auth/data/models/send_otp_response_model.dart';
+import 'package:food_solutions/features/auth/data/models/verify_otp_request_model.dart';
+import 'package:food_solutions/features/auth/data/models/verify_otp_response_model.dart';
+import 'package:food_solutions/features/auth/data/repo/auth_repo.dart';
+import 'package:food_solutions/features/auth/presentation/manager/register_cubit.dart';
 import 'package:food_solutions/features/auth/presentation/screens/login_screen.dart';
 import 'package:food_solutions/features/auth/presentation/screens/register_screen.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() async {
+    await locator.reset();
+    locator.registerFactory<RegisterCubit>(
+      () => RegisterCubit(_IdleAuthRepo()),
+    );
+  });
+
+  tearDown(() async {
+    await locator.reset();
+  });
 
   testWidgets('opens register from login and returns to sign in', (
     tester,
@@ -62,4 +82,20 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Welcome'), findsOneWidget);
   });
+}
+
+class _IdleAuthRepo implements AuthRepo {
+  @override
+  Future<Either<ServerFailure, SendOtpResponseModel>> sendOtp(
+    SendOtpRequestModel request,
+  ) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<ServerFailure, VerifyOtpResponseModel>> verifyOtp(
+    VerifyOtpRequestModel request,
+  ) async {
+    throw UnimplementedError();
+  }
 }

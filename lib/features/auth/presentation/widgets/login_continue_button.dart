@@ -6,8 +6,15 @@ import 'package:food_solutions/core/utils/app_styles.dart';
 
 class LoginContinueButton extends StatelessWidget {
   final String labelKey;
+  final VoidCallback? onPressed;
+  final bool isLoading;
 
-  const LoginContinueButton({super.key, this.labelKey = 'login_continue'});
+  const LoginContinueButton({
+    super.key,
+    this.labelKey = 'login_continue',
+    this.onPressed,
+    this.isLoading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,36 +22,51 @@ class LoginContinueButton extends StatelessWidget {
       width: double.infinity,
       height: 52.h,
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: isLoading ? null : (onPressed ?? () {}),
         style: ElevatedButton.styleFrom(
           elevation: 0,
           backgroundColor: AppColors.primary,
+          disabledBackgroundColor: AppColors.primary,
           foregroundColor: AppColors.white,
+          disabledForegroundColor: AppColors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14.r),
           ),
         ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Flexible(
-                child: Text(
-                  translate(labelKey),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppStyles.textstyle16.copyWith(
-                    color: AppColors.white,
-                    fontWeight: FontWeight.w700,
-                  ),
+        child: isLoading
+            ? SizedBox(
+                width: 22.r,
+                height: 22.r,
+                child: const CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.white,
+                ),
+              )
+            : Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        translate(labelKey),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppStyles.textstyle16.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Icon(
+                      Icons.arrow_forward,
+                      size: 18.sp,
+                      color: AppColors.white,
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(width: 8.w),
-              Icon(Icons.arrow_forward, size: 18.sp, color: AppColors.white),
-            ],
-          ),
-        ),
       ),
     );
   }

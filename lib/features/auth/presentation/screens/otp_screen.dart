@@ -3,25 +3,29 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
 import 'package:food_solutions/core/utils/service_locator.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';
-import 'package:food_solutions/features/auth/presentation/manager/register_cubit.dart';
-import 'package:food_solutions/features/auth/presentation/widgets/register_screen_body.dart';
+import 'package:food_solutions/features/auth/presentation/manager/otp_cubit.dart';
+import 'package:food_solutions/features/auth/presentation/widgets/otp_screen_body.dart';
 
-class RegisterScreen extends StatelessWidget {
-  static const String routeName = '/register';
+class OtpScreen extends StatelessWidget {
+  static const String routeName = '/otp';
 
-  const RegisterScreen({super.key});
+  final String identifier;
+
+  const OtpScreen({super.key, required this.identifier});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => locator<RegisterCubit>(),
-      child: const _RegisterView(),
+      create: (_) => locator<OtpCubit>(),
+      child: _OtpView(identifier: identifier),
     );
   }
 }
 
-class _RegisterView extends StatelessWidget {
-  const _RegisterView();
+class _OtpView extends StatelessWidget {
+  final String identifier;
+
+  const _OtpView({required this.identifier});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +34,7 @@ class _RegisterView extends StatelessWidget {
       backgroundColor: isDark
           ? AppColors.darkScaffold
           : AppColors.lightScaffold,
-      body: const RegisterScreenBody(),
+      body: OtpScreenBody(identifier: identifier),
     );
   }
 }

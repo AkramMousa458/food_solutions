@@ -8,11 +8,17 @@ import 'package:food_solutions/core/utils/theme_utils.dart';
 class AuthPasswordField extends StatefulWidget {
   final String labelKey;
   final String hintKey;
+  final TextEditingController? controller;
+  final String? Function(String?)? validator;
+  final bool isEnabled;
 
   const AuthPasswordField({
     super.key,
     required this.labelKey,
     required this.hintKey,
+    this.controller,
+    this.validator,
+    this.isEnabled = true,
   });
 
   @override
@@ -49,8 +55,11 @@ class _AuthPasswordFieldState extends State<AuthPasswordField> {
           ),
         ),
         SizedBox(height: 8.h),
-        TextField(
+        TextFormField(
+          controller: widget.controller,
+          enabled: widget.isEnabled,
           obscureText: _isObscured,
+          validator: widget.validator,
           style: AppStyles.textstyle14.copyWith(
             color: textColor,
             fontWeight: FontWeight.w500,
@@ -63,7 +72,7 @@ class _AuthPasswordFieldState extends State<AuthPasswordField> {
             ),
             prefixIcon: Icon(Icons.lock_outline, color: accent, size: 20.sp),
             suffixIcon: IconButton(
-              onPressed: _toggleVisibility,
+              onPressed: widget.isEnabled ? _toggleVisibility : null,
               icon: Icon(
                 _isObscured
                     ? Icons.visibility_outlined
@@ -77,6 +86,7 @@ class _AuthPasswordFieldState extends State<AuthPasswordField> {
                 ? AppColors.darkInputFill
                 : AppColors.lightInputFill,
             isDense: true,
+            errorMaxLines: 2,
             contentPadding: EdgeInsets.symmetric(
               horizontal: 14.w,
               vertical: 16.h,
