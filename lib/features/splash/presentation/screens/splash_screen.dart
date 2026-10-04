@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_solutions/core/utils/assets.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';
-import 'package:food_solutions/features/base/presentation/screens/base_screen.dart';
+import 'package:food_solutions/features/auth/presentation/screens/login_screen.dart';
 import 'package:go_router/go_router.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -24,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void _navigateToNextScreen() {
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
-        context.go(BaseScreen.routeName);
+        context.go(LoginScreen.routeName);
       }
     });
   }
