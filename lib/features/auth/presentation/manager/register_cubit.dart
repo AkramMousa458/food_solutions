@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_solutions/core/error/failure.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
-import 'package:food_solutions/features/auth/data/models/send_otp_request_model.dart';
-import 'package:food_solutions/features/auth/data/models/send_otp_response_model.dart';
+import 'package:food_solutions/features/auth/data/models/register_request_model.dart';
+import 'package:food_solutions/features/auth/data/models/register_response_model.dart';
 import 'package:food_solutions/features/auth/data/repo/auth_repo.dart';
 import 'package:food_solutions/features/auth/presentation/manager/register_state.dart';
 
@@ -70,7 +70,7 @@ class RegisterCubit extends Cubit<RegisterState> {
     return null;
   }
 
-  Future<void> sendRegistrationOtp() async {
+  Future<void> register() async {
     if (state is RegisterLoading) return;
     if (!canSubmit) {
       emit(
@@ -82,10 +82,16 @@ class RegisterCubit extends Cubit<RegisterState> {
       return;
     }
     emit(const RegisterLoading());
-    final result = await _authRepo.sendOtp(
-      SendOtpRequestModel(identifier: emailController.text.trim()),
+    final result = await _authRepo.register(
+      RegisterRequestModel(
+        name: nameController.text.trim(),
+        phone: phoneController.text.trim(),
+        email: emailController.text.trim(),
+        password: passwordController.text,
+        passwordConfirmation: confirmPasswordController.text,
+      ),
     );
-    result.fold(_emitFailure, _emitOtpSent);
+    result.fold(_emitFailure, _emitRegistered);
   }
 
   void _emitFailure(ServerFailure failure) {
@@ -98,8 +104,8 @@ class RegisterCubit extends Cubit<RegisterState> {
     );
   }
 
-  void _emitOtpSent(SendOtpResponseModel response) {
-    emit(RegisterOtpSent(response: response));
+  void _emitRegistered(RegisterResponseModel response) {
+    emit(RegisterSuccess(response: response));
   }
 
   @override

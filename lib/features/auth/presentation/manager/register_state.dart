@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:food_solutions/core/error/failure.dart';
-import 'package:food_solutions/features/auth/data/models/send_otp_response_model.dart';
+import 'package:food_solutions/features/auth/data/models/register_response_model.dart';
 
 abstract class RegisterState extends Equatable {
   const RegisterState();
@@ -17,19 +17,18 @@ class RegisterLoading extends RegisterState {
   const RegisterLoading();
 }
 
-class RegisterOtpSent extends RegisterState {
-  final SendOtpResponseModel response;
+class RegisterSuccess extends RegisterState {
+  final RegisterResponseModel response;
 
-  const RegisterOtpSent({required this.response});
+  const RegisterSuccess({required this.response});
 
   @override
   List<Object?> get props => [
     response.isSuccess,
     response.message,
+    response.requiresVerification,
     response.identifier,
-    response.type,
-    response.expiresAt,
-    response.code,
+    response.user?.id,
   ];
 }
 

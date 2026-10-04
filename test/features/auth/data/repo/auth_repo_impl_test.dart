@@ -3,6 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:food_solutions/core/error/failure.dart';
 import 'package:food_solutions/core/utils/endpoint.dart';
 import 'package:food_solutions/features/auth/data/data_sources/auth_remote_data_source.dart';
+import 'package:food_solutions/features/auth/data/data_sources/auth_session_data_source.dart';
+import 'package:food_solutions/features/auth/data/models/login_request_model.dart';
+import 'package:food_solutions/features/auth/data/models/login_response_model.dart';
+import 'package:food_solutions/features/auth/data/models/register_request_model.dart';
 import 'package:food_solutions/features/auth/data/models/send_otp_request_model.dart';
 import 'package:food_solutions/features/auth/data/models/verify_otp_request_model.dart';
 import 'package:food_solutions/features/auth/data/repo/auth_repo_impl.dart';
@@ -127,6 +131,7 @@ void main() {
     expect(response.isSuccess, isTrue);
     expect(response.isVerified, isTrue);
     expect(response.message, 'تم التحقق من الرمز بنجاح.');
+    expect(response.user, isNull);
     expect(response.token, isNull);
   });
 
@@ -190,6 +195,169 @@ void main() {
     expect(actualFailure.status, ApiFailureStatus.unsuccessful);
     expect(actualFailure.message, inputMessage);
   });
+
+  test('saves the session when login succeeds', () async {
+    const inputLogin = LoginRequestModel(
+      emailOrPhone: 'akrammousa458@gmail.com',
+      password: '12345678',
+    );
+    final mockDataSource = _MockAuthRemoteDataSource(
+      response: <String, dynamic>{
+        'token': '4|session-token',
+        'user': <String, dynamic>{
+          'id': 4,
+          'name': 'محمد أحمد',
+          'email': 'mohmedetman955@gmail.com',
+          'phone': '0101255874141',
+          'email_verified_at': '2026-09-30T23:36:10.000000Z',
+          'phone_verified_at': null,
+          'role': 'client',
+          'created_at': '2026-09-30T23:35:34.000000Z',
+          'updated_at': '2026-09-30T23:36:10.000000Z',
+          'establishments': <Object>[],
+        },
+      },
+    );
+    final mockSession = _RecordingAuthSession();
+    final repo = AuthRepoImpl(mockDataSource, sessionDataSource: mockSession);
+    final actualResult = await repo.login(inputLogin);
+    final session = actualResult.getOrElse(
+      () => throw StateError('expected success'),
+    );
+    expect(
+      mockDataSource.lastLoginRequest?.emailOrPhone,
+      inputLogin.emailOrPhone,
+    );
+    expect(mockDataSource.lastLoginRequest?.password, inputLogin.password);
+    expect(session.token, '4|session-token');
+    expect(session.user.id, 4);
+    expect(session.user.name, 'محمد أحمد');
+    expect(session.user.email, 'mohmedetman955@gmail.com');
+    expect(session.user.phone, '0101255874141');
+    expect(session.user.role, 'client');
+    expect(session.user.phoneVerifiedAt, isNull);
+    expect(session.user.establishments, isEmpty);
+    expect(mockSession.saved?.token, session.token);
+  });
+
+  test('maps invalid login credentials to the field error', () async {
+    const inputMessage = 'بيانات الدخول غير صحيحة.';
+    final requestOptions = RequestOptions(path: Endpoint.login);
+    final mockDataSource = _MockAuthRemoteDataSource(
+      error: DioException(
+        requestOptions: requestOptions,
+        type: DioExceptionType.badResponse,
+        response: Response<Map<String, dynamic>>(
+          requestOptions: requestOptions,
+          statusCode: 422,
+          data: <String, dynamic>{
+            'message': inputMessage,
+            'errors': <String, dynamic>{
+              'email_or_phone': <String>[inputMessage],
+            },
+          },
+        ),
+      ),
+    );
+    final mockSession = _RecordingAuthSession();
+    final repo = AuthRepoImpl(mockDataSource, sessionDataSource: mockSession);
+    final actualResult = await repo.login(
+      const LoginRequestModel(
+        emailOrPhone: 'akrammousa458@gmail.com',
+        password: '12345678',
+      ),
+    );
+    final actualFailure = actualResult.fold<ServerFailure>(
+      (failure) => failure,
+      (_) => throw StateError('expected failure'),
+    );
+    expect(actualFailure.message, inputMessage);
+    expect(actualFailure.status, ApiFailureStatus.validation);
+    expect(actualFailure.statusCode, 422);
+    expect(mockSession.saved, isNull);
+  });
+
+  test('returns the created account when registration succeeds', () async {
+    const inputRegister = RegisterRequestModel(
+      name: 'Akram Mousa',
+      phone: '01097066405',
+      email: 'akramyanas458@gmail.com',
+      password: '12345678',
+      passwordConfirmation: '12345678',
+    );
+    const inputMessage =
+        'تم إنشاء الحساب بنجاح. يرجى تفعيل الحساب باستخدام رمز التحقق (OTP) المرسل إليك.';
+    final mockDataSource = _MockAuthRemoteDataSource(
+      response: <String, dynamic>{
+        'success': true,
+        'message': inputMessage,
+        'requires_verification': true,
+        'identifier': 'akramyanas458@gmail.com',
+        'user': <String, dynamic>{
+          'name': 'Akram Mousa',
+          'phone': '01097066405',
+          'email': 'akramyanas458@gmail.com',
+          'role': 'client',
+          'updated_at': '2026-10-04T23:30:28.000000Z',
+          'created_at': '2026-10-04T23:30:28.000000Z',
+          'id': 7,
+        },
+      },
+    );
+    final repo = AuthRepoImpl(mockDataSource);
+    final actualResult = await repo.register(inputRegister);
+    final account = actualResult.getOrElse(
+      () => throw StateError('expected success'),
+    );
+    expect(mockDataSource.lastRegisterRequest?.name, inputRegister.name);
+    expect(mockDataSource.lastRegisterRequest?.phone, inputRegister.phone);
+    expect(mockDataSource.lastRegisterRequest?.email, inputRegister.email);
+    expect(
+      mockDataSource.lastRegisterRequest?.password,
+      inputRegister.password,
+    );
+    expect(
+      mockDataSource.lastRegisterRequest?.passwordConfirmation,
+      inputRegister.passwordConfirmation,
+    );
+    expect(account.isSuccess, isTrue);
+    expect(account.requiresVerification, isTrue);
+    expect(account.identifier, 'akramyanas458@gmail.com');
+    expect(account.message, inputMessage);
+    expect(account.user?.id, 7);
+    expect(account.user?.name, 'Akram Mousa');
+    expect(account.user?.phone, '01097066405');
+    expect(account.user?.role, 'client');
+  });
+
+  test('treats a failed registration body as a failure', () async {
+    const inputMessage = 'البريد الإلكتروني مستخدم بالفعل.';
+    final mockDataSource = _MockAuthRemoteDataSource(
+      response: <String, dynamic>{
+        'success': false,
+        'message': inputMessage,
+        'requires_verification': false,
+        'identifier': '',
+        'user': null,
+      },
+    );
+    final repo = AuthRepoImpl(mockDataSource);
+    final actualResult = await repo.register(
+      const RegisterRequestModel(
+        name: 'Akram Mousa',
+        phone: '01097066405',
+        email: 'akramyanas458@gmail.com',
+        password: '12345678',
+        passwordConfirmation: '12345678',
+      ),
+    );
+    final actualFailure = actualResult.fold<ServerFailure>(
+      (failure) => failure,
+      (_) => throw StateError('expected failure'),
+    );
+    expect(actualFailure.status, ApiFailureStatus.unsuccessful);
+    expect(actualFailure.message, inputMessage);
+  });
 }
 
 class _MockAuthRemoteDataSource implements AuthRemoteDataSource {
@@ -197,6 +365,8 @@ class _MockAuthRemoteDataSource implements AuthRemoteDataSource {
   final Object? error;
   SendOtpRequestModel? lastRequest;
   VerifyOtpRequestModel? lastVerifyRequest;
+  LoginRequestModel? lastLoginRequest;
+  RegisterRequestModel? lastRegisterRequest;
 
   _MockAuthRemoteDataSource({this.response, this.error});
 
@@ -214,5 +384,30 @@ class _MockAuthRemoteDataSource implements AuthRemoteDataSource {
     final thrown = error;
     if (thrown != null) throw thrown;
     return response!;
+  }
+
+  @override
+  Future<Map<String, dynamic>> login(LoginRequestModel request) async {
+    lastLoginRequest = request;
+    final thrown = error;
+    if (thrown != null) throw thrown;
+    return response!;
+  }
+
+  @override
+  Future<Map<String, dynamic>> register(RegisterRequestModel request) async {
+    lastRegisterRequest = request;
+    final thrown = error;
+    if (thrown != null) throw thrown;
+    return response!;
+  }
+}
+
+class _RecordingAuthSession implements AuthSessionDataSource {
+  LoginResponseModel? saved;
+
+  @override
+  Future<void> saveSession(LoginResponseModel session) async {
+    saved = session;
   }
 }

@@ -6,14 +6,20 @@ import 'package:food_solutions/core/error/failure.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/theme/theme_light.dart';
 import 'package:food_solutions/core/utils/service_locator.dart';
+import 'package:food_solutions/features/auth/data/models/login_request_model.dart';
+import 'package:food_solutions/features/auth/data/models/login_response_model.dart';
+import 'package:food_solutions/features/auth/data/models/register_request_model.dart';
+import 'package:food_solutions/features/auth/data/models/register_response_model.dart';
 import 'package:food_solutions/features/auth/data/models/send_otp_request_model.dart';
 import 'package:food_solutions/features/auth/data/models/send_otp_response_model.dart';
 import 'package:food_solutions/features/auth/data/models/verify_otp_request_model.dart';
 import 'package:food_solutions/features/auth/data/models/verify_otp_response_model.dart';
 import 'package:food_solutions/features/auth/data/repo/auth_repo.dart';
+import 'package:food_solutions/features/auth/presentation/manager/login_cubit.dart';
 import 'package:food_solutions/features/auth/presentation/manager/otp_cubit.dart';
 import 'package:food_solutions/features/auth/presentation/screens/login_screen.dart';
 import 'package:food_solutions/features/auth/presentation/screens/otp_screen.dart';
+import 'package:food_solutions/features/auth/presentation/widgets/otp_verify_card.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
@@ -26,6 +32,7 @@ void main() {
     await locator.reset();
     mockAuthRepo = _MockAuthRepo();
     locator.registerFactory<OtpCubit>(() => OtpCubit(mockAuthRepo));
+    locator.registerFactory<LoginCubit>(() => LoginCubit(mockAuthRepo));
     translations = await AppTranslations.init(
       fallbackLocale: 'en',
       supportedLocales: ['en', 'ar'],
@@ -100,7 +107,8 @@ void main() {
     await tester.pump();
     expect(find.text('Email verified'), findsOneWidget);
     expect(find.text(inputMessage), findsOneWidget);
-    await tester.tap(find.text('Continue to sign in'));
+    expect(find.byIcon(Icons.check_circle_rounded), findsOneWidget);
+    await tester.pump(otpVerifiedNavigationDelay);
     await tester.pumpAndSettle();
     expect(find.text('Welcome'), findsOneWidget);
   });
@@ -173,5 +181,19 @@ class _MockAuthRepo implements AuthRepo {
         type: 'email',
       ),
     );
+  }
+
+  @override
+  Future<Either<ServerFailure, LoginResponseModel>> login(
+    LoginRequestModel request,
+  ) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<ServerFailure, RegisterResponseModel>> register(
+    RegisterRequestModel request,
+  ) async {
+    throw UnimplementedError();
   }
 }

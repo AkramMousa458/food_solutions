@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_solutions/core/error/failure.dart';
@@ -116,29 +117,65 @@ class _OtpVerifyCardState extends State<OtpVerifyCard> {
   }
 }
 
-class _OtpVerifiedContent extends StatelessWidget {
+const Duration otpVerifiedNavigationDelay = Duration(milliseconds: 1500);
+
+class _OtpVerifiedContent extends StatefulWidget {
   final String message;
 
   const _OtpVerifiedContent({required this.message});
 
   @override
+  State<_OtpVerifiedContent> createState() => _OtpVerifiedContentState();
+}
+
+class _OtpVerifiedContentState extends State<_OtpVerifiedContent> {
+  @override
+  void initState() {
+    super.initState();
+    Future<void>.delayed(otpVerifiedNavigationDelay, () {
+      if (!mounted) return;
+      context.go(LoginScreen.routeName);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final title = translate('otp_verified_title');
-    final detail = message.trim();
+    final detail = widget.message.trim();
+    final titleColor = Theme.of(context).textTheme.bodyLarge?.color;
     return AuthSurfaceCard(
       child: Column(
         children: [
-          Icon(
-            Icons.verified_outlined,
-            color: AppColors.success500,
-            size: 52.sp,
-          ),
-          SizedBox(height: 12.h),
+          Container(
+                width: 88.r,
+                height: 88.r,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColors.success500.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.check_circle_rounded,
+                  color: AppColors.success500,
+                  size: 56.sp,
+                ),
+              )
+              .animate()
+              .fadeIn(duration: 250.ms)
+              .scale(
+                begin: const Offset(0.35, 0.35),
+                duration: 700.ms,
+                curve: Curves.elasticOut,
+              ),
+          SizedBox(height: 14.h),
           Text(
             title,
             textAlign: TextAlign.center,
-            style: AppStyles.textstyle16.copyWith(fontWeight: FontWeight.w700),
-          ),
+            style: AppStyles.textstyle16.copyWith(
+              color: titleColor,
+              fontWeight: FontWeight.w700,
+            ),
+          ).animate().fadeIn(delay: 200.ms, duration: 350.ms),
           if (detail.isNotEmpty) ...[
             SizedBox(height: 8.h),
             Text(
@@ -147,13 +184,8 @@ class _OtpVerifiedContent extends StatelessWidget {
               style: AppStyles.textstyle14.copyWith(
                 fontWeight: FontWeight.w500,
               ),
-            ),
+            ).animate().fadeIn(delay: 320.ms, duration: 350.ms),
           ],
-          SizedBox(height: 16.h),
-          LoginContinueButton(
-            labelKey: 'otp_continue',
-            onPressed: () => context.go(LoginScreen.routeName),
-          ),
         ],
       ),
     );

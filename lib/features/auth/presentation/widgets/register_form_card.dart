@@ -34,15 +34,19 @@ class _RegisterFormCardState extends State<RegisterFormCard> {
       });
       return;
     }
-    context.read<RegisterCubit>().sendRegistrationOtp();
+    context.read<RegisterCubit>().register();
   }
 
   void _handleState(BuildContext context, RegisterState state) {
-    if (state is RegisterOtpSent) {
+    if (state is RegisterSuccess) {
       final message = state.response.message.trim().isEmpty
           ? 'register_otp_sent'
           : state.response.message;
       CustomSnackBar.showSuccess(context, message);
+      if (!state.response.requiresVerification) {
+        context.go(LoginScreen.routeName);
+        return;
+      }
       final responseIdentifier = state.response.identifier.trim();
       final identifier = responseIdentifier.isNotEmpty
           ? responseIdentifier

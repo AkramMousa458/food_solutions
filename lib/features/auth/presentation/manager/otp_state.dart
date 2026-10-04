@@ -31,6 +31,7 @@ class OtpVerified extends OtpState {
     response.isSuccess,
     response.isVerified,
     response.message,
+    response.user?.id,
     response.token,
   ];
 }

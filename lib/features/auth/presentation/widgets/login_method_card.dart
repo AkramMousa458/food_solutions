@@ -1,42 +1,93 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food_solutions/core/error/failure.dart';
+import 'package:food_solutions/core/utils/custom_snack_bar.dart';
+import 'package:food_solutions/features/auth/presentation/manager/login_cubit.dart';
+import 'package:food_solutions/features/auth/presentation/manager/login_state.dart';
 import 'package:food_solutions/features/auth/presentation/screens/register_screen.dart';
 import 'package:food_solutions/features/auth/presentation/widgets/auth_account_link.dart';
 import 'package:food_solutions/features/auth/presentation/widgets/auth_password_field.dart';
 import 'package:food_solutions/features/auth/presentation/widgets/auth_surface_card.dart';
 import 'package:food_solutions/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:food_solutions/features/auth/presentation/widgets/login_continue_button.dart';
+import 'package:food_solutions/features/base/presentation/screens/base_screen.dart';
 import 'package:go_router/go_router.dart';
 
-class LoginMethodCard extends StatelessWidget {
+class LoginMethodCard extends StatefulWidget {
   const LoginMethodCard({super.key});
 
   @override
+  State<LoginMethodCard> createState() => _LoginMethodCardState();
+}
+
+class _LoginMethodCardState extends State<LoginMethodCard> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  void _submit() {
+    FocusManager.instance.primaryFocus?.unfocus();
+    final isValid = _formKey.currentState?.validate() ?? false;
+    if (!isValid) return;
+    context.read<LoginCubit>().login();
+  }
+
+  void _handleState(BuildContext context, LoginState state) {
+    if (state is LoginSuccess) {
+      context.go(BaseScreen.routeName);
+      return;
+    }
+    if (state is! LoginFailure) return;
+    if (state.status == ApiFailureStatus.tooManyRequests) {
+      CustomSnackBar.showWarning(context, state.message);
+      return;
+    }
+    CustomSnackBar.showError(context, state.message);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return AuthSurfaceCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const AuthTextField(
-            labelKey: 'login_email_label',
-            hintKey: 'login_email_hint',
-            icon: Icons.mail_outline,
-            keyboardType: TextInputType.emailAddress,
+    return BlocConsumer<LoginCubit, LoginState>(
+      listener: _handleState,
+      builder: (context, state) {
+        final cubit = context.read<LoginCubit>();
+        final isLoading = state is LoginLoading;
+        return Form(
+          key: _formKey,
+          child: AuthSurfaceCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AuthTextField(
+                  labelKey: 'login_email_label',
+                  hintKey: 'login_email_hint',
+                  icon: Icons.mail_outline,
+                  keyboardType: TextInputType.emailAddress,
+                  controller: cubit.identifierController,
+                  validator: cubit.validateIdentifier,
+                  isEnabled: !isLoading,
+                ),
+                SizedBox(height: 14.h),
+                AuthPasswordField(
+                  labelKey: 'login_password_label',
+                  hintKey: 'login_password_hint',
+                  controller: cubit.passwordController,
+                  validator: cubit.validatePassword,
+                  isEnabled: !isLoading,
+                ),
+                SizedBox(height: 16.h),
+                LoginContinueButton(isLoading: isLoading, onPressed: _submit),
+                AuthAccountLink(
+                  promptKey: 'login_no_account',
+                  actionKey: 'login_create_account',
+                  onActionTap: isLoading
+                      ? () {}
+                      : () => context.push(RegisterScreen.routeName),
+                ),
+              ],
+            ),
           ),
-          SizedBox(height: 14.h),
-          const AuthPasswordField(
-            labelKey: 'login_password_label',
-            hintKey: 'login_password_hint',
-          ),
-          SizedBox(height: 16.h),
-          const LoginContinueButton(),
-          AuthAccountLink(
-            promptKey: 'login_no_account',
-            actionKey: 'login_create_account',
-            onActionTap: () => context.push(RegisterScreen.routeName),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

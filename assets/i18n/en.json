@@ -104,8 +104,8 @@
   "home_title": "Our Partner in the World of Restaurants",
   "home_subtitle": "We Help You Develop and Manage Your Restaurant Efficiently and Professionally",
   "login_welcome_title": "Welcome",
-  "login_welcome_subtitle": "Email and password",
-  "login_email_label": "Work email",
+  "login_welcome_subtitle": "Email or phone and password",
+  "login_email_label": "Email or phone",
   "login_email_hint": "name@restaurant.com",
   "login_password_label": "Password",
   "login_password_hint": "Enter your password",
@@ -158,5 +158,6 @@
   "otp_invalid_code": "Enter the 6-digit code",
   "otp_verified_title": "Email verified",
   "otp_continue": "Continue to sign in",
-  "otp_resend_sent": "A new code has been sent."
+  "otp_resend_sent": "A new code has been sent.",
+  "login_identifier_invalid": "Enter a valid email or phone number."
 }

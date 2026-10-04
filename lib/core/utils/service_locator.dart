@@ -45,8 +45,10 @@ import 'package:food_solutions/features/reviews/data/repo/reviews_repo_impl.dart
 import 'package:food_solutions/features/reviews/presentation/manager/reviews_cubit.dart';
 
 import 'package:food_solutions/features/auth/data/data_sources/auth_remote_data_source.dart';
+import 'package:food_solutions/features/auth/data/data_sources/auth_session_data_source.dart';
 import 'package:food_solutions/features/auth/data/repo/auth_repo.dart';
 import 'package:food_solutions/features/auth/data/repo/auth_repo_impl.dart';
+import 'package:food_solutions/features/auth/presentation/manager/login_cubit.dart';
 import 'package:food_solutions/features/auth/presentation/manager/otp_cubit.dart';
 import 'package:food_solutions/features/auth/presentation/manager/register_cubit.dart';
 
@@ -201,9 +203,19 @@ Future<void> setupLocator({Logger? logger}) async {
   locator.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(locator<ApiService>()),
   );
-  locator.registerLazySingleton<AuthRepo>(
-    () => AuthRepoImpl(locator<AuthRemoteDataSource>()),
+  locator.registerLazySingleton<AuthSessionDataSource>(
+    () => AuthSessionDataSourceImpl(
+      locator<LocalStorage>(),
+      locator<ApiService>(),
+    ),
   );
+  locator.registerLazySingleton<AuthRepo>(
+    () => AuthRepoImpl(
+      locator<AuthRemoteDataSource>(),
+      sessionDataSource: locator<AuthSessionDataSource>(),
+    ),
+  );
+  locator.registerFactory<LoginCubit>(() => LoginCubit(locator<AuthRepo>()));
   locator.registerFactory<RegisterCubit>(
     () => RegisterCubit(locator<AuthRepo>()),
   );

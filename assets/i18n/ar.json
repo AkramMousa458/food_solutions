@@ -103,8 +103,8 @@
   "home_title": "شريكك في عالم المطاعم",
   "home_subtitle": "نساعدك في تطوير وإدارة مطعمك بكفاءة واحترافية",
   "login_welcome_title": "أهلاً بك",
-  "login_welcome_subtitle": "البريد وكلمة المرور",
-  "login_email_label": "بريد العمل",
+  "login_welcome_subtitle": "البريد أو الجوال وكلمة المرور",
+  "login_email_label": "البريد أو الجوال",
   "login_email_hint": "name@restaurant.com",
   "login_password_label": "كلمة المرور",
   "login_password_hint": "أدخل كلمة المرور",
@@ -157,5 +157,6 @@
   "otp_invalid_code": "أدخل الرمز المكون من 6 أرقام",
   "otp_verified_title": "تم التحقق من البريد",
   "otp_continue": "المتابعة لتسجيل الدخول",
-  "otp_resend_sent": "تم إرسال رمز جديد."
+  "otp_resend_sent": "تم إرسال رمز جديد.",
+  "login_identifier_invalid": "أدخل بريداً إلكترونياً أو رقم جوال صحيحاً."
 }

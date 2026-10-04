@@ -4,6 +4,10 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:food_solutions/core/error/failure.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
+import 'package:food_solutions/features/auth/data/models/login_request_model.dart';
+import 'package:food_solutions/features/auth/data/models/login_response_model.dart';
+import 'package:food_solutions/features/auth/data/models/register_request_model.dart';
+import 'package:food_solutions/features/auth/data/models/register_response_model.dart';
 import 'package:food_solutions/features/auth/data/models/send_otp_request_model.dart';
 import 'package:food_solutions/features/auth/data/models/send_otp_response_model.dart';
 import 'package:food_solutions/features/auth/data/models/verify_otp_request_model.dart';
@@ -153,5 +157,19 @@ class _MockAuthRepo implements AuthRepo {
   ) async {
     lastSendRequest = request;
     return sendResult;
+  }
+
+  @override
+  Future<Either<ServerFailure, LoginResponseModel>> login(
+    LoginRequestModel request,
+  ) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<ServerFailure, RegisterResponseModel>> register(
+    RegisterRequestModel request,
+  ) async {
+    throw UnimplementedError();
   }
 }

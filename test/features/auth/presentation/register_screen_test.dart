@@ -7,6 +7,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:food_solutions/core/error/failure.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/utils/service_locator.dart';
+import 'package:food_solutions/features/auth/data/models/login_request_model.dart';
+import 'package:food_solutions/features/auth/data/models/login_response_model.dart';
+import 'package:food_solutions/features/auth/data/models/register_request_model.dart';
+import 'package:food_solutions/features/auth/data/models/register_response_model.dart';
 import 'package:food_solutions/features/auth/data/models/send_otp_request_model.dart';
 import 'package:food_solutions/features/auth/data/models/send_otp_response_model.dart';
 import 'package:food_solutions/features/auth/data/models/verify_otp_request_model.dart';
@@ -49,26 +53,29 @@ void main() {
     expect(mockAuthRepo.callCount, 0);
   });
 
-  testWidgets('sends the email otp and shows the api message', (tester) async {
-    const inputMessage = 'Verification code sent.';
+  testWidgets('registers the account and opens verification', (tester) async {
+    const inputMessage =
+        'تم إنشاء الحساب بنجاح. يرجى تفعيل الحساب باستخدام رمز التحقق (OTP) المرسل إليك.';
     mockAuthRepo.pending =
-        Completer<Either<ServerFailure, SendOtpResponseModel>>();
+        Completer<Either<ServerFailure, RegisterResponseModel>>();
     await _pumpRegisterScreen(tester, translations);
     await _enterValidForm(tester);
     await tester.ensureVisible(find.byType(ElevatedButton));
     await tester.tap(find.byType(ElevatedButton));
     await tester.pump();
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    expect(mockAuthRepo.lastRequest?.identifier, 'akrammousa458@gmail.com');
-    expect(mockAuthRepo.lastRequest?.type, 'email');
+    expect(mockAuthRepo.lastRequest?.name, 'Mohamed Ahmed');
+    expect(mockAuthRepo.lastRequest?.phone, '966501234567');
+    expect(mockAuthRepo.lastRequest?.email, 'akrammousa458@gmail.com');
+    expect(mockAuthRepo.lastRequest?.password, 'password1');
+    expect(mockAuthRepo.lastRequest?.passwordConfirmation, 'password1');
     mockAuthRepo.pending!.complete(
       const Right(
-        SendOtpResponseModel(
+        RegisterResponseModel(
           isSuccess: true,
           message: inputMessage,
+          requiresVerification: true,
           identifier: 'akrammousa458@gmail.com',
-          type: 'email',
-          code: '510098',
         ),
       ),
     );
@@ -76,7 +83,6 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.text('Verify code'), findsOneWidget);
     expect(find.text(inputMessage), findsOneWidget);
-    expect(find.text('510098'), findsNothing);
   });
 
   testWidgets('shows the api error message', (tester) async {
@@ -155,26 +161,40 @@ GoRouter _registerRouter() {
 
 class _MockAuthRepo implements AuthRepo {
   int callCount = 0;
-  SendOtpRequestModel? lastRequest;
-  Either<ServerFailure, SendOtpResponseModel> result = const Left(
+  RegisterRequestModel? lastRequest;
+  Either<ServerFailure, RegisterResponseModel> result = const Left(
     ServerFailure(message: 'failed', status: ApiFailureStatus.unexpected),
   );
-  Completer<Either<ServerFailure, SendOtpResponseModel>>? pending;
+  Completer<Either<ServerFailure, RegisterResponseModel>>? pending;
 
   @override
-  Future<Either<ServerFailure, SendOtpResponseModel>> sendOtp(
-    SendOtpRequestModel request,
+  Future<Either<ServerFailure, RegisterResponseModel>> register(
+    RegisterRequestModel request,
   ) {
     callCount += 1;
     lastRequest = request;
     final completer = pending;
     if (completer != null) return completer.future;
-    return Future<Either<ServerFailure, SendOtpResponseModel>>.value(result);
+    return Future<Either<ServerFailure, RegisterResponseModel>>.value(result);
+  }
+
+  @override
+  Future<Either<ServerFailure, SendOtpResponseModel>> sendOtp(
+    SendOtpRequestModel request,
+  ) async {
+    throw UnimplementedError();
   }
 
   @override
   Future<Either<ServerFailure, VerifyOtpResponseModel>> verifyOtp(
     VerifyOtpRequestModel request,
+  ) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<ServerFailure, LoginResponseModel>> login(
+    LoginRequestModel request,
   ) async {
     throw UnimplementedError();
   }

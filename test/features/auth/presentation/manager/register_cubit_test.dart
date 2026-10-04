@@ -4,6 +4,10 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:food_solutions/core/error/failure.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
+import 'package:food_solutions/features/auth/data/models/login_request_model.dart';
+import 'package:food_solutions/features/auth/data/models/login_response_model.dart';
+import 'package:food_solutions/features/auth/data/models/register_request_model.dart';
+import 'package:food_solutions/features/auth/data/models/register_response_model.dart';
 import 'package:food_solutions/features/auth/data/models/send_otp_request_model.dart';
 import 'package:food_solutions/features/auth/data/models/send_otp_response_model.dart';
 import 'package:food_solutions/features/auth/data/models/verify_otp_request_model.dart';
@@ -52,7 +56,7 @@ void main() {
 
   test('does not call the api when the form is incomplete', () async {
     expect(cubit.canSubmit, isFalse);
-    await cubit.sendRegistrationOtp();
+    await cubit.register();
     expect(mockAuthRepo.callCount, 0);
     expect(cubit.state, isA<RegisterFailure>());
     final actualState = cubit.state as RegisterFailure;
@@ -60,28 +64,30 @@ void main() {
     expect(actualState.message, translate('validationError'));
   });
 
-  test('sends an email otp and emits the response', () async {
+  test('registers the account and emits the response', () async {
     _fillValidForm(cubit);
-    final expectedResponse = SendOtpResponseModel(
+    const expectedResponse = RegisterResponseModel(
       isSuccess: true,
-      message: 'تم إرسال رمز التحقق إلى بريدك الإلكتروني (Gmail) بنجاح.',
+      message:
+          'تم إنشاء الحساب بنجاح. يرجى تفعيل الحساب باستخدام رمز التحقق (OTP) المرسل إليك.',
+      requiresVerification: true,
       identifier: 'akrammousa458@gmail.com',
-      type: 'email',
-      expiresAt: DateTime.parse('2026-10-04T22:28:50+00:00'),
-      code: '510098',
     );
-    mockAuthRepo.result = Right(expectedResponse);
+    mockAuthRepo.result = const Right(expectedResponse);
     final actualStates = <RegisterState>[];
     final subscription = cubit.stream.listen(actualStates.add);
-    await cubit.sendRegistrationOtp();
+    await cubit.register();
     await Future<void>.delayed(Duration.zero);
     await subscription.cancel();
     expect(mockAuthRepo.callCount, 1);
-    expect(mockAuthRepo.lastRequest?.identifier, 'akrammousa458@gmail.com');
-    expect(mockAuthRepo.lastRequest?.type, SendOtpRequestModel.emailType);
+    expect(mockAuthRepo.lastRequest?.name, 'Mohamed Ahmed');
+    expect(mockAuthRepo.lastRequest?.phone, '966501234567');
+    expect(mockAuthRepo.lastRequest?.email, 'akrammousa458@gmail.com');
+    expect(mockAuthRepo.lastRequest?.password, 'password1');
+    expect(mockAuthRepo.lastRequest?.passwordConfirmation, 'password1');
     expect(actualStates, <RegisterState>[
       const RegisterLoading(),
-      RegisterOtpSent(response: expectedResponse),
+      const RegisterSuccess(response: expectedResponse),
     ]);
   });
 
@@ -94,7 +100,7 @@ void main() {
         statusCode: 429,
       ),
     );
-    await cubit.sendRegistrationOtp();
+    await cubit.register();
     final actualState = cubit.state as RegisterFailure;
     expect(actualState.status, ApiFailureStatus.tooManyRequests);
     expect(actualState.statusCode, 429);
@@ -104,25 +110,25 @@ void main() {
   test('ignores a second submit while the request is loading', () async {
     _fillValidForm(cubit);
     mockAuthRepo.pending =
-        Completer<Either<ServerFailure, SendOtpResponseModel>>();
-    final firstCall = cubit.sendRegistrationOtp();
-    final secondCall = cubit.sendRegistrationOtp();
+        Completer<Either<ServerFailure, RegisterResponseModel>>();
+    final firstCall = cubit.register();
+    final secondCall = cubit.register();
     expect(mockAuthRepo.callCount, 1);
     expect(cubit.state, isA<RegisterLoading>());
     mockAuthRepo.pending!.complete(
-      Right(
-        const SendOtpResponseModel(
+      const Right(
+        RegisterResponseModel(
           isSuccess: true,
           message: 'sent',
+          requiresVerification: true,
           identifier: 'akrammousa458@gmail.com',
-          type: 'email',
         ),
       ),
     );
     await firstCall;
     await secondCall;
     expect(mockAuthRepo.callCount, 1);
-    expect(cubit.state, isA<RegisterOtpSent>());
+    expect(cubit.state, isA<RegisterSuccess>());
   });
 }
 
@@ -136,26 +142,40 @@ void _fillValidForm(RegisterCubit cubit) {
 
 class _MockAuthRepo implements AuthRepo {
   int callCount = 0;
-  SendOtpRequestModel? lastRequest;
-  Either<ServerFailure, SendOtpResponseModel> result = Left(
+  RegisterRequestModel? lastRequest;
+  Either<ServerFailure, RegisterResponseModel> result = const Left(
     ServerFailure(message: 'failed', status: ApiFailureStatus.unexpected),
   );
-  Completer<Either<ServerFailure, SendOtpResponseModel>>? pending;
+  Completer<Either<ServerFailure, RegisterResponseModel>>? pending;
 
   @override
-  Future<Either<ServerFailure, SendOtpResponseModel>> sendOtp(
-    SendOtpRequestModel request,
+  Future<Either<ServerFailure, RegisterResponseModel>> register(
+    RegisterRequestModel request,
   ) {
     callCount += 1;
     lastRequest = request;
     final completer = pending;
     if (completer != null) return completer.future;
-    return Future<Either<ServerFailure, SendOtpResponseModel>>.value(result);
+    return Future<Either<ServerFailure, RegisterResponseModel>>.value(result);
+  }
+
+  @override
+  Future<Either<ServerFailure, SendOtpResponseModel>> sendOtp(
+    SendOtpRequestModel request,
+  ) async {
+    throw UnimplementedError();
   }
 
   @override
   Future<Either<ServerFailure, VerifyOtpResponseModel>> verifyOtp(
     VerifyOtpRequestModel request,
+  ) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<ServerFailure, LoginResponseModel>> login(
+    LoginRequestModel request,
   ) async {
     throw UnimplementedError();
   }

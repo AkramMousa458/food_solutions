@@ -4,7 +4,6 @@ import 'package:food_solutions/features/auth/presentation/widgets/auth_screen_ba
 import 'package:food_solutions/features/auth/presentation/widgets/login_brand_header.dart';
 import 'package:food_solutions/features/auth/presentation/widgets/login_footer_links.dart';
 import 'package:food_solutions/features/auth/presentation/widgets/login_method_card.dart';
-import 'package:food_solutions/features/auth/presentation/widgets/login_station_card.dart';
 
 class LoginScreenBody extends StatelessWidget {
   const LoginScreenBody({super.key});
@@ -17,7 +16,6 @@ class LoginScreenBody extends StatelessWidget {
         SizedBox(height: 22.h),
         const LoginMethodCard(),
         SizedBox(height: 14.h),
-        const LoginStationCard(),
         SizedBox(height: 22.h),
         const LoginFooterLinks(),
       ],

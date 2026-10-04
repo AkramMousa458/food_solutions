@@ -1,29 +1,29 @@
 import 'package:food_solutions/features/auth/data/models/auth_user_model.dart';
 
-class VerifyOtpResponseModel {
+class RegisterResponseModel {
   final bool isSuccess;
   final String message;
-  final bool isVerified;
+  final bool requiresVerification;
+  final String identifier;
   final AuthUserModel? user;
-  final String? token;
 
-  const VerifyOtpResponseModel({
+  const RegisterResponseModel({
     required this.isSuccess,
     required this.message,
-    required this.isVerified,
+    required this.requiresVerification,
+    required this.identifier,
     this.user,
-    this.token,
   });
 
-  factory VerifyOtpResponseModel.fromJson(Map<String, dynamic> json) {
+  factory RegisterResponseModel.fromJson(Map<String, dynamic> json) {
     final message = json['message'];
-    final token = json['token'];
-    return VerifyOtpResponseModel(
+    final identifier = json['identifier'];
+    return RegisterResponseModel(
       isSuccess: json['success'] == true,
       message: message is String ? message : '',
-      isVerified: json['verified'] == true,
+      requiresVerification: json['requires_verification'] == true,
+      identifier: identifier is String ? identifier : '',
       user: _readUser(json['user']),
-      token: token is String && token.isNotEmpty ? token : null,
     );
   }
 
@@ -31,9 +31,9 @@ class VerifyOtpResponseModel {
     return {
       'success': isSuccess,
       'message': message,
-      'verified': isVerified,
+      'requires_verification': requiresVerification,
+      'identifier': identifier,
       'user': user?.toJson(),
-      'token': token,
     };
   }
 }

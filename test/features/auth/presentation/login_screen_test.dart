@@ -6,11 +6,16 @@ import 'package:food_solutions/core/error/failure.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/utils/assets.dart';
 import 'package:food_solutions/core/utils/service_locator.dart';
+import 'package:food_solutions/features/auth/data/models/login_request_model.dart';
+import 'package:food_solutions/features/auth/data/models/login_response_model.dart';
+import 'package:food_solutions/features/auth/data/models/register_request_model.dart';
+import 'package:food_solutions/features/auth/data/models/register_response_model.dart';
 import 'package:food_solutions/features/auth/data/models/send_otp_request_model.dart';
 import 'package:food_solutions/features/auth/data/models/send_otp_response_model.dart';
 import 'package:food_solutions/features/auth/data/models/verify_otp_request_model.dart';
 import 'package:food_solutions/features/auth/data/models/verify_otp_response_model.dart';
 import 'package:food_solutions/features/auth/data/repo/auth_repo.dart';
+import 'package:food_solutions/features/auth/presentation/manager/login_cubit.dart';
 import 'package:food_solutions/features/auth/presentation/manager/register_cubit.dart';
 import 'package:food_solutions/features/auth/presentation/screens/login_screen.dart';
 import 'package:food_solutions/features/auth/presentation/screens/register_screen.dart';
@@ -21,6 +26,7 @@ void main() {
 
   setUp(() async {
     await locator.reset();
+    locator.registerFactory<LoginCubit>(() => LoginCubit(_IdleAuthRepo()));
     locator.registerFactory<RegisterCubit>(
       () => RegisterCubit(_IdleAuthRepo()),
     );
@@ -95,6 +101,20 @@ class _IdleAuthRepo implements AuthRepo {
   @override
   Future<Either<ServerFailure, VerifyOtpResponseModel>> verifyOtp(
     VerifyOtpRequestModel request,
+  ) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<ServerFailure, LoginResponseModel>> login(
+    LoginRequestModel request,
+  ) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<ServerFailure, RegisterResponseModel>> register(
+    RegisterRequestModel request,
   ) async {
     throw UnimplementedError();
   }
