@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
+import 'package:food_solutions/core/utils/media_url.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';
 
 class ServiceImageHeader extends StatelessWidget {
@@ -14,7 +15,7 @@ class ServiceImageHeader extends StatelessWidget {
     final isDark = ThemeUtils.isDark(context);
 
     return CachedNetworkImage(
-      imageUrl: imageUrl,
+      imageUrl: resolveMediaUrl(imageUrl),
       height: 300.h,
       width: double.infinity,
       fit: BoxFit.cover,

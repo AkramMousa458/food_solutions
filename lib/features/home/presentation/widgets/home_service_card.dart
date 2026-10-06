@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
+import 'package:food_solutions/core/utils/media_url.dart';
 import 'package:food_solutions/core/utils/app_styles.dart';
 
 import 'package:food_solutions/core/utils/theme_utils.dart';
@@ -55,38 +56,38 @@ class HomeServiceCard extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                imageIcon.isEmpty
-                    ? Icon(
-                        Icons.room_service_outlined,
-                        color: primaryColor,
-                        size: 40.sp,
-                      )
-                    : CachedNetworkImage(
-                        imageUrl: imageIcon,
-                        width: 40.w,
-                        height: 40.h,
-                        fit: BoxFit.contain,
-                        errorWidget: (context, url, error) {
-                          return Icon(
+                    imageIcon.isEmpty
+                        ? Icon(
                             Icons.room_service_outlined,
                             color: primaryColor,
                             size: 40.sp,
-                          );
-                        },
+                          )
+                        : CachedNetworkImage(
+                            imageUrl: resolveMediaUrl(imageIcon),
+                            width: 40.w,
+                            height: 40.h,
+                            fit: BoxFit.contain,
+                            errorWidget: (context, url, error) {
+                              return Icon(
+                                Icons.room_service_outlined,
+                                color: primaryColor,
+                                size: 40.sp,
+                              );
+                            },
+                          ),
+                    SizedBox(height: 8.h),
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      softWrap: true,
+                      style: AppStyles.textstyle12.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: isDark
+                            ? AppColors.white
+                            : AppColors.black.withValues(alpha: 0.87),
                       ),
-                SizedBox(height: 8.h),
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  softWrap: true,
-                  style: AppStyles.textstyle12.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: isDark
-                        ? AppColors.white
-                        : AppColors.black.withValues(alpha: 0.87),
-                  ),
-                ),
-                SizedBox(height: 4.h),
+                    ),
+                    SizedBox(height: 4.h),
                   ],
                 ),
               ),
