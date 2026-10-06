@@ -118,4 +118,7 @@ class _IdleAuthRepo implements AuthRepo {
   ) async {
     throw UnimplementedError();
   }
+
+  @override
+  bool hasAuthToken() => false;
 }

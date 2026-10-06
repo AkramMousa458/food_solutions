@@ -150,6 +150,12 @@ class AuthRepoImpl implements AuthRepo {
     }
     return Right(model);
   }
+
+  @override
+  bool hasAuthToken() {
+    final token = _sessionDataSource.readToken();
+    return token != null && token.isNotEmpty;
+  }
 }
 
 ServerFailure _unexpectedFailure() {
@@ -162,4 +168,7 @@ ServerFailure _unexpectedFailure() {
 class _InactiveAuthSession implements AuthSessionDataSource {
   @override
   Future<void> saveSession(LoginResponseModel session) async {}
+
+  @override
+  String? readToken() => null;
 }

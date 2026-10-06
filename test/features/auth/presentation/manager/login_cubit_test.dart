@@ -113,4 +113,7 @@ class _MockAuthRepo implements AuthRepo {
   ) async {
     throw UnimplementedError();
   }
+
+  @override
+  bool hasAuthToken() => false;
 }

@@ -25,4 +25,6 @@ abstract class AuthRepo {
   Future<Either<ServerFailure, RegisterResponseModel>> register(
     RegisterRequestModel request,
   );
+
+  bool hasAuthToken();
 }

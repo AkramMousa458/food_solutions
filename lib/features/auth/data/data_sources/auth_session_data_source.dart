@@ -7,6 +7,8 @@ import 'package:food_solutions/features/auth/data/models/login_response_model.da
 
 abstract class AuthSessionDataSource {
   Future<void> saveSession(LoginResponseModel session);
+
+  String? readToken();
 }
 
 class AuthSessionDataSourceImpl implements AuthSessionDataSource {
@@ -23,5 +25,13 @@ class AuthSessionDataSourceImpl implements AuthSessionDataSource {
       jsonEncode(session.user.toJson()),
     );
     _apiService.setAuthToken(session.token);
+  }
+
+  @override
+  String? readToken() {
+    final token = _localStorage.getString(AppConstants.authTokenKey);
+    if (token == null || token.trim().isEmpty) return null;
+    _apiService.setAuthToken(token);
+    return token;
   }
 }

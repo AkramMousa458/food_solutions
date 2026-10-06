@@ -203,17 +203,17 @@ void main() {
     );
     final mockDataSource = _MockAuthRemoteDataSource(
       response: <String, dynamic>{
-        'token': '4|session-token',
+        'token': '8|9Z3c13rJTaai6BzvYxkSOrHq6eK7F3yQ5uJY2XtX7194eec8',
         'user': <String, dynamic>{
-          'id': 4,
-          'name': 'محمد أحمد',
-          'email': 'mohmedetman955@gmail.com',
-          'phone': '0101255874141',
-          'email_verified_at': '2026-09-30T23:36:10.000000Z',
+          'id': 5,
+          'name': 'Akram Mousa',
+          'email': 'akrammousa458@gmail.com',
+          'phone': '01097066403',
+          'email_verified_at': '2026-10-04T23:22:44.000000Z',
           'phone_verified_at': null,
-          'role': 'client',
-          'created_at': '2026-09-30T23:35:34.000000Z',
-          'updated_at': '2026-09-30T23:36:10.000000Z',
+          'role': 'admin',
+          'created_at': '2026-10-04T23:21:48.000000Z',
+          'updated_at': '2026-10-04T23:27:53.000000Z',
           'establishments': <Object>[],
         },
       },
@@ -229,15 +229,16 @@ void main() {
       inputLogin.emailOrPhone,
     );
     expect(mockDataSource.lastLoginRequest?.password, inputLogin.password);
-    expect(session.token, '4|session-token');
-    expect(session.user.id, 4);
-    expect(session.user.name, 'محمد أحمد');
-    expect(session.user.email, 'mohmedetman955@gmail.com');
-    expect(session.user.phone, '0101255874141');
-    expect(session.user.role, 'client');
+    expect(session.token, '8|9Z3c13rJTaai6BzvYxkSOrHq6eK7F3yQ5uJY2XtX7194eec8');
+    expect(session.user.id, 5);
+    expect(session.user.name, 'Akram Mousa');
+    expect(session.user.email, 'akrammousa458@gmail.com');
+    expect(session.user.phone, '01097066403');
+    expect(session.user.role, 'admin');
     expect(session.user.phoneVerifiedAt, isNull);
     expect(session.user.establishments, isEmpty);
     expect(mockSession.saved?.token, session.token);
+    expect(repo.hasAuthToken(), isTrue);
   });
 
   test('maps invalid login credentials to the field error', () async {
@@ -409,5 +410,12 @@ class _RecordingAuthSession implements AuthSessionDataSource {
   @override
   Future<void> saveSession(LoginResponseModel session) async {
     saved = session;
+  }
+
+  @override
+  String? readToken() {
+    final token = saved?.token;
+    if (token == null || token.isEmpty) return null;
+    return token;
   }
 }
