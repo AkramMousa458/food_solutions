@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:food_solutions/core/error/failure.dart';
 import 'package:food_solutions/features/profile/data/models/create_establishment_request.dart';
 import 'package:food_solutions/features/profile/data/models/create_establishment_response.dart';
+import 'package:food_solutions/features/profile/data/models/delete_establishment_response.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/data/repo/profile_repo.dart';
 import 'package:food_solutions/features/profile/presentation/manager/profile_cubit.dart';
@@ -65,6 +66,55 @@ void main() {
     await cubit.loadProfile();
     expect(cubit.state, const ProfileFailure(message: 'profile_unavailable'));
   });
+
+  test('deletes an establishment and keeps the remaining one selected', () async {
+    final inputProfile = _profile(
+      establishments: const [
+        ProfileEstablishmentSnapshot(id: 7, name: 'test', isActive: true),
+        ProfileEstablishmentSnapshot(
+          id: 6,
+          name: 'مقهى الأفق الجديد',
+          isActive: true,
+        ),
+      ],
+    );
+    final mockRepository = _MockProfileRepo(profile: inputProfile);
+    final cubit = ProfileCubit(mockRepository);
+    addTearDown(cubit.close);
+    await cubit.loadProfile();
+    await cubit.deleteEstablishment(7);
+    final actualState = cubit.state as ProfileSuccess;
+    expect(mockRepository.deletedId, 7);
+    expect(actualState.profile.establishments.single.id, 6);
+    expect(actualState.selectedEstablishment?.name, 'مقهى الأفق الجديد');
+    expect(actualState.feedback?.isError, isFalse);
+    expect(actualState.feedback?.message, 'تم حذف المنشأة بنجاح.');
+    expect(actualState.isBusy, isFalse);
+  });
+
+  test('keeps the profile when deleting an establishment fails', () async {
+    final inputProfile = _profile(
+      establishments: const [
+        ProfileEstablishmentSnapshot(id: 7, name: 'test', isActive: true),
+      ],
+    );
+    final mockRepository = _MockProfileRepo(
+      profile: inputProfile,
+      deleteFailure: const ServerFailure(
+        message: 'تعذر حذف المنشأة.',
+        status: ApiFailureStatus.unsuccessful,
+      ),
+    );
+    final cubit = ProfileCubit(mockRepository);
+    addTearDown(cubit.close);
+    await cubit.loadProfile();
+    await cubit.deleteEstablishment(7);
+    final actualState = cubit.state as ProfileSuccess;
+    expect(actualState.profile.establishments.single.id, 7);
+    expect(actualState.feedback?.isError, isTrue);
+    expect(actualState.feedback?.message, 'تعذر حذف المنشأة.');
+    expect(actualState.isBusy, isFalse);
+  });
 }
 
 ProfileSnapshot _profile({List<ProfileEstablishmentSnapshot>? establishments}) {
@@ -92,8 +142,10 @@ ProfileSnapshot _profile({List<ProfileEstablishmentSnapshot>? establishments}) {
 class _MockProfileRepo implements ProfileRepo {
   final ProfileSnapshot? profile;
   final ServerFailure? failure;
+  final ServerFailure? deleteFailure;
+  int? deletedId;
 
-  _MockProfileRepo({required this.profile, this.failure});
+  _MockProfileRepo({required this.profile, this.failure, this.deleteFailure});
 
   @override
   Future<Either<ServerFailure, CreateEstablishmentResponse>>
@@ -102,6 +154,31 @@ class _MockProfileRepo implements ProfileRepo {
       ServerFailure(
         message: 'profile_unavailable',
         status: ApiFailureStatus.unsuccessful,
+      ),
+    );
+  }
+
+  @override
+  Future<Either<ServerFailure, CreateEstablishmentResponse>>
+  updateEstablishment(int id, CreateEstablishmentRequest request) async {
+    return const Left(
+      ServerFailure(
+        message: 'profile_unavailable',
+        status: ApiFailureStatus.unsuccessful,
+      ),
+    );
+  }
+
+  @override
+  Future<Either<ServerFailure, DeleteEstablishmentResponse>>
+  deleteEstablishment(int id) async {
+    final error = deleteFailure;
+    if (error != null) return Left(error);
+    deletedId = id;
+    return const Right(
+      DeleteEstablishmentResponse(
+        isSuccess: true,
+        message: 'تم حذف المنشأة بنجاح.',
       ),
     );
   }
@@ -123,5 +200,14 @@ class _MockProfileRepo implements ProfileRepo {
   }
 
   @override
-  ProfileSnapshot? readProfile() => profile;
+  ProfileSnapshot? readProfile() {
+    final account = profile;
+    final removedId = deletedId;
+    if (account == null || removedId == null) return account;
+    return account.copyWith(
+      establishments: account.establishments
+          .where((item) => item.id != removedId)
+          .toList(),
+    );
+  }
 }

@@ -9,6 +9,7 @@ import 'package:food_solutions/features/services/data/models/service_item_model.
 import 'package:food_solutions/features/services/presentation/screens/service_details_screen.dart';
 import 'package:food_solutions/features/booking/presentation/screens/booking_screen.dart';
 import 'package:food_solutions/features/contact/presentation/screens/contact_screen.dart';
+import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/presentation/screens/create_establishment_screen.dart';
 import 'package:food_solutions/features/settings/presentation/screens/account_settings_screen.dart';
 
@@ -65,7 +66,13 @@ abstract class AppRouter {
       ),
       GoRoute(
         path: CreateEstablishmentScreen.routeName,
-        builder: (context, state) => const CreateEstablishmentScreen(),
+        builder: (context, state) {
+          final extra = state.extra;
+          final establishment = extra is ProfileEstablishmentSnapshot
+              ? extra
+              : null;
+          return CreateEstablishmentScreen(establishment: establishment);
+        },
       ),
     ],
   );

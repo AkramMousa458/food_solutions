@@ -120,7 +120,9 @@ class _CreateEstablishmentFormState extends State<CreateEstablishmentForm> {
               ),
               SizedBox(height: 20.h),
               LoginContinueButton(
-                labelKey: 'establishment_create_action',
+                labelKey: cubit.isEditing
+                    ? 'establishment_update_action'
+                    : 'establishment_create_action',
                 isLoading: isLoading,
                 onPressed: _submit,
               ),

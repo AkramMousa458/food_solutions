@@ -17,12 +17,62 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   void selectEstablishment(int index) {
     final current = state;
-    if (current is! ProfileSuccess) return;
+    if (current is! ProfileSuccess || current.isBusy) return;
     if (index < 0 || index >= current.profile.establishments.length) return;
     emit(
       ProfileSuccess(
         profile: current.profile,
         selectedEstablishmentIndex: index,
+      ),
+    );
+  }
+
+  Future<void> deleteEstablishment(int id) async {
+    final current = state;
+    if (current is! ProfileSuccess || current.isBusy) return;
+    emit(
+      ProfileSuccess(
+        profile: current.profile,
+        selectedEstablishmentIndex: current.selectedEstablishmentIndex,
+        isBusy: true,
+      ),
+    );
+    final result = await _profileRepo.deleteEstablishment(id);
+    result.fold(
+      (failure) => _emitProfileFeedback(
+        current,
+        ProfileFeedback(
+          message: failure.message,
+          isError: true,
+          status: failure.status,
+        ),
+      ),
+      (deleted) => _emitDeleted(current, id, deleted.message),
+    );
+  }
+
+  void _emitDeleted(ProfileSuccess current, int id, String message) {
+    final stored = _profileRepo.readProfile();
+    final profile = stored ?? _withoutEstablishment(current.profile, id);
+    emit(
+      ProfileSuccess(
+        profile: profile,
+        selectedEstablishmentIndex: _indexAfterRemoval(
+          previous: current.profile.establishments,
+          next: profile.establishments,
+          selectedIndex: current.selectedEstablishmentIndex,
+        ),
+        feedback: ProfileFeedback(message: message, isError: false),
+      ),
+    );
+  }
+
+  void _emitProfileFeedback(ProfileSuccess current, ProfileFeedback feedback) {
+    emit(
+      ProfileSuccess(
+        profile: current.profile,
+        selectedEstablishmentIndex: current.selectedEstablishmentIndex,
+        feedback: feedback,
       ),
     );
   }
@@ -39,4 +89,30 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
     emit(ProfileFailure(message: failure.message));
   }
+}
+
+ProfileSnapshot _withoutEstablishment(ProfileSnapshot profile, int id) {
+  return profile.copyWith(
+    establishments: profile.establishments
+        .where((item) => item.id != id)
+        .toList(),
+  );
+}
+
+int _indexAfterRemoval({
+  required List<ProfileEstablishmentSnapshot> previous,
+  required List<ProfileEstablishmentSnapshot> next,
+  required int selectedIndex,
+}) {
+  if (next.isEmpty) return 0;
+  final selected = selectedIndex >= 0 && selectedIndex < previous.length
+      ? previous[selectedIndex]
+      : null;
+  final selectedId = selected?.id;
+  if (selectedId != null) {
+    final index = next.indexWhere((item) => item.id == selectedId);
+    if (index >= 0) return index;
+  }
+  if (selectedIndex < next.length) return selectedIndex;
+  return next.length - 1;
 }

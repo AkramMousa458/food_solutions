@@ -56,6 +56,95 @@ void main() {
     expect(mockLocalDataSource.savedProfile, actualProfile);
   });
 
+  test('updates an establishment and stores the new details', () async {
+    const inputRequest = CreateEstablishmentRequest(
+      name: 'مقهى الأفق الجديد',
+      phone: '0509998877',
+      age: '3 سنوات',
+      image: '',
+      location: '',
+      address: '',
+      status: 'existing',
+      userPosition: 'manager',
+    );
+    final mockLocalDataSource = _MockProfileLocalDataSource(
+      profile: _profile(
+        establishments: const [
+          ProfileEstablishmentSnapshot(id: 6, name: 'test', isActive: true),
+        ],
+      ),
+    );
+    final mockRemoteDataSource = _MockProfileRemoteDataSource(
+      updateResponse: <String, dynamic>{
+        'success': true,
+        'message': 'تم تحديث بيانات المنشأة بنجاح.',
+        'data': <String, dynamic>{
+          'id': 6,
+          'name': 'مقهى الأفق الجديد',
+          'phone': '0509998877',
+          'age': '3 سنوات',
+          'image': null,
+          'location': null,
+          'address': null,
+          'status': 'existing',
+          'user_position': 'manager',
+          'is_active': true,
+        },
+      },
+    );
+    final repository = ProfileRepoImpl(
+      mockLocalDataSource,
+      mockRemoteDataSource,
+    );
+    final actualResult = await repository.updateEstablishment(6, inputRequest);
+    expect(mockRemoteDataSource.lastEstablishmentId, 6);
+    expect(mockRemoteDataSource.lastRequest?.name, 'مقهى الأفق الجديد');
+    expect(actualResult.isRight(), isTrue);
+    final actualResponse = actualResult.getOrElse(
+      () => throw StateError('expected establishment'),
+    );
+    expect(actualResponse.message, 'تم تحديث بيانات المنشأة بنجاح.');
+    expect(actualResponse.establishment?.userPosition, 'manager');
+    expect(actualResponse.establishment?.ageLabel, '3 سنوات');
+    expect(
+      mockLocalDataSource.savedProfile?.establishments.single.name,
+      'مقهى الأفق الجديد',
+    );
+  });
+
+  test('deletes an establishment and removes it from the profile', () async {
+    final mockLocalDataSource = _MockProfileLocalDataSource(
+      profile: _profile(
+        establishments: const [
+          ProfileEstablishmentSnapshot(id: 7, name: 'test', isActive: true),
+          ProfileEstablishmentSnapshot(
+            id: 6,
+            name: 'مقهى الأفق الجديد',
+            isActive: true,
+          ),
+        ],
+      ),
+    );
+    final mockRemoteDataSource = _MockProfileRemoteDataSource(
+      deleteResponse: <String, dynamic>{
+        'success': true,
+        'message': 'تم حذف المنشأة بنجاح.',
+      },
+    );
+    final repository = ProfileRepoImpl(
+      mockLocalDataSource,
+      mockRemoteDataSource,
+    );
+    final actualResult = await repository.deleteEstablishment(7);
+    expect(mockRemoteDataSource.lastEstablishmentId, 7);
+    expect(actualResult.isRight(), isTrue);
+    final actualResponse = actualResult.getOrElse(
+      () => throw StateError('expected deletion'),
+    );
+    expect(actualResponse.message, 'تم حذف المنشأة بنجاح.');
+    expect(mockLocalDataSource.savedProfile?.establishments.single.id, 6);
+  });
+
   test('returns unavailable when the account user is missing', () async {
     final repository = ProfileRepoImpl(
       _MockProfileLocalDataSource(profile: null),
@@ -218,13 +307,16 @@ void main() {
   });
 }
 
-ProfileSnapshot _profile() {
-  return const ProfileSnapshot(
+ProfileSnapshot _profile({
+  List<ProfileEstablishmentSnapshot> establishments = const [],
+}) {
+  return ProfileSnapshot(
     name: 'Abdullah Al Saeed',
     role: 'owner',
     phone: '+966 50 123 4567',
     email: 'abdullah@foodsolutions.sa',
     initials: 'AS',
+    establishments: establishments,
   );
 }
 
@@ -290,13 +382,18 @@ class _MockProfileLocalDataSource implements ProfileLocalDataSource {
 class _MockProfileRemoteDataSource implements ProfileRemoteDataSource {
   final Map<String, dynamic>? response;
   final Map<String, dynamic>? createResponse;
+  final Map<String, dynamic>? updateResponse;
+  final Map<String, dynamic>? deleteResponse;
   final DioException? error;
   final DioException? createError;
   CreateEstablishmentRequest? lastRequest;
+  int? lastEstablishmentId;
 
   _MockProfileRemoteDataSource({
     this.response,
     this.createResponse,
+    this.updateResponse,
+    this.deleteResponse,
     this.error,
     this.createError,
   });
@@ -316,5 +413,25 @@ class _MockProfileRemoteDataSource implements ProfileRemoteDataSource {
     final dioError = createError;
     if (dioError != null) throw dioError;
     return createResponse ?? <String, dynamic>{};
+  }
+
+  @override
+  Future<Map<String, dynamic>> updateEstablishment(
+    int id,
+    CreateEstablishmentRequest request,
+  ) async {
+    lastEstablishmentId = id;
+    lastRequest = request;
+    final dioError = createError;
+    if (dioError != null) throw dioError;
+    return updateResponse ?? <String, dynamic>{};
+  }
+
+  @override
+  Future<Map<String, dynamic>> deleteEstablishment(int id) async {
+    lastEstablishmentId = id;
+    final dioError = createError;
+    if (dioError != null) throw dioError;
+    return deleteResponse ?? <String, dynamic>{};
   }
 }

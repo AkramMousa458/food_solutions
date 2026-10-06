@@ -9,6 +9,8 @@ import 'package:food_solutions/core/utils/theme_utils.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_identity_card.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_action_button.dart';
+import 'package:food_solutions/features/profile/presentation/widgets/profile_establishment_actions.dart';
+import 'package:food_solutions/features/profile/presentation/widgets/profile_establishment_status_chip.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_location_button.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_surface.dart';
 
@@ -16,12 +18,18 @@ class ProfileEstablishmentCard extends StatelessWidget {
   final ProfileEstablishmentSnapshot? establishment;
   final VoidCallback onSwitchBranch;
   final VoidCallback? onOpenLocation;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final bool isBusy;
 
   const ProfileEstablishmentCard({
     super.key,
     required this.establishment,
     required this.onSwitchBranch,
     this.onOpenLocation,
+    this.onEdit,
+    this.onDelete,
+    this.isBusy = false,
   });
 
   @override
@@ -36,8 +44,7 @@ class ProfileEstablishmentCard extends StatelessWidget {
     final currentEstablishment = establishment;
     final name =
         currentEstablishment?.name ?? translate('profile_no_establishment');
-    final showActive =
-        currentEstablishment != null && currentEstablishment.isActive;
+    final status = profileEstablishmentStatus(currentEstablishment);
     final middle = profileEstablishmentMiddle(currentEstablishment);
     final openLocation = onOpenLocation;
     return ProfileSurface(
@@ -55,7 +62,14 @@ class ProfileEstablishmentCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (showActive) ...[SizedBox(width: 8.w), const _ActiveChip()],
+
+              if (status != null) ...[
+                SizedBox(width: 8.w),
+                ProfileEstablishmentStatusChip(
+                  label: status.label,
+                  color: status.color,
+                ),
+              ],
             ],
           ),
           SizedBox(height: 12.h),
@@ -73,6 +87,11 @@ class ProfileEstablishmentCard extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
+              ),
+              ProfileEstablishmentActions(
+                onEdit: onEdit,
+                onDelete: onDelete,
+                isEnabled: !isBusy,
               ),
             ],
           ),
@@ -162,42 +181,6 @@ String formatProfileAge(int? months) {
   return translate(
     'profile_age_years',
   ).replaceAll('{years}', '$years').replaceAll('{months}', '$months');
-}
-
-class _ActiveChip extends StatelessWidget {
-  const _ActiveChip();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-      decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(20.r),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6.w,
-            height: 6.w,
-            decoration: const BoxDecoration(
-              color: AppColors.white,
-              shape: BoxShape.circle,
-            ),
-          ),
-          SizedBox(width: 6.w),
-          Text(
-            translate('profile_establishment_active'),
-            style: AppStyles.textstyle10.copyWith(
-              color: AppColors.white,
-              fontSize: 11.sp,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _StoreBadge extends StatelessWidget {

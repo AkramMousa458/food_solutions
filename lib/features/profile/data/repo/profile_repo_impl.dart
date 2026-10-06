@@ -5,6 +5,7 @@ import 'package:food_solutions/features/profile/data/data_sources/profile_local_
 import 'package:food_solutions/features/profile/data/data_sources/profile_remote_data_source.dart';
 import 'package:food_solutions/features/profile/data/models/create_establishment_request.dart';
 import 'package:food_solutions/features/profile/data/models/create_establishment_response.dart';
+import 'package:food_solutions/features/profile/data/models/delete_establishment_response.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/data/repo/profile_repo.dart';
 
@@ -34,15 +35,55 @@ class ProfileRepoImpl implements ProfileRepo {
 
   @override
   Future<Either<ServerFailure, CreateEstablishmentResponse>>
-  createEstablishment(CreateEstablishmentRequest request) async {
+  createEstablishment(CreateEstablishmentRequest request) {
+    return _storeEstablishment(_remoteDataSource.createEstablishment(request));
+  }
+
+  @override
+  Future<Either<ServerFailure, CreateEstablishmentResponse>>
+  updateEstablishment(int id, CreateEstablishmentRequest request) {
+    return _storeEstablishment(
+      _remoteDataSource.updateEstablishment(id, request),
+    );
+  }
+
+  @override
+  Future<Either<ServerFailure, DeleteEstablishmentResponse>>
+  deleteEstablishment(int id) async {
     try {
-      final response = await _remoteDataSource.createEstablishment(request);
+      final response = await _remoteDataSource.deleteEstablishment(id);
+      final deleted = DeleteEstablishmentResponse.fromJson(response);
+      if (!deleted.isSuccess) {
+        final message = deleted.message.trim();
+        return Left(
+          ServerFailure(
+            message: message.isEmpty
+                ? ApiErrorMessages.unexpectedError
+                : message,
+            status: ApiFailureStatus.unsuccessful,
+            data: response,
+          ),
+        );
+      }
+      await _removeEstablishment(id);
+      return Right(deleted);
+    } on DioException catch (error) {
+      return Left(ServerFailure.fromDioError(error));
+    } catch (_) {
+      return Left(_unexpectedFailure());
+    }
+  }
+
+  Future<Either<ServerFailure, CreateEstablishmentResponse>>
+  _storeEstablishment(Future<Map<String, dynamic>> request) async {
+    try {
+      final response = await request;
       final mapped = _mapCreatedEstablishment(response);
-      final created = mapped.fold<CreateEstablishmentResponse?>(
+      final stored = mapped.fold<CreateEstablishmentResponse?>(
         (_) => null,
         (value) => value,
       );
-      final establishment = created?.establishment;
+      final establishment = stored?.establishment;
       if (establishment != null) {
         await _saveCreatedEstablishment(establishment);
       }
@@ -83,6 +124,18 @@ class ProfileRepoImpl implements ProfileRepo {
           profile.establishments,
           establishment,
         ),
+      ),
+    );
+  }
+
+  Future<void> _removeEstablishment(int id) async {
+    final profile = _localDataSource.readProfile();
+    if (profile == null) return;
+    await _localDataSource.saveProfile(
+      profile.copyWith(
+        establishments: profile.establishments
+            .where((item) => item.id != id)
+            .toList(),
       ),
     );
   }

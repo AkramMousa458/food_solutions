@@ -3,13 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
+import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
+import 'package:food_solutions/features/profile/presentation/confirm_delete_establishment.dart';
 import 'package:food_solutions/features/profile/presentation/manager/profile_cubit.dart';
 import 'package:food_solutions/features/profile/presentation/manager/profile_state.dart';
 import 'package:food_solutions/features/profile/presentation/open_establishment_location.dart';
 import 'package:food_solutions/features/profile/presentation/screens/create_establishment_screen.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_branch_sheet.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_establishment_card.dart';
-import 'package:food_solutions/features/profile/presentation/widgets/profile_footer.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_identity_card.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_settings_tile.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_status_view.dart';
@@ -20,6 +21,36 @@ Future<void> _openCreateEstablishment(BuildContext context) async {
   await context.push(CreateEstablishmentScreen.routeName);
   if (!context.mounted) return;
   await context.read<ProfileCubit>().loadProfile();
+}
+
+Future<void> _openEditEstablishment(
+  BuildContext context,
+  ProfileEstablishmentSnapshot establishment,
+) async {
+  await context.push(
+    CreateEstablishmentScreen.routeName,
+    extra: establishment,
+  );
+  if (!context.mounted) return;
+  await context.read<ProfileCubit>().loadProfile();
+}
+
+VoidCallback? _editEstablishmentAction(
+  BuildContext context,
+  ProfileEstablishmentSnapshot? establishment,
+) {
+  if (establishment == null || establishment.id == null) return null;
+  final current = establishment;
+  return () => _openEditEstablishment(context, current);
+}
+
+VoidCallback? _deleteEstablishmentAction(
+  BuildContext context,
+  ProfileEstablishmentSnapshot? establishment,
+) {
+  if (establishment == null || establishment.id == null) return null;
+  final current = establishment;
+  return () => confirmDeleteEstablishment(context, current);
 }
 
 class ProfileScreenBody extends StatelessWidget {
@@ -41,6 +72,7 @@ class ProfileScreenBody extends StatelessWidget {
           );
         }
         final profile = state.profile;
+        final establishment = state.selectedEstablishment;
         return ListView(
           physics: const BouncingScrollPhysics(),
           padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
@@ -48,10 +80,11 @@ class ProfileScreenBody extends StatelessWidget {
             ProfileIdentityCard(profile: profile, onEditProfile: () {}),
             SizedBox(height: 14.h),
             ProfileEstablishmentCard(
-              establishment: state.selectedEstablishment,
-              onOpenLocation: openEstablishmentLocationAction(
-                state.selectedEstablishment,
-              ),
+              establishment: establishment,
+              isBusy: state.isBusy,
+              onOpenLocation: openEstablishmentLocationAction(establishment),
+              onEdit: _editEstablishmentAction(context, establishment),
+              onDelete: _deleteEstablishmentAction(context, establishment),
               onSwitchBranch: () {
                 openProfileBranches(
                   context: context,
@@ -67,7 +100,6 @@ class ProfileScreenBody extends StatelessWidget {
             SizedBox(height: 14.h),
             const SettingsLogoutTile(),
             SizedBox(height: 18.h),
-            // const ProfileFooter(),
           ],
         );
       },

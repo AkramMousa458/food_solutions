@@ -10,6 +10,7 @@ import 'package:food_solutions/core/utils/service_locator.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';
 import 'package:food_solutions/features/auth/presentation/screens/login_screen.dart';
 import 'package:food_solutions/features/auth/presentation/widgets/auth_back_button.dart';
+import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/presentation/manager/create_establishment_cubit.dart';
 import 'package:food_solutions/features/profile/presentation/manager/create_establishment_state.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/create_establishment_form.dart';
@@ -17,13 +18,19 @@ import 'package:go_router/go_router.dart';
 
 class CreateEstablishmentScreen extends StatelessWidget {
   static const String routeName = '/create-establishment';
+  final ProfileEstablishmentSnapshot? establishment;
 
-  const CreateEstablishmentScreen({super.key});
+  const CreateEstablishmentScreen({super.key, this.establishment});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => locator<CreateEstablishmentCubit>(),
+      create: (_) {
+        final cubit = locator<CreateEstablishmentCubit>();
+        final initial = establishment;
+        if (initial != null) cubit.prefill(initial);
+        return cubit;
+      },
       child: const _CreateEstablishmentView(),
     );
   }
@@ -34,8 +41,12 @@ class _CreateEstablishmentView extends StatelessWidget {
 
   void _handleState(BuildContext context, CreateEstablishmentState state) {
     if (state is CreateEstablishmentSuccess) {
+      final cubit = context.read<CreateEstablishmentCubit>();
+      final fallback = cubit.isEditing
+          ? 'establishment_updated'
+          : 'establishment_created';
       final message = state.message.trim().isEmpty
-          ? translate('establishment_created')
+          ? translate(fallback)
           : state.message;
       CustomSnackBar.showSuccess(context, message);
       context.pop();
@@ -79,7 +90,11 @@ class _CreateEstablishmentView extends StatelessWidget {
                     const AuthBackButton(),
                     SizedBox(height: 16.h),
                     Text(
-                      translate('establishment_create_title'),
+                      translate(
+                        context.read<CreateEstablishmentCubit>().isEditing
+                            ? 'establishment_edit_title'
+                            : 'establishment_create_title',
+                      ),
                       style: AppStyles.textstyle22.copyWith(color: titleColor),
                     ),
                   ],

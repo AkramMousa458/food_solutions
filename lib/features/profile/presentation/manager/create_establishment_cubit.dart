@@ -4,6 +4,7 @@ import 'package:food_solutions/core/error/failure.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/features/profile/data/models/create_establishment_request.dart';
 import 'package:food_solutions/features/profile/data/models/create_establishment_response.dart';
+import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/data/repo/profile_repo.dart';
 import 'package:food_solutions/features/profile/presentation/manager/create_establishment_state.dart';
 
@@ -64,6 +65,33 @@ class CreateEstablishmentCubit extends Cubit<CreateEstablishmentState> {
         validateOptionalUrl(imageController.text) == null;
   }
 
+  int? editingId;
+
+  bool get isEditing => editingId != null;
+
+  void prefill(ProfileEstablishmentSnapshot establishment) {
+    final id = establishment.id;
+    if (id == null || state is CreateEstablishmentLoading) return;
+    editingId = id;
+    nameController.text = establishment.name;
+    phoneController.text = establishment.phone ?? '';
+    ageController.text = establishment.ageLabel ?? '';
+    imageController.text = establishment.imageUrl ?? '';
+    locationController.text = establishment.location ?? '';
+    addressController.text = establishment.headquarters ?? '';
+    status = _knownValue(
+      establishment.status,
+      CreateEstablishmentRequest.statuses,
+      CreateEstablishmentRequest.existingStatus,
+    );
+    userPosition = _knownValue(
+      establishment.userPosition,
+      CreateEstablishmentRequest.positions,
+      CreateEstablishmentRequest.ownerPosition,
+    );
+    emit(CreateEstablishmentReady(status: status, userPosition: userPosition));
+  }
+
   Future<void> createEstablishment() async {
     if (state is CreateEstablishmentLoading) return;
     if (!canSubmit) {
@@ -76,7 +104,11 @@ class CreateEstablishmentCubit extends Cubit<CreateEstablishmentState> {
       return;
     }
     emit(const CreateEstablishmentLoading());
-    final result = await _profileRepo.createEstablishment(_request());
+    final id = editingId;
+    final request = _request();
+    final result = id == null
+        ? await _profileRepo.createEstablishment(request)
+        : await _profileRepo.updateEstablishment(id, request);
     result.fold(_emitFailure, _emitCreated);
   }
 
@@ -120,6 +152,12 @@ class CreateEstablishmentCubit extends Cubit<CreateEstablishmentState> {
         establishment: establishment,
       ),
     );
+  }
+
+  String _knownValue(String? value, List<String> options, String fallback) {
+    final current = value?.trim() ?? '';
+    if (options.contains(current)) return current;
+    return fallback;
   }
 
   String? _requireText(String? value) {

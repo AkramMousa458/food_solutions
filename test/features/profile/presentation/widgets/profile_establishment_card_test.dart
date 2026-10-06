@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
+import 'package:food_solutions/core/utils/app_colors.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_establishment_card.dart';
+import 'package:food_solutions/features/profile/presentation/widgets/profile_establishment_status_chip.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_location_button.dart';
 
 void main() {
@@ -46,12 +48,91 @@ void main() {
     expect(find.byType(ProfileLocationButton), findsNothing);
     expect(find.text('Open location'), findsNothing);
   });
+
+  testWidgets('shows edit and delete icons for a saved establishment', (
+    tester,
+  ) async {
+    var actualEdited = false;
+    var actualDeleted = false;
+    await _pumpCard(
+      tester,
+      establishment: const ProfileEstablishmentSnapshot(
+        id: 7,
+        name: 'test',
+        isActive: true,
+      ),
+      onEdit: () => actualEdited = true,
+      onDelete: () => actualDeleted = true,
+    );
+    await tester.tap(find.byKey(const Key('profile-edit-establishment')));
+    await tester.tap(find.byKey(const Key('profile-delete-establishment')));
+    await tester.pump();
+    expect(actualEdited, isTrue);
+    expect(actualDeleted, isTrue);
+  });
+
+  testWidgets('shows the existing status in the primary color', (tester) async {
+    await _pumpCard(
+      tester,
+      establishment: const ProfileEstablishmentSnapshot(
+        name: 'مقهى ومطعم الأفق',
+        isActive: true,
+        status: 'existing',
+      ),
+    );
+    final actualChip = tester.widget<ProfileEstablishmentStatusChip>(
+      find.byType(ProfileEstablishmentStatusChip),
+    );
+    expect(actualChip.label, 'Existing');
+    expect(actualChip.color, AppColors.primary);
+  });
+
+  testWidgets('shows under construction in the warning color', (tester) async {
+    await _pumpCard(
+      tester,
+      establishment: const ProfileEstablishmentSnapshot(
+        name: 'New Branch',
+        isActive: false,
+        status: 'under_construction',
+      ),
+    );
+    final actualChip = tester.widget<ProfileEstablishmentStatusChip>(
+      find.byType(ProfileEstablishmentStatusChip),
+    );
+    expect(actualChip.label, 'Under construction');
+    expect(actualChip.color, AppColors.warning500);
+  });
+
+  testWidgets('shows an idea in the secondary color', (tester) async {
+    await _pumpCard(
+      tester,
+      establishment: const ProfileEstablishmentSnapshot(
+        name: 'New Branch',
+        isActive: false,
+        status: 'idea',
+      ),
+    );
+    final actualChip = tester.widget<ProfileEstablishmentStatusChip>(
+      find.byType(ProfileEstablishmentStatusChip),
+    );
+    expect(actualChip.label, 'Just an idea');
+    expect(actualChip.color, AppColors.secondary);
+  });
+
+  testWidgets('hides the status chip when the establishment is missing', (
+    tester,
+  ) async {
+    await _pumpCard(tester, establishment: null);
+    expect(find.byType(ProfileEstablishmentStatusChip), findsNothing);
+  });
 }
 
 Future<void> _pumpCard(
   WidgetTester tester, {
-  required ProfileEstablishmentSnapshot establishment,
+  required ProfileEstablishmentSnapshot? establishment,
   VoidCallback? onOpenLocation,
+  VoidCallback? onEdit,
+  VoidCallback? onDelete,
 }) async {
   final translations = await AppTranslations.init(
     fallbackLocale: 'en',
@@ -73,6 +154,8 @@ Future<void> _pumpCard(
               body: ProfileEstablishmentCard(
                 establishment: establishment,
                 onOpenLocation: onOpenLocation,
+                onEdit: onEdit,
+                onDelete: onDelete,
                 onSwitchBranch: () {},
               ),
             ),

@@ -8,6 +8,13 @@ abstract class ProfileRemoteDataSource {
   Future<Map<String, dynamic>> createEstablishment(
     CreateEstablishmentRequest request,
   );
+
+  Future<Map<String, dynamic>> updateEstablishment(
+    int id,
+    CreateEstablishmentRequest request,
+  );
+
+  Future<Map<String, dynamic>> deleteEstablishment(int id);
 }
 
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
@@ -28,5 +35,21 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       endPoint: Endpoint.establishments,
       data: request.toJson(),
     );
+  }
+
+  @override
+  Future<Map<String, dynamic>> updateEstablishment(
+    int id,
+    CreateEstablishmentRequest request,
+  ) {
+    return _apiService.update(
+      endPoint: Endpoint.establishment(id),
+      data: request.toJson(),
+    );
+  }
+
+  @override
+  Future<Map<String, dynamic>> deleteEstablishment(int id) {
+    return _apiService.delete(endPoint: Endpoint.establishment(id));
   }
 }

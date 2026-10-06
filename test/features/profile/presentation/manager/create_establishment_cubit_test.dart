@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:food_solutions/core/error/failure.dart';
 import 'package:food_solutions/features/profile/data/models/create_establishment_request.dart';
 import 'package:food_solutions/features/profile/data/models/create_establishment_response.dart';
+import 'package:food_solutions/features/profile/data/models/delete_establishment_response.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/data/repo/profile_repo.dart';
 import 'package:food_solutions/features/profile/presentation/manager/create_establishment_cubit.dart';
@@ -55,6 +56,51 @@ void main() {
       mockRepository.lastRequest?.location,
       'https://maps.google.com/?q=24.7136,46.6753',
     );
+    expect(mockRepository.updatedId, isNull);
+  });
+
+  test('updates an establishment when the form is editing', () async {
+    const inputEstablishment = ProfileEstablishmentSnapshot(
+      id: 6,
+      name: 'مقهى الأفق الجديد',
+      phone: '0509998877',
+      ageLabel: '3 سنوات',
+      isActive: true,
+      status: 'existing',
+      userPosition: 'manager',
+    );
+    final mockRepository = _MockProfileRepo(
+      response: const CreateEstablishmentResponse(
+        isSuccess: true,
+        message: 'تم تحديث بيانات المنشأة بنجاح.',
+        establishment: inputEstablishment,
+      ),
+    );
+    final cubit = CreateEstablishmentCubit(mockRepository);
+    addTearDown(cubit.close);
+    cubit.prefill(
+      const ProfileEstablishmentSnapshot(
+        id: 6,
+        name: 'test',
+        phone: '01097066403',
+        isActive: true,
+        status: 'existing',
+        userPosition: 'owner',
+      ),
+    );
+    cubit.nameController.text = 'مقهى الأفق الجديد';
+    cubit.phoneController.text = '0509998877';
+    cubit.ageController.text = '3 سنوات';
+    cubit.selectPosition(CreateEstablishmentRequest.managerPosition);
+    await cubit.createEstablishment();
+    final actualState = cubit.state;
+    expect(actualState, isA<CreateEstablishmentSuccess>());
+    final success = actualState as CreateEstablishmentSuccess;
+    expect(success.message, 'تم تحديث بيانات المنشأة بنجاح.');
+    expect(success.establishment.name, 'مقهى الأفق الجديد');
+    expect(mockRepository.updatedId, 6);
+    expect(mockRepository.lastRequest?.userPosition, 'manager');
+    expect(mockRepository.lastRequest?.age, '3 سنوات');
   });
 
   test('keeps the repository failure status', () async {
@@ -88,6 +134,7 @@ class _MockProfileRepo implements ProfileRepo {
   final CreateEstablishmentResponse? response;
   final ServerFailure? failure;
   CreateEstablishmentRequest? lastRequest;
+  int? updatedId;
 
   _MockProfileRepo({this.response, this.failure});
 
@@ -95,6 +142,29 @@ class _MockProfileRepo implements ProfileRepo {
   Future<Either<ServerFailure, CreateEstablishmentResponse>>
   createEstablishment(CreateEstablishmentRequest request) async {
     lastRequest = request;
+    return _createdOrFailure();
+  }
+
+  @override
+  Future<Either<ServerFailure, CreateEstablishmentResponse>>
+  updateEstablishment(int id, CreateEstablishmentRequest request) async {
+    updatedId = id;
+    lastRequest = request;
+    return _createdOrFailure();
+  }
+
+  @override
+  Future<Either<ServerFailure, DeleteEstablishmentResponse>>
+  deleteEstablishment(int id) async {
+    return const Left(
+      ServerFailure(
+        message: 'profile_unavailable',
+        status: ApiFailureStatus.unsuccessful,
+      ),
+    );
+  }
+
+  Either<ServerFailure, CreateEstablishmentResponse> _createdOrFailure() {
     final error = failure;
     final created = response;
     if (error != null) return Left(error);
