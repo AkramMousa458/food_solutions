@@ -9,6 +9,9 @@ class ProfileEstablishmentSnapshot extends Equatable {
   final String? ageLabel;
   final int? ageInMonths;
   final String? imageUrl;
+  final String? location;
+  final String? latitude;
+  final String? longitude;
   final String? userPosition;
   final String? status;
   final bool isActive;
@@ -23,6 +26,9 @@ class ProfileEstablishmentSnapshot extends Equatable {
     this.ageLabel,
     this.ageInMonths,
     this.imageUrl,
+    this.location,
+    this.latitude,
+    this.longitude,
     this.userPosition,
     this.status,
   });
@@ -41,6 +47,9 @@ class ProfileEstablishmentSnapshot extends Equatable {
       ageLabel: _readAgeLabel(json['age']),
       ageInMonths: _readMonths(json['age_in_months']),
       imageUrl: _readOptionalString(json['image']),
+      location: _readOptionalString(json['location']),
+      latitude: _readCoordinate(json['latitude']),
+      longitude: _readCoordinate(json['longitude']),
       userPosition: _readOptionalString(json['user_position']),
       status: _readOptionalString(json['status']),
       isActive: _readActive(json),
@@ -57,6 +66,9 @@ class ProfileEstablishmentSnapshot extends Equatable {
       'age': ageLabel,
       'age_in_months': ageInMonths,
       'image': imageUrl,
+      'location': location,
+      'latitude': latitude,
+      'longitude': longitude,
       'user_position': userPosition,
       'status': status,
       'is_active': isActive,
@@ -73,6 +85,9 @@ class ProfileEstablishmentSnapshot extends Equatable {
     ageLabel,
     ageInMonths,
     imageUrl,
+    location,
+    latitude,
+    longitude,
     userPosition,
     status,
     isActive,
@@ -105,6 +120,21 @@ class ProfileSnapshot extends Equatable {
 
   bool get isEmailVerified =>
       emailVerifiedAt != null && emailVerifiedAt!.isNotEmpty;
+
+  ProfileSnapshot copyWith({
+    List<ProfileEstablishmentSnapshot>? establishments,
+  }) {
+    return ProfileSnapshot(
+      name: name,
+      role: role,
+      phone: phone,
+      email: email,
+      initials: initials,
+      phoneVerifiedAt: phoneVerifiedAt,
+      emailVerifiedAt: emailVerifiedAt,
+      establishments: establishments ?? this.establishments,
+    );
+  }
 
   factory ProfileSnapshot.fromJson(Map<String, dynamic> json) {
     final name = _readString(json['name']);
@@ -157,6 +187,11 @@ String? _readOptionalString(Object? value) {
   return trimmed;
 }
 
+String? _readCoordinate(Object? value) {
+  if (value is num) return value.toString();
+  return _readOptionalString(value);
+}
+
 int? _readId(Object? value) {
   if (value is int) return value;
   if (value is num) return value.toInt();
@@ -181,11 +216,29 @@ int? _readMonths(Object? value) {
 bool _readActive(Map<String, dynamic> json) {
   final value = json['is_active'];
   if (value is bool) return value;
-  final status = json['status'];
-  if (status is String && status.trim().isNotEmpty) {
-    return status.trim().toLowerCase() == 'active';
+  if (value is num) return value != 0;
+  return _isListedStatus(json['status']);
+}
+
+bool _isListedStatus(Object? value) {
+  if (value is! String || value.trim().isEmpty) return true;
+  switch (value.trim().toLowerCase()) {
+    case 'inactive':
+    case 'closed':
+    case 'suspended':
+    case 'pending':
+    case 'draft':
+    case 'under_construction':
+    case 'idea':
+      return false;
+    case 'existing':
+    case 'active':
+    case 'operating':
+    case 'new':
+      return true;
+    default:
+      return true;
   }
-  return true;
 }
 
 List<ProfileEstablishmentSnapshot> _readEstablishments(Object? value) {

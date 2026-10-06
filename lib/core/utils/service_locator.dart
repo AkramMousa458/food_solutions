@@ -56,6 +56,7 @@ import 'package:food_solutions/features/profile/data/data_sources/profile_local_
 import 'package:food_solutions/features/profile/data/data_sources/profile_remote_data_source.dart';
 import 'package:food_solutions/features/profile/data/repo/profile_repo.dart';
 import 'package:food_solutions/features/profile/data/repo/profile_repo_impl.dart';
+import 'package:food_solutions/features/profile/presentation/manager/create_establishment_cubit.dart';
 import 'package:food_solutions/features/profile/presentation/manager/profile_cubit.dart';
 import 'package:food_solutions/features/settings/data/data_sources/settings_local_data_source.dart';
 import 'package:food_solutions/features/settings/data/repo/settings_repo.dart';
@@ -245,6 +246,9 @@ Future<void> setupLocator({Logger? logger}) async {
   );
   locator.registerFactory<ProfileCubit>(
     () => ProfileCubit(locator<ProfileRepo>()),
+  );
+  locator.registerFactory<CreateEstablishmentCubit>(
+    () => CreateEstablishmentCubit(locator<ProfileRepo>()),
   );
   locator.registerLazySingleton<SettingsLocalDataSource>(
     () => SettingsLocalDataSourceImpl(locator<LocalStorage>()),

@@ -5,12 +5,14 @@ import 'package:food_solutions/core/utils/app_colors.dart';
 import 'package:food_solutions/core/utils/app_styles.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
+import 'package:food_solutions/features/profile/presentation/widgets/profile_action_button.dart';
 
 Future<void> openProfileBranches({
   required BuildContext context,
   required List<ProfileEstablishmentSnapshot> establishments,
   required int selectedIndex,
   required ValueChanged<int> onSelected,
+  required VoidCallback onCreate,
 }) {
   final isDark = ThemeUtils.isDark(context);
   return showModalBottomSheet<void>(
@@ -27,6 +29,10 @@ Future<void> openProfileBranches({
           onSelected(index);
           Navigator.of(context).pop();
         },
+        onCreate: () {
+          Navigator.of(context).pop();
+          onCreate();
+        },
       );
     },
   );
@@ -36,12 +42,14 @@ class ProfileBranchSheet extends StatelessWidget {
   final List<ProfileEstablishmentSnapshot> establishments;
   final int selectedIndex;
   final ValueChanged<int> onSelected;
+  final VoidCallback onCreate;
 
   const ProfileBranchSheet({
     super.key,
     required this.establishments,
     required this.selectedIndex,
     required this.onSelected,
+    required this.onCreate,
   });
 
   @override
@@ -143,6 +151,13 @@ class ProfileBranchSheet extends StatelessWidget {
                   },
                 ),
               ),
+            SizedBox(height: 14.h),
+            ProfileActionButton(
+              label: translate('establishment_create_action'),
+              icon: Icons.add_business_outlined,
+              isFilled: true,
+              onPressed: onCreate,
+            ),
           ],
         ),
       ),

@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:food_solutions/core/error/failure.dart';
 import 'package:food_solutions/features/profile/data/data_sources/profile_local_data_source.dart';
 import 'package:food_solutions/features/profile/data/data_sources/profile_remote_data_source.dart';
+import 'package:food_solutions/features/profile/data/models/create_establishment_request.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/data/repo/profile_repo_impl.dart';
 
@@ -37,14 +38,21 @@ void main() {
     expect(actualProfile.email, 'akrammousa458@gmail.com');
     expect(actualProfile.isEmailVerified, isTrue);
     expect(actualProfile.isPhoneVerified, isFalse);
-    expect(actualProfile.establishments.single.name, 'مقهى ومطعم الأفق');
-    expect(
-      actualProfile.establishments.single.headquarters,
-      'الرياض - طريق الملك فهد',
-    );
-    expect(actualProfile.establishments.single.ageLabel, 'سنتين');
-    expect(actualProfile.establishments.single.userPosition, 'owner');
-    expect(actualProfile.establishments.single.isActive, isTrue);
+    expect(actualProfile.establishments, hasLength(2));
+    expect(actualProfile.establishments.first.name, 'test');
+    expect(actualProfile.establishments.first.headquarters, isNull);
+    expect(actualProfile.establishments.first.ageLabel, isNull);
+    expect(actualProfile.establishments.first.imageUrl, isNull);
+    expect(actualProfile.establishments.first.isActive, isTrue);
+    final complete = actualProfile.establishments.last;
+    expect(complete.name, 'مقهى ومطعم الأفق');
+    expect(complete.headquarters, 'الرياض - طريق الملك فهد');
+    expect(complete.ageLabel, 'سنتين');
+    expect(complete.imageUrl, 'https://example.com/logo.png');
+    expect(complete.latitude, '24.7136000');
+    expect(complete.longitude, '46.6753000');
+    expect(complete.userPosition, 'owner');
+    expect(complete.isActive, isTrue);
     expect(mockLocalDataSource.savedProfile, actualProfile);
   });
 
@@ -60,6 +68,128 @@ void main() {
     );
     expect(actualFailure.message, 'profile_unavailable');
     expect(actualFailure.status, ApiFailureStatus.unsuccessful);
+  });
+
+  test('creates an establishment and stores it on the profile', () async {
+    const inputRequest = CreateEstablishmentRequest(
+      name: 'مقهى بوخاريست',
+      phone: '0501234567',
+      age: 'سنتين',
+      image: 'https://example.com/logo.png',
+      location: 'https://maps.google.com/?q=24.7136,46.6753',
+      address: 'الرياض - طريق الملك فهد',
+      status: 'existing',
+      userPosition: 'owner',
+    );
+    final mockLocalDataSource = _MockProfileLocalDataSource(
+      profile: _profile(),
+    );
+    final mockRemoteDataSource = _MockProfileRemoteDataSource(
+      createResponse: <String, dynamic>{
+        'success': true,
+        'message': 'تم إنشاء حساب المنشأة بنجاح.',
+        'data': inputRequest.toJson()
+          ..addAll(<String, dynamic>{
+            'user_id': 5,
+            'id': 3,
+            'created_at': '2026-10-06T21:33:36.000000Z',
+            'updated_at': '2026-10-06T21:33:36.000000Z',
+          }),
+      },
+    );
+    final repository = ProfileRepoImpl(
+      mockLocalDataSource,
+      mockRemoteDataSource,
+    );
+    final actualResult = await repository.createEstablishment(inputRequest);
+    expect(mockRemoteDataSource.lastRequest?.toJson(), inputRequest.toJson());
+    expect(actualResult.isRight(), isTrue);
+    final actualResponse = actualResult.getOrElse(
+      () => throw StateError('expected establishment'),
+    );
+    expect(actualResponse.message, 'تم إنشاء حساب المنشأة بنجاح.');
+    expect(actualResponse.establishment?.id, 3);
+    expect(actualResponse.establishment?.name, 'مقهى بوخاريست');
+    expect(actualResponse.establishment?.ageLabel, 'سنتين');
+    expect(actualResponse.establishment?.status, 'existing');
+    expect(actualResponse.establishment?.isActive, isTrue);
+    expect(actualResponse.establishment?.location, inputRequest.location);
+    expect(
+      mockLocalDataSource.savedProfile?.establishments.last.name,
+      'مقهى بوخاريست',
+    );
+  });
+
+  test('returns the api message when creation is unsuccessful', () async {
+    const inputMessage = 'تعذر إنشاء المنشأة.';
+    final repository = ProfileRepoImpl(
+      _MockProfileLocalDataSource(profile: null),
+      _MockProfileRemoteDataSource(
+        createResponse: <String, dynamic>{
+          'success': false,
+          'message': inputMessage,
+        },
+      ),
+    );
+    final actualResult = await repository.createEstablishment(
+      const CreateEstablishmentRequest(
+        name: 'مقهى بوخاريست',
+        phone: '0501234567',
+        age: 'سنتين',
+        image: '',
+        location: '',
+        address: 'الرياض',
+        status: 'existing',
+        userPosition: 'owner',
+      ),
+    );
+    final actualFailure = actualResult.fold<ServerFailure>(
+      (failure) => failure,
+      (_) => throw StateError('expected failure'),
+    );
+    expect(actualFailure.message, inputMessage);
+    expect(actualFailure.status, ApiFailureStatus.unsuccessful);
+  });
+
+  test('maps dio status codes from establishment creation', () async {
+    final requestOptions = RequestOptions(path: 'api/establishments');
+    final repository = ProfileRepoImpl(
+      _MockProfileLocalDataSource(profile: null),
+      _MockProfileRemoteDataSource(
+        createError: DioException(
+          requestOptions: requestOptions,
+          type: DioExceptionType.badResponse,
+          response: Response<Map<String, dynamic>>(
+            requestOptions: requestOptions,
+            statusCode: 422,
+            data: <String, dynamic>{
+              'message': 'The given data was invalid.',
+              'errors': <String, dynamic>{
+                'name': <String>['The name field is required.'],
+              },
+            },
+          ),
+        ),
+      ),
+    );
+    final actualResult = await repository.createEstablishment(
+      const CreateEstablishmentRequest(
+        name: '',
+        phone: '',
+        age: '',
+        image: '',
+        location: '',
+        address: '',
+        status: 'existing',
+        userPosition: 'owner',
+      ),
+    );
+    final actualFailure = actualResult.fold<ServerFailure>(
+      (failure) => failure,
+      (_) => throw StateError('expected failure'),
+    );
+    expect(actualFailure.status, ApiFailureStatus.validation);
+    expect(actualFailure.statusCode, 422);
   });
 
   test('maps dio errors from the account request', () async {
@@ -108,20 +238,37 @@ Map<String, dynamic> _accountResponse() {
       'email_verified_at': '2026-10-04T23:22:44.000000Z',
       'phone_verified_at': null,
       'role': 'admin',
-      'establishments': <Map<String, dynamic>>[
-        <String, dynamic>{
-          'id': 1,
-          'name': 'مقهى ومطعم الأفق',
-          'phone': '0501234567',
-          'age': 'سنتين',
-          'image': 'https://example.com/logo.png',
-          'address': 'الرياض - طريق الملك فهد',
-          'status': 'existing',
-          'user_position': 'owner',
-          'is_active': true,
-        },
-      ],
     },
+    'establishments': <Map<String, dynamic>>[
+      <String, dynamic>{
+        'id': 7,
+        'name': 'test',
+        'phone': '01097066403',
+        'age': null,
+        'image': null,
+        'location': null,
+        'latitude': null,
+        'longitude': null,
+        'address': null,
+        'status': 'existing',
+        'user_position': 'owner',
+        'is_active': true,
+      },
+      <String, dynamic>{
+        'id': 1,
+        'name': 'مقهى ومطعم الأفق',
+        'phone': '0501234567',
+        'age': 'سنتين',
+        'image': 'https://example.com/logo.png',
+        'location': 'https://maps.google.com/?q=24.7136,46.6753',
+        'latitude': '24.7136000',
+        'longitude': '46.6753000',
+        'address': 'الرياض - طريق الملك فهد',
+        'status': 'existing',
+        'user_position': 'owner',
+        'is_active': true,
+      },
+    ],
   };
 }
 
@@ -142,14 +289,32 @@ class _MockProfileLocalDataSource implements ProfileLocalDataSource {
 
 class _MockProfileRemoteDataSource implements ProfileRemoteDataSource {
   final Map<String, dynamic>? response;
+  final Map<String, dynamic>? createResponse;
   final DioException? error;
+  final DioException? createError;
+  CreateEstablishmentRequest? lastRequest;
 
-  _MockProfileRemoteDataSource({this.response, this.error});
+  _MockProfileRemoteDataSource({
+    this.response,
+    this.createResponse,
+    this.error,
+    this.createError,
+  });
 
   @override
   Future<Map<String, dynamic>> fetchAccount() async {
     final dioError = error;
     if (dioError != null) throw dioError;
     return response ?? <String, dynamic>{};
+  }
+
+  @override
+  Future<Map<String, dynamic>> createEstablishment(
+    CreateEstablishmentRequest request,
+  ) async {
+    lastRequest = request;
+    final dioError = createError;
+    if (dioError != null) throw dioError;
+    return createResponse ?? <String, dynamic>{};
   }
 }

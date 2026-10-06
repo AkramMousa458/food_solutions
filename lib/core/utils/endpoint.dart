@@ -4,6 +4,7 @@ class Endpoint {
   static const String login = 'api/login';
   static const String register = 'api/register';
   static const String account = 'api/account';
+  static const String establishments = 'api/establishments';
   static const String requestPhoneOtp = 'api/v1/auth/request-phone-otp';
   static const String verifyPhone = 'api/v1/auth/verify-phone';
   static const String refreshToken = 'api/v1/auth/refresh-token';

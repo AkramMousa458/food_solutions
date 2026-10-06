@@ -64,6 +64,25 @@ void main() {
     expect(ProfileSnapshot.fromJson(actualProfile.toJson()), actualProfile);
   });
 
+  test('treats establishment status as listed or closed', () {
+    final listed = ProfileEstablishmentSnapshot.fromJson(<String, dynamic>{
+      'name': 'Bucharest Cafe',
+      'status': 'existing',
+    });
+    final closed = ProfileEstablishmentSnapshot.fromJson(<String, dynamic>{
+      'name': 'Old Branch',
+      'status': 'closed',
+    });
+    final planned = ProfileEstablishmentSnapshot.fromJson(<String, dynamic>{
+      'name': 'New Branch',
+      'status': 'under_construction',
+    });
+    expect(listed.isActive, isTrue);
+    expect(listed.status, 'existing');
+    expect(closed.isActive, isFalse);
+    expect(planned.isActive, isFalse);
+  });
+
   test('ignores an establishment that has no name', () {
     final inputJson = <String, dynamic>{
       'name': 'Abdullah',

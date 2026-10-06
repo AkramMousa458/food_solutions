@@ -117,6 +117,9 @@ String resolveProfileRoleLabel(String role) {
     return translate('settings_user_role_manager');
   }
   if (normalized == 'admin') return translate('profile_role_admin');
+  if (normalized == 'authorized') {
+    return translate('establishment_position_authorized');
+  }
   return role.trim();
 }
 

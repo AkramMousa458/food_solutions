@@ -5,6 +5,8 @@ import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
 import 'package:food_solutions/features/profile/presentation/manager/profile_cubit.dart';
 import 'package:food_solutions/features/profile/presentation/manager/profile_state.dart';
+import 'package:food_solutions/features/profile/presentation/open_establishment_location.dart';
+import 'package:food_solutions/features/profile/presentation/screens/create_establishment_screen.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_branch_sheet.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_establishment_card.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_footer.dart';
@@ -12,6 +14,13 @@ import 'package:food_solutions/features/profile/presentation/widgets/profile_ide
 import 'package:food_solutions/features/profile/presentation/widgets/profile_settings_tile.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_status_view.dart';
 import 'package:food_solutions/features/settings/presentation/widgets/settings_logout_tile.dart';
+import 'package:go_router/go_router.dart';
+
+Future<void> _openCreateEstablishment(BuildContext context) async {
+  await context.push(CreateEstablishmentScreen.routeName);
+  if (!context.mounted) return;
+  await context.read<ProfileCubit>().loadProfile();
+}
 
 class ProfileScreenBody extends StatelessWidget {
   const ProfileScreenBody({super.key});
@@ -40,12 +49,16 @@ class ProfileScreenBody extends StatelessWidget {
             SizedBox(height: 14.h),
             ProfileEstablishmentCard(
               establishment: state.selectedEstablishment,
+              onOpenLocation: openEstablishmentLocationAction(
+                state.selectedEstablishment,
+              ),
               onSwitchBranch: () {
                 openProfileBranches(
                   context: context,
                   establishments: profile.establishments,
                   selectedIndex: state.selectedEstablishmentIndex,
                   onSelected: context.read<ProfileCubit>().selectEstablishment,
+                  onCreate: () => _openCreateEstablishment(context),
                 );
               },
             ),

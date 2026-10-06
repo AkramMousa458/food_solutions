@@ -9,16 +9,19 @@ import 'package:food_solutions/core/utils/theme_utils.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_identity_card.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_action_button.dart';
+import 'package:food_solutions/features/profile/presentation/widgets/profile_location_button.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_surface.dart';
 
 class ProfileEstablishmentCard extends StatelessWidget {
   final ProfileEstablishmentSnapshot? establishment;
   final VoidCallback onSwitchBranch;
+  final VoidCallback? onOpenLocation;
 
   const ProfileEstablishmentCard({
     super.key,
     required this.establishment,
     required this.onSwitchBranch,
+    this.onOpenLocation,
   });
 
   @override
@@ -36,6 +39,7 @@ class ProfileEstablishmentCard extends StatelessWidget {
     final showActive =
         currentEstablishment != null && currentEstablishment.isActive;
     final middle = profileEstablishmentMiddle(currentEstablishment);
+    final openLocation = onOpenLocation;
     return ProfileSurface(
       padding: EdgeInsets.fromLTRB(14.w, 16.h, 14.w, 14.h),
       child: Column(
@@ -101,6 +105,10 @@ class ProfileEstablishmentCard extends StatelessWidget {
             ),
           ),
           SizedBox(height: 14.h),
+          if (openLocation != null) ...[
+            ProfileLocationButton(onPressed: openLocation),
+            SizedBox(height: 10.h),
+          ],
           ProfileActionButton(
             label: translate('profile_switch_branch'),
             icon: Icons.storefront_outlined,

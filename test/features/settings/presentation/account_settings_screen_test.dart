@@ -11,6 +11,8 @@ import 'package:food_solutions/core/theme/theme_cubit.dart';
 import 'package:food_solutions/core/utils/local_storage.dart';
 import 'package:food_solutions/core/utils/service_locator.dart';
 import 'package:food_solutions/features/auth/presentation/screens/login_screen.dart';
+import 'package:food_solutions/features/profile/data/models/create_establishment_request.dart';
+import 'package:food_solutions/features/profile/data/models/create_establishment_response.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/data/repo/profile_repo.dart';
 import 'package:food_solutions/features/settings/data/models/settings_preferences.dart';
@@ -141,6 +143,17 @@ Future<void> _pumpSettings(
 }
 
 class _MockProfileRepo implements ProfileRepo {
+  @override
+  Future<Either<ServerFailure, CreateEstablishmentResponse>>
+  createEstablishment(CreateEstablishmentRequest request) async {
+    return const Left(
+      ServerFailure(
+        message: 'profile_unavailable',
+        status: ApiFailureStatus.unsuccessful,
+      ),
+    );
+  }
+
   @override
   Future<Either<ServerFailure, ProfileSnapshot>> fetchAccount() async {
     return const Left(
