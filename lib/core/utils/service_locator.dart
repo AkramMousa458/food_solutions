@@ -52,6 +52,10 @@ import 'package:food_solutions/features/auth/presentation/manager/login_cubit.da
 import 'package:food_solutions/features/auth/presentation/manager/otp_cubit.dart';
 import 'package:food_solutions/features/auth/presentation/manager/register_cubit.dart';
 import 'package:food_solutions/features/splash/presentation/manager/splash_cubit.dart';
+import 'package:food_solutions/features/profile/data/data_sources/profile_local_data_source.dart';
+import 'package:food_solutions/features/profile/data/repo/profile_repo.dart';
+import 'package:food_solutions/features/profile/data/repo/profile_repo_impl.dart';
+import 'package:food_solutions/features/profile/presentation/manager/profile_cubit.dart';
 
 final locator = GetIt.instance;
 
@@ -222,4 +226,13 @@ Future<void> setupLocator({Logger? logger}) async {
   );
   locator.registerFactory<OtpCubit>(() => OtpCubit(locator<AuthRepo>()));
   locator.registerFactory<SplashCubit>(() => SplashCubit(locator<AuthRepo>()));
+  locator.registerLazySingleton<ProfileLocalDataSource>(
+    () => ProfileLocalDataSourceImpl(locator<LocalStorage>()),
+  );
+  locator.registerLazySingleton<ProfileRepo>(
+    () => ProfileRepoImpl(locator<ProfileLocalDataSource>()),
+  );
+  locator.registerFactory<ProfileCubit>(
+    () => ProfileCubit(locator<ProfileRepo>()),
+  );
 }
