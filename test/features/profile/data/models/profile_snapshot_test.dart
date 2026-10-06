@@ -33,6 +33,37 @@ void main() {
     expect(actualProfile, expectedProfile);
   });
 
+  test('reads an account establishment', () {
+    final inputJson = <String, dynamic>{
+      'name': 'Akram Mousa',
+      'role': 'admin',
+      'phone': '01097066403',
+      'email': 'akrammousa458@gmail.com',
+      'email_verified_at': '2026-10-04T23:22:44.000000Z',
+      'establishments': [
+        {
+          'id': 1,
+          'name': 'مقهى ومطعم الأفق',
+          'age': 'سنتين',
+          'image': 'https://example.com/logo.png',
+          'address': 'الرياض - طريق الملك فهد',
+          'user_position': 'owner',
+          'is_active': true,
+        },
+      ],
+    };
+    final actualProfile = ProfileSnapshot.fromJson(inputJson);
+    final establishment = actualProfile.establishments.single;
+    expect(actualProfile.initials, 'AM');
+    expect(actualProfile.isEmailVerified, isTrue);
+    expect(establishment.id, 1);
+    expect(establishment.headquarters, 'الرياض - طريق الملك فهد');
+    expect(establishment.ageLabel, 'سنتين');
+    expect(establishment.imageUrl, 'https://example.com/logo.png');
+    expect(establishment.userPosition, 'owner');
+    expect(ProfileSnapshot.fromJson(actualProfile.toJson()), actualProfile);
+  });
+
   test('ignores an establishment that has no name', () {
     final inputJson = <String, dynamic>{
       'name': 'Abdullah',

@@ -4,8 +4,9 @@ import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
 import 'package:food_solutions/core/utils/app_styles.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';
-import 'package:food_solutions/features/profile/presentation/widgets/profile_settings_sheet.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_surface.dart';
+import 'package:food_solutions/features/settings/presentation/screens/account_settings_screen.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileSettingsTile extends StatelessWidget {
   const ProfileSettingsTile({super.key});
@@ -20,7 +21,7 @@ class ProfileSettingsTile extends StatelessWidget {
         ? AppColors.darkTextSecondary
         : AppColors.lightTextSecondary;
     return ProfileSurface(
-      onTap: () => openProfileSettings(context),
+      onTap: () => context.push(AccountSettingsScreen.routeName),
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
       child: Row(
         children: [

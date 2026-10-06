@@ -9,6 +9,8 @@ abstract class AuthSessionDataSource {
   Future<void> saveSession(LoginResponseModel session);
 
   String? readToken();
+
+  Future<void> clearSession();
 }
 
 class AuthSessionDataSourceImpl implements AuthSessionDataSource {
@@ -33,5 +35,12 @@ class AuthSessionDataSourceImpl implements AuthSessionDataSource {
     if (token == null || token.trim().isEmpty) return null;
     _apiService.setAuthToken(token);
     return token;
+  }
+
+  @override
+  Future<void> clearSession() async {
+    await _localStorage.remove(AppConstants.authTokenKey);
+    await _localStorage.remove(AppConstants.userProfileKey);
+    _apiService.setAuthToken(null);
   }
 }

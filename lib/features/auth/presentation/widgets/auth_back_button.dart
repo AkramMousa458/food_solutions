@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
-import 'package:food_solutions/core/utils/app_styles.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';
 import 'package:food_solutions/features/auth/presentation/screens/login_screen.dart';
 import 'package:go_router/go_router.dart';

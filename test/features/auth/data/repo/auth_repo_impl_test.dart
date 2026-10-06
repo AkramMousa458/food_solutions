@@ -418,4 +418,9 @@ class _RecordingAuthSession implements AuthSessionDataSource {
     if (token == null || token.isEmpty) return null;
     return token;
   }
+
+  @override
+  Future<void> clearSession() async {
+    saved = null;
+  }
 }

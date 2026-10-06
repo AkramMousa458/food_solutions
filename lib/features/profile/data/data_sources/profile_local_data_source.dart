@@ -6,6 +6,8 @@ import 'package:food_solutions/features/profile/data/models/profile_snapshot.dar
 
 abstract class ProfileLocalDataSource {
   ProfileSnapshot? readProfile();
+
+  Future<void> saveProfile(ProfileSnapshot profile);
 }
 
 class ProfileLocalDataSourceImpl implements ProfileLocalDataSource {
@@ -32,5 +34,13 @@ class ProfileLocalDataSourceImpl implements ProfileLocalDataSource {
     } catch (_) {
       return null;
     }
+  }
+
+  @override
+  Future<void> saveProfile(ProfileSnapshot profile) async {
+    await _localStorage.setString(
+      AppConstants.userProfileKey,
+      jsonEncode(profile.toJson()),
+    );
   }
 }

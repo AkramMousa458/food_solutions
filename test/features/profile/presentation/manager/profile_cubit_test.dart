@@ -1,22 +1,24 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:food_solutions/core/error/failure.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/data/repo/profile_repo.dart';
 import 'package:food_solutions/features/profile/presentation/manager/profile_cubit.dart';
 import 'package:food_solutions/features/profile/presentation/manager/profile_state.dart';
 
 void main() {
-  test('loads the cached profile', () {
+  test('loads the account profile', () async {
     final inputProfile = _profile();
     final mockRepository = _MockProfileRepo(profile: inputProfile);
     final cubit = ProfileCubit(mockRepository);
     addTearDown(cubit.close);
-    cubit.loadProfile();
+    await cubit.loadProfile();
     final actualState = cubit.state;
     final expectedState = ProfileSuccess(profile: inputProfile);
     expect(actualState, expectedState);
   });
 
-  test('selects another establishment', () {
+  test('selects another establishment', () async {
     final inputProfile = _profile(
       establishments: const [
         ProfileEstablishmentSnapshot(name: 'Nirvana Cafe', isActive: true),
@@ -26,18 +28,39 @@ void main() {
     final mockRepository = _MockProfileRepo(profile: inputProfile);
     final cubit = ProfileCubit(mockRepository);
     addTearDown(cubit.close);
-    cubit.loadProfile();
+    await cubit.loadProfile();
     cubit.selectEstablishment(1);
     final actualState = cubit.state as ProfileSuccess;
     expect(actualState.selectedEstablishmentIndex, 1);
     expect(actualState.selectedEstablishment?.name, 'Olaya Branch');
   });
 
-  test('fails when no profile is saved', () {
-    final mockRepository = _MockProfileRepo(profile: null);
+  test('uses the cached profile when the account request fails', () async {
+    final inputProfile = _profile();
+    final mockRepository = _MockProfileRepo(
+      profile: inputProfile,
+      failure: const ServerFailure(
+        message: 'unauthorized',
+        status: ApiFailureStatus.unauthorized,
+      ),
+    );
     final cubit = ProfileCubit(mockRepository);
     addTearDown(cubit.close);
-    cubit.loadProfile();
+    await cubit.loadProfile();
+    expect(cubit.state, ProfileSuccess(profile: inputProfile));
+  });
+
+  test('fails when the account request fails and nothing is cached', () async {
+    final mockRepository = _MockProfileRepo(
+      profile: null,
+      failure: const ServerFailure(
+        message: 'profile_unavailable',
+        status: ApiFailureStatus.unsuccessful,
+      ),
+    );
+    final cubit = ProfileCubit(mockRepository);
+    addTearDown(cubit.close);
+    await cubit.loadProfile();
     expect(cubit.state, const ProfileFailure(message: 'profile_unavailable'));
   });
 }
@@ -66,8 +89,25 @@ ProfileSnapshot _profile({List<ProfileEstablishmentSnapshot>? establishments}) {
 
 class _MockProfileRepo implements ProfileRepo {
   final ProfileSnapshot? profile;
+  final ServerFailure? failure;
 
-  _MockProfileRepo({required this.profile});
+  _MockProfileRepo({required this.profile, this.failure});
+
+  @override
+  Future<Either<ServerFailure, ProfileSnapshot>> fetchAccount() async {
+    final error = failure;
+    final account = profile;
+    if (error != null) return Left(error);
+    if (account == null) {
+      return const Left(
+        ServerFailure(
+          message: 'profile_unavailable',
+          status: ApiFailureStatus.unsuccessful,
+        ),
+      );
+    }
+    return Right(account);
+  }
 
   @override
   ProfileSnapshot? readProfile() => profile;

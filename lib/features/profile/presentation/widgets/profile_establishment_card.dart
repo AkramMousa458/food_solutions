@@ -1,9 +1,12 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
 import 'package:food_solutions/core/utils/app_styles.dart';
+import 'package:food_solutions/core/utils/media_url.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';
+import 'package:food_solutions/features/profile/presentation/widgets/profile_identity_card.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_action_button.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_surface.dart';
@@ -32,6 +35,7 @@ class ProfileEstablishmentCard extends StatelessWidget {
         currentEstablishment?.name ?? translate('profile_no_establishment');
     final showActive =
         currentEstablishment != null && currentEstablishment.isActive;
+    final middle = profileEstablishmentMiddle(currentEstablishment);
     return ProfileSurface(
       padding: EdgeInsets.fromLTRB(14.w, 16.h, 14.w, 14.h),
       child: Column(
@@ -53,7 +57,7 @@ class ProfileEstablishmentCard extends StatelessWidget {
           SizedBox(height: 12.h),
           Row(
             children: [
-              const _StoreBadge(),
+              _StoreBadge(imageUrl: currentEstablishment?.imageUrl),
               SizedBox(width: 10.w),
               Expanded(
                 child: Text(
@@ -82,15 +86,15 @@ class ProfileEstablishmentCard extends StatelessWidget {
                 SizedBox(width: 8.w),
                 Expanded(
                   child: _ProfileStatTile(
-                    label: translate('profile_business_activity'),
-                    value: profileValueOrFallback(establishment?.activity),
+                    label: middle.label,
+                    value: middle.value,
                   ),
                 ),
                 SizedBox(width: 8.w),
                 Expanded(
                   child: _ProfileStatTile(
                     label: translate('profile_establishment_age'),
-                    value: formatProfileAge(establishment?.ageInMonths),
+                    value: formatEstablishmentAge(establishment),
                   ),
                 ),
               ],
@@ -113,6 +117,32 @@ String profileValueOrFallback(String? value) {
   final trimmed = value?.trim() ?? '';
   if (trimmed.isEmpty) return translate('profile_value_unavailable');
   return trimmed;
+}
+
+({String label, String value}) profileEstablishmentMiddle(
+  ProfileEstablishmentSnapshot? establishment,
+) {
+  final activity = establishment?.activity?.trim() ?? '';
+  if (activity.isNotEmpty) {
+    return (label: translate('profile_business_activity'), value: activity);
+  }
+  final position = establishment?.userPosition?.trim() ?? '';
+  if (position.isNotEmpty) {
+    return (
+      label: translate('profile_user_position'),
+      value: resolveProfileRoleLabel(position),
+    );
+  }
+  return (
+    label: translate('profile_business_activity'),
+    value: translate('profile_value_unavailable'),
+  );
+}
+
+String formatEstablishmentAge(ProfileEstablishmentSnapshot? establishment) {
+  final label = establishment?.ageLabel?.trim() ?? '';
+  if (label.isNotEmpty) return label;
+  return formatProfileAge(establishment?.ageInMonths);
 }
 
 String formatProfileAge(int? months) {
@@ -163,22 +193,41 @@ class _ActiveChip extends StatelessWidget {
 }
 
 class _StoreBadge extends StatelessWidget {
-  const _StoreBadge();
+  final String? imageUrl;
+
+  const _StoreBadge({this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
+    final url = imageUrl?.trim() ?? '';
     return Container(
       width: 48.w,
       height: 48.w,
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColors.secondary.withValues(alpha: 0.18),
         borderRadius: BorderRadius.circular(14.r),
       ),
-      child: Icon(
-        Icons.storefront_rounded,
-        color: AppColors.secondary,
-        size: 26.sp,
-      ),
+      child: url.isEmpty
+          ? const _StoreIcon()
+          : CachedNetworkImage(
+              imageUrl: resolveMediaUrl(url),
+              fit: BoxFit.cover,
+              errorWidget: (_, _, _) => const _StoreIcon(),
+            ),
+    );
+  }
+}
+
+class _StoreIcon extends StatelessWidget {
+  const _StoreIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      Icons.storefront_rounded,
+      color: AppColors.secondary,
+      size: 26.sp,
     );
   }
 }

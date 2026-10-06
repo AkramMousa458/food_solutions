@@ -11,6 +11,7 @@ import 'package:food_solutions/features/profile/presentation/widgets/profile_foo
 import 'package:food_solutions/features/profile/presentation/widgets/profile_identity_card.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_settings_tile.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_status_view.dart';
+import 'package:food_solutions/features/settings/presentation/widgets/settings_logout_tile.dart';
 
 class ProfileScreenBody extends StatelessWidget {
   const ProfileScreenBody({super.key});
@@ -50,8 +51,10 @@ class ProfileScreenBody extends StatelessWidget {
             ),
             SizedBox(height: 14.h),
             const ProfileSettingsTile(),
+            SizedBox(height: 14.h),
+            const SettingsLogoutTile(),
             SizedBox(height: 18.h),
-            const ProfileFooter(),
+            // const ProfileFooter(),
           ],
         );
       },

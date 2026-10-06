@@ -53,9 +53,14 @@ import 'package:food_solutions/features/auth/presentation/manager/otp_cubit.dart
 import 'package:food_solutions/features/auth/presentation/manager/register_cubit.dart';
 import 'package:food_solutions/features/splash/presentation/manager/splash_cubit.dart';
 import 'package:food_solutions/features/profile/data/data_sources/profile_local_data_source.dart';
+import 'package:food_solutions/features/profile/data/data_sources/profile_remote_data_source.dart';
 import 'package:food_solutions/features/profile/data/repo/profile_repo.dart';
 import 'package:food_solutions/features/profile/data/repo/profile_repo_impl.dart';
 import 'package:food_solutions/features/profile/presentation/manager/profile_cubit.dart';
+import 'package:food_solutions/features/settings/data/data_sources/settings_local_data_source.dart';
+import 'package:food_solutions/features/settings/data/repo/settings_repo.dart';
+import 'package:food_solutions/features/settings/data/repo/settings_repo_impl.dart';
+import 'package:food_solutions/features/settings/presentation/manager/settings_cubit.dart';
 
 final locator = GetIt.instance;
 
@@ -229,10 +234,28 @@ Future<void> setupLocator({Logger? logger}) async {
   locator.registerLazySingleton<ProfileLocalDataSource>(
     () => ProfileLocalDataSourceImpl(locator<LocalStorage>()),
   );
+  locator.registerLazySingleton<ProfileRemoteDataSource>(
+    () => ProfileRemoteDataSourceImpl(locator<ApiService>()),
+  );
   locator.registerLazySingleton<ProfileRepo>(
-    () => ProfileRepoImpl(locator<ProfileLocalDataSource>()),
+    () => ProfileRepoImpl(
+      locator<ProfileLocalDataSource>(),
+      locator<ProfileRemoteDataSource>(),
+    ),
   );
   locator.registerFactory<ProfileCubit>(
     () => ProfileCubit(locator<ProfileRepo>()),
+  );
+  locator.registerLazySingleton<SettingsLocalDataSource>(
+    () => SettingsLocalDataSourceImpl(locator<LocalStorage>()),
+  );
+  locator.registerLazySingleton<SettingsRepo>(
+    () => SettingsRepoImpl(
+      locator<SettingsLocalDataSource>(),
+      locator<AuthSessionDataSource>(),
+    ),
+  );
+  locator.registerFactory<SettingsCubit>(
+    () => SettingsCubit(locator<SettingsRepo>(), locator<ProfileRepo>()),
   );
 }

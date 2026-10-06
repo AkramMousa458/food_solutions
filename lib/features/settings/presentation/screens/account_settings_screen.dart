@@ -4,29 +4,27 @@ import 'package:food_solutions/core/utils/app_colors.dart';
 import 'package:food_solutions/core/utils/service_locator.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';
 import 'package:food_solutions/features/auth/presentation/screens/login_screen.dart';
-import 'package:food_solutions/features/profile/presentation/manager/profile_cubit.dart';
-import 'package:food_solutions/features/profile/presentation/widgets/profile_screen_body.dart';
 import 'package:food_solutions/features/settings/presentation/manager/settings_cubit.dart';
 import 'package:food_solutions/features/settings/presentation/manager/settings_state.dart';
+import 'package:food_solutions/features/settings/presentation/widgets/account_settings_body.dart';
 import 'package:go_router/go_router.dart';
 
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+class AccountSettingsScreen extends StatelessWidget {
+  static const String routeName = '/account-settings';
+
+  const AccountSettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => locator<ProfileCubit>()..loadProfile()),
-        BlocProvider(create: (_) => locator<SettingsCubit>()),
-      ],
-      child: const _ProfileScaffold(),
+    return BlocProvider(
+      create: (_) => locator<SettingsCubit>()..loadSettings(),
+      child: const _AccountSettingsView(),
     );
   }
 }
 
-class _ProfileScaffold extends StatelessWidget {
-  const _ProfileScaffold();
+class _AccountSettingsView extends StatelessWidget {
+  const _AccountSettingsView();
 
   @override
   Widget build(BuildContext context) {
@@ -37,16 +35,24 @@ class _ProfileScaffold extends StatelessWidget {
             AppColors.secondary.withValues(alpha: 0.08),
             AppColors.lightScaffold,
           );
-    return BlocListener<SettingsCubit, SettingsState>(
+    return BlocConsumer<SettingsCubit, SettingsState>(
       listener: (context, state) {
         if (state is SettingsSessionEnded) {
           context.go(LoginScreen.routeName);
         }
       },
-      child: Scaffold(
-        backgroundColor: background,
-        body: const SafeArea(child: ProfileScreenBody()),
-      ),
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: background,
+          body: SafeArea(
+            child: state is SettingsReady
+                ? AccountSettingsBody(settings: state)
+                : const Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  ),
+          ),
+        );
+      },
     );
   }
 }

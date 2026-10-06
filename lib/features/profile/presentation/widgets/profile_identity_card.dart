@@ -75,13 +75,15 @@ class ProfileIdentityCard extends StatelessWidget {
             _ProfilePill(
               label: profile.email,
               keepLabelDirection: true,
-              trailing: Icon(
-                Icons.mail_outline_rounded,
-                size: 16.sp,
-                color: isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.lightTextSecondary,
-              ),
+              trailing: profile.isEmailVerified
+                  ? const _VerifiedMark()
+                  : Icon(
+                      Icons.mail_outline_rounded,
+                      size: 16.sp,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
+                    ),
               foreground: titleColor,
               background: isDark
                   ? AppColors.darkInputFill
@@ -111,6 +113,10 @@ String resolveProfileRoleLabel(String role) {
   if (normalized == 'partner' || normalized == 'founding_partner') {
     return translate('profile_role_partner');
   }
+  if (normalized == 'manager' || normalized == 'restaurant_manager') {
+    return translate('settings_user_role_manager');
+  }
+  if (normalized == 'admin') return translate('profile_role_admin');
   return role.trim();
 }
 

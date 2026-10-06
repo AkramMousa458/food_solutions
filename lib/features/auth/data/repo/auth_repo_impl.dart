@@ -171,4 +171,7 @@ class _InactiveAuthSession implements AuthSessionDataSource {
 
   @override
   String? readToken() => null;
+
+  @override
+  Future<void> clearSession() async {}
 }

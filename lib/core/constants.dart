@@ -8,6 +8,8 @@ class AppConstants {
   static const String themeModeKey = 'theme_dark';
   static const String languageKey = 'language';
   static const String userProfileKey = 'user_profile';
+  static const String salesAlertsKey = 'settings_sales_alerts';
+  static const String biometricLoginKey = 'settings_biometric_login';
 
   // App state keys
   static const String firstLaunchKey = 'first_launch';

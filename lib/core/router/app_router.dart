@@ -9,6 +9,7 @@ import 'package:food_solutions/features/services/data/models/service_item_model.
 import 'package:food_solutions/features/services/presentation/screens/service_details_screen.dart';
 import 'package:food_solutions/features/booking/presentation/screens/booking_screen.dart';
 import 'package:food_solutions/features/contact/presentation/screens/contact_screen.dart';
+import 'package:food_solutions/features/settings/presentation/screens/account_settings_screen.dart';
 
 abstract class AppRouter {
   static final router = GoRouter(
@@ -56,6 +57,10 @@ abstract class AppRouter {
       GoRoute(
         path: ContactScreen.routeName,
         builder: (context, state) => const ContactScreen(),
+      ),
+      GoRoute(
+        path: AccountSettingsScreen.routeName,
+        builder: (context, state) => const AccountSettingsScreen(),
       ),
     ],
   );
