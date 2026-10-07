@@ -5,6 +5,7 @@ import 'package:food_solutions/features/profile/data/models/create_establishment
 import 'package:food_solutions/features/profile/data/models/create_establishment_response.dart';
 import 'package:food_solutions/features/profile/data/models/delete_establishment_response.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
+import 'package:food_solutions/features/profile/data/models/update_profile_request.dart';
 import 'package:food_solutions/features/profile/data/repo/profile_repo.dart';
 import 'package:food_solutions/features/profile/presentation/manager/create_establishment_cubit.dart';
 import 'package:food_solutions/features/profile/presentation/manager/create_establishment_state.dart';
@@ -177,6 +178,18 @@ class _MockProfileRepo implements ProfileRepo {
       );
     }
     return Right(created);
+  }
+
+  @override
+  Future<Either<ServerFailure, ProfileSnapshot>> updateAccount(
+    UpdateProfileRequest request,
+  ) async {
+    return const Left(
+      ServerFailure(
+        message: 'profile_unavailable',
+        status: ApiFailureStatus.unsuccessful,
+      ),
+    );
   }
 
   @override

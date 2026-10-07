@@ -4,11 +4,16 @@ import 'package:food_solutions/features/profile/data/models/create_establishment
 import 'package:food_solutions/features/profile/data/models/create_establishment_response.dart';
 import 'package:food_solutions/features/profile/data/models/delete_establishment_response.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
+import 'package:food_solutions/features/profile/data/models/update_profile_request.dart';
 
 abstract class ProfileRepo {
   ProfileSnapshot? readProfile();
 
   Future<Either<ServerFailure, ProfileSnapshot>> fetchAccount();
+
+  Future<Either<ServerFailure, ProfileSnapshot>> updateAccount(
+    UpdateProfileRequest request,
+  );
 
   Future<Either<ServerFailure, CreateEstablishmentResponse>>
   createEstablishment(CreateEstablishmentRequest request);

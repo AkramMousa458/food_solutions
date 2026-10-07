@@ -24,19 +24,9 @@ class ProfileIdentityCard extends StatelessWidget {
     final titleColor = isDark
         ? AppColors.darkTextPrimary
         : AppColors.lightTextPrimary;
-    final surfaceEnd = isDark ? AppColors.darkCard : AppColors.white;
     return ProfileSurface(
       padding: EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 16.h),
-      gradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          AppColors.secondary.withValues(alpha: isDark ? 0.22 : 0.16),
-          surfaceEnd,
-          surfaceEnd,
-        ],
-        stops: const [0, 0.42, 1],
-      ),
+      gradient: _identityGradient(isDark),
       child: Column(
         children: [
           _ProfileAvatar(initials: profile.initials),
@@ -103,6 +93,30 @@ class ProfileIdentityCard extends StatelessWidget {
       ),
     );
   }
+}
+
+LinearGradient _identityGradient(bool isDark) {
+  final surface = isDark ? AppColors.darkCard : AppColors.white;
+  return LinearGradient(
+    begin: AlignmentDirectional.topStart,
+    end: AlignmentDirectional.bottomEnd,
+    colors: [
+      Color.alphaBlend(
+        AppColors.secondary.withValues(alpha: isDark ? 0.42 : 0.5),
+        surface,
+      ),
+      Color.alphaBlend(
+        AppColors.primarySoft.withValues(alpha: isDark ? 0.28 : 0.16),
+        surface,
+      ),
+      Color.alphaBlend(
+        AppColors.primary.withValues(alpha: isDark ? 0.34 : 0.08),
+        surface,
+      ),
+      surface,
+    ],
+    stops: const [0, 0.32, 0.66, 1],
+  );
 }
 
 String resolveProfileRoleLabel(String role) {

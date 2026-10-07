@@ -11,6 +11,7 @@ import 'package:food_solutions/features/booking/presentation/screens/booking_scr
 import 'package:food_solutions/features/contact/presentation/screens/contact_screen.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/presentation/screens/create_establishment_screen.dart';
+import 'package:food_solutions/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:food_solutions/features/settings/presentation/screens/account_settings_screen.dart';
 
 abstract class AppRouter {
@@ -72,6 +73,14 @@ abstract class AppRouter {
               ? extra
               : null;
           return CreateEstablishmentScreen(establishment: establishment);
+        },
+      ),
+      GoRoute(
+        path: EditProfileScreen.routeName,
+        builder: (context, state) {
+          final extra = state.extra;
+          final profile = extra is ProfileSnapshot ? extra : null;
+          return EditProfileScreen(profile: profile);
         },
       ),
     ],

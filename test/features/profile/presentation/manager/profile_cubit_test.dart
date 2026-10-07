@@ -5,6 +5,7 @@ import 'package:food_solutions/features/profile/data/models/create_establishment
 import 'package:food_solutions/features/profile/data/models/create_establishment_response.dart';
 import 'package:food_solutions/features/profile/data/models/delete_establishment_response.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
+import 'package:food_solutions/features/profile/data/models/update_profile_request.dart';
 import 'package:food_solutions/features/profile/data/repo/profile_repo.dart';
 import 'package:food_solutions/features/profile/presentation/manager/profile_cubit.dart';
 import 'package:food_solutions/features/profile/presentation/manager/profile_state.dart';
@@ -115,14 +116,56 @@ void main() {
     expect(actualState.feedback?.message, 'تعذر حذف المنشأة.');
     expect(actualState.isBusy, isFalse);
   });
+
+  test('applies the saved profile after an account update', () async {
+    final inputProfile = _profile(
+      establishments: const [
+        ProfileEstablishmentSnapshot(id: 3, name: 'مقهى بوخاريست', isActive: true),
+        ProfileEstablishmentSnapshot(
+          id: 1,
+          name: 'مقهى ومطعم الأفق',
+          isActive: true,
+        ),
+      ],
+    );
+    final updatedProfile = _profile(
+      name: 'محمد أحمد المحدث',
+      email: 'mohamed_updated@example.com',
+      establishments: const [
+        ProfileEstablishmentSnapshot(id: 3, name: 'مقهى بوخاريست', isActive: true),
+        ProfileEstablishmentSnapshot(
+          id: 1,
+          name: 'مقهى ومطعم الأفق',
+          isActive: true,
+          status: 'under_construction',
+        ),
+      ],
+    );
+    final mockRepository = _MockProfileRepo(profile: inputProfile);
+    final cubit = ProfileCubit(mockRepository);
+    addTearDown(cubit.close);
+    await cubit.loadProfile();
+    cubit.selectEstablishment(1);
+    mockRepository.savedProfile = updatedProfile;
+    cubit.applyCachedProfile();
+    final actualState = cubit.state as ProfileSuccess;
+    expect(actualState.profile.name, 'محمد أحمد المحدث');
+    expect(actualState.profile.email, 'mohamed_updated@example.com');
+    expect(actualState.selectedEstablishmentIndex, 1);
+    expect(actualState.selectedEstablishment?.status, 'under_construction');
+  });
 }
 
-ProfileSnapshot _profile({List<ProfileEstablishmentSnapshot>? establishments}) {
+ProfileSnapshot _profile({
+  String name = 'Abdullah Al Saeed',
+  String email = 'abdullah@foodsolutions.sa',
+  List<ProfileEstablishmentSnapshot>? establishments,
+}) {
   return ProfileSnapshot(
-    name: 'Abdullah Al Saeed',
+    name: name,
     role: 'owner',
     phone: '+966 50 123 4567',
-    email: 'abdullah@foodsolutions.sa',
+    email: email,
     initials: 'AS',
     phoneVerifiedAt: '2024-01-01T00:00:00Z',
     establishments:
@@ -144,6 +187,7 @@ class _MockProfileRepo implements ProfileRepo {
   final ServerFailure? failure;
   final ServerFailure? deleteFailure;
   int? deletedId;
+  ProfileSnapshot? savedProfile;
 
   _MockProfileRepo({required this.profile, this.failure, this.deleteFailure});
 
@@ -184,6 +228,18 @@ class _MockProfileRepo implements ProfileRepo {
   }
 
   @override
+  Future<Either<ServerFailure, ProfileSnapshot>> updateAccount(
+    UpdateProfileRequest request,
+  ) async {
+    return const Left(
+      ServerFailure(
+        message: 'profile_unavailable',
+        status: ApiFailureStatus.unsuccessful,
+      ),
+    );
+  }
+
+  @override
   Future<Either<ServerFailure, ProfileSnapshot>> fetchAccount() async {
     final error = failure;
     final account = profile;
@@ -201,6 +257,8 @@ class _MockProfileRepo implements ProfileRepo {
 
   @override
   ProfileSnapshot? readProfile() {
+    final saved = savedProfile;
+    if (saved != null) return saved;
     final account = profile;
     final removedId = deletedId;
     if (account == null || removedId == null) return account;

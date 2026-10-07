@@ -5,6 +5,7 @@ import 'package:food_solutions/features/profile/data/data_sources/profile_local_
 import 'package:food_solutions/features/profile/data/data_sources/profile_remote_data_source.dart';
 import 'package:food_solutions/features/profile/data/models/create_establishment_request.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
+import 'package:food_solutions/features/profile/data/models/update_profile_request.dart';
 import 'package:food_solutions/features/profile/data/repo/profile_repo_impl.dart';
 
 void main() {
@@ -53,6 +54,64 @@ void main() {
     expect(complete.longitude, '46.6753000');
     expect(complete.userPosition, 'owner');
     expect(complete.isActive, isTrue);
+    expect(mockLocalDataSource.savedProfile, actualProfile);
+  });
+
+  test('updates the account and keeps the returned establishments', () async {
+    const inputRequest = UpdateProfileRequest(
+      name: 'محمد أحمد المحدث',
+      phone: '01097066403',
+      email: 'mohamed_updated@example.com',
+    );
+    final mockLocalDataSource = _MockProfileLocalDataSource(profile: null);
+    final mockRemoteDataSource = _MockProfileRemoteDataSource(
+      updateAccountResponse: <String, dynamic>{
+        'user': <String, dynamic>{
+          'id': 5,
+          'name': 'محمد أحمد المحدث',
+          'email': 'mohamed_updated@example.com',
+          'phone': '01097066403',
+          'email_verified_at': '2026-10-04T23:22:44.000000Z',
+          'phone_verified_at': null,
+          'role': 'admin',
+        },
+        'establishments': <Map<String, dynamic>>[
+          <String, dynamic>{
+            'id': 3,
+            'name': 'مقهى بوخاريست',
+            'age': 'سنتين',
+            'address': 'الرياض - طريق الملك فهد',
+            'status': 'existing',
+            'user_position': 'owner',
+            'is_active': true,
+          },
+          <String, dynamic>{
+            'id': 1,
+            'name': 'مقهى ومطعم الأفق',
+            'status': 'under_construction',
+            'user_position': 'owner',
+            'is_active': true,
+          },
+        ],
+      },
+    );
+    final repository = ProfileRepoImpl(
+      mockLocalDataSource,
+      mockRemoteDataSource,
+    );
+    final actualResult = await repository.updateAccount(inputRequest);
+    expect(mockRemoteDataSource.lastUpdateRequest?.toJson(), inputRequest.toJson());
+    expect(actualResult.isRight(), isTrue);
+    final actualProfile = actualResult.getOrElse(
+      () => throw StateError('expected account'),
+    );
+    expect(actualProfile.name, 'محمد أحمد المحدث');
+    expect(actualProfile.email, 'mohamed_updated@example.com');
+    expect(actualProfile.isEmailVerified, isTrue);
+    expect(actualProfile.isPhoneVerified, isFalse);
+    expect(actualProfile.establishments, hasLength(2));
+    expect(actualProfile.establishments.first.status, 'existing');
+    expect(actualProfile.establishments.last.status, 'under_construction');
     expect(mockLocalDataSource.savedProfile, actualProfile);
   });
 
@@ -384,9 +443,11 @@ class _MockProfileRemoteDataSource implements ProfileRemoteDataSource {
   final Map<String, dynamic>? createResponse;
   final Map<String, dynamic>? updateResponse;
   final Map<String, dynamic>? deleteResponse;
+  final Map<String, dynamic>? updateAccountResponse;
   final DioException? error;
   final DioException? createError;
   CreateEstablishmentRequest? lastRequest;
+  UpdateProfileRequest? lastUpdateRequest;
   int? lastEstablishmentId;
 
   _MockProfileRemoteDataSource({
@@ -394,6 +455,7 @@ class _MockProfileRemoteDataSource implements ProfileRemoteDataSource {
     this.createResponse,
     this.updateResponse,
     this.deleteResponse,
+    this.updateAccountResponse,
     this.error,
     this.createError,
   });
@@ -403,6 +465,14 @@ class _MockProfileRemoteDataSource implements ProfileRemoteDataSource {
     final dioError = error;
     if (dioError != null) throw dioError;
     return response ?? <String, dynamic>{};
+  }
+
+  @override
+  Future<Map<String, dynamic>> updateAccount(UpdateProfileRequest request) async {
+    lastUpdateRequest = request;
+    final dioError = error;
+    if (dioError != null) throw dioError;
+    return updateAccountResponse ?? <String, dynamic>{};
   }
 
   @override

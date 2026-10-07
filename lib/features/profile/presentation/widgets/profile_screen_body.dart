@@ -9,6 +9,7 @@ import 'package:food_solutions/features/profile/presentation/manager/profile_cub
 import 'package:food_solutions/features/profile/presentation/manager/profile_state.dart';
 import 'package:food_solutions/features/profile/presentation/open_establishment_location.dart';
 import 'package:food_solutions/features/profile/presentation/screens/create_establishment_screen.dart';
+import 'package:food_solutions/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_branch_sheet.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_establishment_card.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_identity_card.dart';
@@ -33,6 +34,18 @@ Future<void> _openEditEstablishment(
   );
   if (!context.mounted) return;
   await context.read<ProfileCubit>().loadProfile();
+}
+
+Future<void> _openEditProfile(
+  BuildContext context,
+  ProfileSnapshot profile,
+) async {
+  final updated = await context.push<bool>(
+    EditProfileScreen.routeName,
+    extra: profile,
+  );
+  if (updated != true || !context.mounted) return;
+  context.read<ProfileCubit>().applyCachedProfile();
 }
 
 VoidCallback? _editEstablishmentAction(
@@ -77,7 +90,10 @@ class ProfileScreenBody extends StatelessWidget {
           physics: const BouncingScrollPhysics(),
           padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
           children: [
-            ProfileIdentityCard(profile: profile, onEditProfile: () {}),
+            ProfileIdentityCard(
+              profile: profile,
+              onEditProfile: () => _openEditProfile(context, profile),
+            ),
             SizedBox(height: 14.h),
             ProfileEstablishmentCard(
               establishment: establishment,

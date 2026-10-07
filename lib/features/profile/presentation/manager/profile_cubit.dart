@@ -89,6 +89,26 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
     emit(ProfileFailure(message: failure.message));
   }
+
+  void applyCachedProfile() {
+    final cached = _profileRepo.readProfile();
+    if (cached == null) return;
+    final current = state;
+    if (current is! ProfileSuccess) {
+      emit(ProfileSuccess(profile: cached));
+      return;
+    }
+    emit(
+      ProfileSuccess(
+        profile: cached,
+        selectedEstablishmentIndex: _indexAfterRemoval(
+          previous: current.profile.establishments,
+          next: cached.establishments,
+          selectedIndex: current.selectedEstablishmentIndex,
+        ),
+      ),
+    );
+  }
 }
 
 ProfileSnapshot _withoutEstablishment(ProfileSnapshot profile, int id) {

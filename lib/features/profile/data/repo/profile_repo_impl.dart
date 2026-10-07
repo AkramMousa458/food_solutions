@@ -7,6 +7,7 @@ import 'package:food_solutions/features/profile/data/models/create_establishment
 import 'package:food_solutions/features/profile/data/models/create_establishment_response.dart';
 import 'package:food_solutions/features/profile/data/models/delete_establishment_response.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
+import 'package:food_solutions/features/profile/data/models/update_profile_request.dart';
 import 'package:food_solutions/features/profile/data/repo/profile_repo.dart';
 
 class ProfileRepoImpl implements ProfileRepo {
@@ -19,9 +20,22 @@ class ProfileRepoImpl implements ProfileRepo {
   ProfileSnapshot? readProfile() => _localDataSource.readProfile();
 
   @override
-  Future<Either<ServerFailure, ProfileSnapshot>> fetchAccount() async {
+  Future<Either<ServerFailure, ProfileSnapshot>> fetchAccount() {
+    return _loadAccount(_remoteDataSource.fetchAccount());
+  }
+
+  @override
+  Future<Either<ServerFailure, ProfileSnapshot>> updateAccount(
+    UpdateProfileRequest request,
+  ) {
+    return _loadAccount(_remoteDataSource.updateAccount(request));
+  }
+
+  Future<Either<ServerFailure, ProfileSnapshot>> _loadAccount(
+    Future<Map<String, dynamic>> request,
+  ) async {
     try {
-      final response = await _remoteDataSource.fetchAccount();
+      final response = await request;
       final profile = _readAccount(response);
       if (profile == null) return Left(_unavailableFailure());
       await _localDataSource.saveProfile(profile);
