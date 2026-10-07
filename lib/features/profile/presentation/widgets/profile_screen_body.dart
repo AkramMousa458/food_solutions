@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
-import 'package:food_solutions/core/utils/app_colors.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/presentation/confirm_delete_establishment.dart';
 import 'package:food_solutions/features/profile/presentation/manager/profile_cubit.dart';
@@ -13,6 +12,7 @@ import 'package:food_solutions/features/profile/presentation/screens/edit_profil
 import 'package:food_solutions/features/profile/presentation/widgets/profile_branch_sheet.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_establishment_card.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_identity_card.dart';
+import 'package:food_solutions/features/profile/presentation/widgets/profile_loading_shimmer.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_settings_tile.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_status_view.dart';
 import 'package:food_solutions/features/settings/presentation/widgets/settings_logout_tile.dart';
@@ -28,10 +28,7 @@ Future<void> _openEditEstablishment(
   BuildContext context,
   ProfileEstablishmentSnapshot establishment,
 ) async {
-  await context.push(
-    CreateEstablishmentScreen.routeName,
-    extra: establishment,
-  );
+  await context.push(CreateEstablishmentScreen.routeName, extra: establishment);
   if (!context.mounted) return;
   await context.read<ProfileCubit>().loadProfile();
 }
@@ -80,9 +77,7 @@ class ProfileScreenBody extends StatelessWidget {
           );
         }
         if (state is! ProfileSuccess) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
-          );
+          return const ProfileLoadingShimmer();
         }
         final profile = state.profile;
         final establishment = state.selectedEstablishment;
