@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food_solutions/core/language/app_translations.dart';
-import 'package:food_solutions/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:food_solutions/features/auth/presentation/widgets/login_continue_button.dart';
-import 'package:food_solutions/features/profile/data/models/create_establishment_request.dart';
 import 'package:food_solutions/features/profile/presentation/manager/create_establishment_cubit.dart';
 import 'package:food_solutions/features/profile/presentation/manager/create_establishment_state.dart';
-import 'package:food_solutions/features/profile/presentation/widgets/establishment_option_field.dart';
+import 'package:food_solutions/features/profile/presentation/widgets/establishment_address_field.dart';
+import 'package:food_solutions/features/profile/presentation/widgets/establishment_age_field.dart';
+import 'package:food_solutions/features/profile/presentation/widgets/establishment_location_field.dart';
+import 'package:food_solutions/features/profile/presentation/widgets/establishment_name_field.dart';
+import 'package:food_solutions/features/profile/presentation/widgets/establishment_phone_field.dart';
+import 'package:food_solutions/features/profile/presentation/widgets/establishment_position_picker.dart';
+import 'package:food_solutions/features/profile/presentation/widgets/establishment_privacy_note.dart';
+import 'package:food_solutions/features/profile/presentation/widgets/establishment_status_picker.dart';
 
 class CreateEstablishmentForm extends StatefulWidget {
   const CreateEstablishmentForm({super.key});
@@ -46,69 +50,52 @@ class _CreateEstablishmentFormState extends State<CreateEstablishmentForm> {
             physics: const BouncingScrollPhysics(),
             padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),
             children: [
-              AuthTextField(
-                labelKey: 'establishment_name_label',
-                hintKey: 'establishment_name_hint',
-                icon: Icons.storefront_outlined,
+              EstablishmentNameField(
                 controller: cubit.nameController,
                 validator: cubit.validateName,
                 isEnabled: !isLoading,
               ),
-              SizedBox(height: 14.h),
-              AuthTextField(
-                labelKey: 'establishment_phone_label',
-                hintKey: 'establishment_phone_hint',
-                icon: Icons.phone_outlined,
-                keyboardType: TextInputType.phone,
+              SizedBox(height: 20.h),
+              EstablishmentPhoneField(
                 controller: cubit.phoneController,
                 validator: cubit.validatePhone,
                 isEnabled: !isLoading,
+                country: cubit.phoneCode,
+                onCountryChanged: cubit.selectPhoneCode,
               ),
-              SizedBox(height: 14.h),
-              AuthTextField(
-                labelKey: 'establishment_age_label',
-                hintKey: 'establishment_age_hint',
-                icon: Icons.calendar_month_outlined,
-                controller: cubit.ageController,
+              SizedBox(height: 20.h),
+              EstablishmentAgeField(
+                value: cubit.selectedAge,
+                fallback: cubit.legacyAge,
+                onChanged: cubit.selectAge,
                 isEnabled: !isLoading,
               ),
-              SizedBox(height: 14.h),
-              AuthTextField(
-                labelKey: 'establishment_address_label',
-                hintKey: 'establishment_address_hint',
-                icon: Icons.location_on_outlined,
+              SizedBox(height: 20.h),
+              EstablishmentAddressField(
                 controller: cubit.addressController,
-                // validator: cubit.validateAddress,
                 isEnabled: !isLoading,
               ),
-              SizedBox(height: 14.h),
-              AuthTextField(
-                labelKey: 'establishment_location_label',
-                hintKey: 'establishment_location_hint',
-                icon: Icons.map_outlined,
-                keyboardType: TextInputType.url,
+              SizedBox(height: 20.h),
+              EstablishmentLocationField(
                 controller: cubit.locationController,
+                validator: cubit.validateOptionalUrl,
                 isEnabled: !isLoading,
               ),
-              SizedBox(height: 14.h),
-              EstablishmentOptionField(
-                labelKey: 'establishment_status_label',
+              SizedBox(height: 22.h),
+              EstablishmentStatusPicker(
                 value: cubit.status,
-                options: CreateEstablishmentRequest.statuses,
-                labelFor: _statusLabel,
                 onChanged: cubit.selectStatus,
                 isEnabled: !isLoading,
               ),
-              SizedBox(height: 14.h),
-              EstablishmentOptionField(
-                labelKey: 'establishment_position_label',
+              SizedBox(height: 22.h),
+              EstablishmentPositionPicker(
                 value: cubit.userPosition,
-                options: CreateEstablishmentRequest.positions,
-                labelFor: _positionLabel,
                 onChanged: cubit.selectPosition,
                 isEnabled: !isLoading,
               ),
-              SizedBox(height: 40.h),
+              SizedBox(height: 18.h),
+              const EstablishmentPrivacyNote(),
+              SizedBox(height: 24.h),
               LoginContinueButton(
                 labelKey: cubit.isEditing
                     ? 'establishment_update_action'
@@ -121,31 +108,5 @@ class _CreateEstablishmentFormState extends State<CreateEstablishmentForm> {
         );
       },
     );
-  }
-
-  String _statusLabel(String status) {
-    switch (status) {
-      case CreateEstablishmentRequest.underConstructionStatus:
-        return translate('establishment_status_under_construction');
-      case CreateEstablishmentRequest.ideaStatus:
-        return translate('establishment_status_idea');
-      case CreateEstablishmentRequest.existingStatus:
-        return translate('establishment_status_existing');
-      default:
-        return status;
-    }
-  }
-
-  String _positionLabel(String position) {
-    switch (position) {
-      case CreateEstablishmentRequest.managerPosition:
-        return translate('establishment_position_manager');
-      case CreateEstablishmentRequest.authorizedPosition:
-        return translate('establishment_position_authorized');
-      case CreateEstablishmentRequest.ownerPosition:
-        return translate('establishment_position_owner');
-      default:
-        return position;
-    }
   }
 }

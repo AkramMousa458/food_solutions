@@ -6,6 +6,7 @@ import 'package:food_solutions/features/profile/data/models/create_establishment
 import 'package:food_solutions/features/profile/data/models/create_establishment_response.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/data/repo/profile_repo.dart';
+import 'package:food_solutions/features/profile/presentation/establishment_phone.dart';
 import 'package:food_solutions/features/profile/presentation/manager/create_establishment_state.dart';
 
 final RegExp _httpUrlPattern = RegExp(r'^https?:\/\/\S+$');
@@ -14,12 +15,14 @@ class CreateEstablishmentCubit extends Cubit<CreateEstablishmentState> {
   final ProfileRepo _profileRepo;
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController ageController = TextEditingController();
   final TextEditingController imageController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   String status = CreateEstablishmentRequest.existingStatus;
   String userPosition = CreateEstablishmentRequest.ownerPosition;
+  String? selectedAge;
+  String legacyAge = '';
+  ArabPhoneCode phoneCode = EstablishmentPhone.saudi;
 
   CreateEstablishmentCubit(this._profileRepo)
     : super(const CreateEstablishmentReady());
@@ -28,23 +31,45 @@ class CreateEstablishmentCubit extends Cubit<CreateEstablishmentState> {
     if (state is CreateEstablishmentLoading) return;
     if (!CreateEstablishmentRequest.statuses.contains(value)) return;
     status = value;
-    emit(CreateEstablishmentReady(status: status, userPosition: userPosition));
+    emit(_ready());
   }
 
   void selectPosition(String value) {
     if (state is CreateEstablishmentLoading) return;
     if (!CreateEstablishmentRequest.positions.contains(value)) return;
     userPosition = value;
-    emit(CreateEstablishmentReady(status: status, userPosition: userPosition));
+    emit(_ready());
+  }
+
+  void selectAge(String value) {
+    if (state is CreateEstablishmentLoading) return;
+    if (!CreateEstablishmentRequest.ages.contains(value)) return;
+    selectedAge = value;
+    legacyAge = '';
+    emit(_ready());
+  }
+
+  void selectPhoneCode(String dial) {
+    if (state is CreateEstablishmentLoading) return;
+    final next = EstablishmentPhone.byDial(dial);
+    if (next.dial != dial || next.dial == phoneCode.dial) return;
+    phoneCode = next;
+    final local = EstablishmentPhone.local(phoneController.text, next);
+    phoneController.value = TextEditingValue(
+      text: local,
+      selection: TextSelection.collapsed(offset: local.length),
+    );
+    emit(_ready());
   }
 
   String? validateName(String? value) => _requireText(value);
 
   String? validatePhone(String? value) {
-    final input = value?.trim() ?? '';
-    if (input.isEmpty) return translate('booking_validation_required');
-    final digits = input.replaceAll(RegExp(r'\D'), '');
-    if (digits.length < 9) return translate('booking_validation_phone');
+    final digits = EstablishmentPhone.local(value, phoneCode);
+    if (digits.isEmpty) return translate('booking_validation_required');
+    if (!EstablishmentPhone.isValid(value, phoneCode)) {
+      return translate('booking_validation_phone');
+    }
     return null;
   }
 
@@ -62,7 +87,8 @@ class CreateEstablishmentCubit extends Cubit<CreateEstablishmentState> {
   bool get canSubmit {
     return validateName(nameController.text) == null &&
         validatePhone(phoneController.text) == null &&
-        validateOptionalUrl(imageController.text) == null;
+        validateOptionalUrl(imageController.text) == null &&
+        validateOptionalUrl(locationController.text) == null;
   }
 
   int? editingId;
@@ -74,8 +100,15 @@ class CreateEstablishmentCubit extends Cubit<CreateEstablishmentState> {
     if (id == null || state is CreateEstablishmentLoading) return;
     editingId = id;
     nameController.text = establishment.name;
-    phoneController.text = establishment.phone ?? '';
-    ageController.text = establishment.ageLabel ?? '';
+    phoneCode = EstablishmentPhone.match(establishment.phone);
+    phoneController.text = EstablishmentPhone.local(
+      establishment.phone,
+      phoneCode,
+    );
+    selectedAge = _matchAge(establishment.ageLabel);
+    legacyAge = selectedAge == null
+        ? (establishment.ageLabel?.trim() ?? '')
+        : '';
     imageController.text = establishment.imageUrl ?? '';
     locationController.text = establishment.location ?? '';
     addressController.text = establishment.headquarters ?? '';
@@ -89,7 +122,7 @@ class CreateEstablishmentCubit extends Cubit<CreateEstablishmentState> {
       CreateEstablishmentRequest.positions,
       CreateEstablishmentRequest.ownerPosition,
     );
-    emit(CreateEstablishmentReady(status: status, userPosition: userPosition));
+    emit(_ready());
   }
 
   Future<void> createEstablishment() async {
@@ -115,8 +148,8 @@ class CreateEstablishmentCubit extends Cubit<CreateEstablishmentState> {
   CreateEstablishmentRequest _request() {
     return CreateEstablishmentRequest(
       name: nameController.text.trim(),
-      phone: phoneController.text.trim(),
-      age: ageController.text.trim(),
+      phone: EstablishmentPhone.international(phoneController.text, phoneCode),
+      age: selectedAge ?? legacyAge,
       image: imageController.text.trim(),
       location: locationController.text.trim(),
       address: addressController.text.trim(),
@@ -154,6 +187,25 @@ class CreateEstablishmentCubit extends Cubit<CreateEstablishmentState> {
     );
   }
 
+  CreateEstablishmentReady _ready() {
+    return CreateEstablishmentReady(
+      status: status,
+      userPosition: userPosition,
+      age: selectedAge,
+      phoneDial: phoneCode.dial,
+    );
+  }
+
+  String? _matchAge(String? raw) {
+    final value = raw?.trim() ?? '';
+    if (value.isEmpty) return null;
+    if (CreateEstablishmentRequest.ages.contains(value)) return value;
+    for (final entry in CreateEstablishmentRequest.ageLabelKeys.entries) {
+      if (translate(entry.value) == value) return entry.key;
+    }
+    return null;
+  }
+
   String _knownValue(String? value, List<String> options, String fallback) {
     final current = value?.trim() ?? '';
     if (options.contains(current)) return current;
@@ -171,7 +223,6 @@ class CreateEstablishmentCubit extends Cubit<CreateEstablishmentState> {
   Future<void> close() {
     nameController.dispose();
     phoneController.dispose();
-    ageController.dispose();
     imageController.dispose();
     locationController.dispose();
     addressController.dispose();

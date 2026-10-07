@@ -7,6 +7,7 @@ import 'package:food_solutions/core/utils/app_styles.dart';
 import 'package:food_solutions/core/utils/media_url.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_identity_card.dart';
+import 'package:food_solutions/features/profile/data/models/create_establishment_request.dart';
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_action_button.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_establishment_actions.dart';
@@ -168,6 +169,8 @@ String profileValueOrFallback(String? value) {
 
 String formatEstablishmentAge(ProfileEstablishmentSnapshot? establishment) {
   final label = establishment?.ageLabel?.trim() ?? '';
+  final labelKey = CreateEstablishmentRequest.ageLabelKeys[label];
+  if (labelKey != null) return translate(labelKey);
   if (label.isNotEmpty) return label;
   return formatProfileAge(establishment?.ageInMonths);
 }

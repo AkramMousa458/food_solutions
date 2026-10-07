@@ -77,7 +77,7 @@ class _CreateEstablishmentView extends StatelessWidget {
       child: Scaffold(
         backgroundColor: isDark
             ? AppColors.darkScaffold
-            : AppColors.lightScaffold,
+            : AppColors.warmScaffold,
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

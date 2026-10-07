@@ -13,14 +13,18 @@ abstract class CreateEstablishmentState extends Equatable {
 class CreateEstablishmentReady extends CreateEstablishmentState {
   final String status;
   final String userPosition;
+  final String? age;
+  final String phoneDial;
 
   const CreateEstablishmentReady({
     this.status = CreateEstablishmentRequest.existingStatus,
     this.userPosition = CreateEstablishmentRequest.ownerPosition,
+    this.age,
+    this.phoneDial = '966',
   });
 
   @override
-  List<Object?> get props => [status, userPosition];
+  List<Object?> get props => [status, userPosition, age, phoneDial];
 }
 
 class CreateEstablishmentLoading extends CreateEstablishmentState {

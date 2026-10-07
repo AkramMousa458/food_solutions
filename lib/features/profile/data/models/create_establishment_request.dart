@@ -15,6 +15,25 @@ class CreateEstablishmentRequest {
     managerPosition,
     authorizedPosition,
   ];
+  static const String ageLessThanSixMonths = 'less_than_6_months';
+  static const String ageOneYear = 'one_year';
+  static const String ageTwoToThreeYears = 'two_to_three_years';
+  static const String ageFourToFiveYears = 'four_to_five_years';
+  static const String ageMoreThanFiveYears = 'more_than_five_years';
+  static const List<String> ages = [
+    ageLessThanSixMonths,
+    ageOneYear,
+    ageTwoToThreeYears,
+    ageFourToFiveYears,
+    ageMoreThanFiveYears,
+  ];
+  static const Map<String, String> ageLabelKeys = {
+    ageLessThanSixMonths: 'establishment_age_new',
+    ageOneYear: 'establishment_age_one_year',
+    ageTwoToThreeYears: 'establishment_age_two_to_three',
+    ageFourToFiveYears: 'establishment_age_four_to_five',
+    ageMoreThanFiveYears: 'establishment_age_more_than_five',
+  };
 
   final String name;
   final String phone;

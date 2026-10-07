@@ -179,24 +179,24 @@ class _ProfileAvatar extends StatelessWidget {
                     ),
                   ),
           ),
-          PositionedDirectional(
-            bottom: 4.h,
-            end: 4.w,
-            child: Container(
-              width: 32.w,
-              height: 32.w,
-              decoration: BoxDecoration(
-                color: AppColors.secondary,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.white, width: 2),
-              ),
-              child: Icon(
-                Icons.photo_camera_rounded,
-                color: AppColors.white,
-                size: 16.sp,
-              ),
-            ),
-          ),
+          // PositionedDirectional(
+          //   bottom: 4.h,
+          //   end: 4.w,
+          //   child: Container(
+          //     width: 32.w,
+          //     height: 32.w,
+          //     decoration: BoxDecoration(
+          //       color: AppColors.secondary,
+          //       shape: BoxShape.circle,
+          //       border: Border.all(color: AppColors.white, width: 2),
+          //     ),
+          //     child: Icon(
+          //       Icons.photo_camera_rounded,
+          //       color: AppColors.white,
+          //       size: 16.sp,
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

@@ -60,6 +60,33 @@ class AppColors {
   /// Medium Grey color for secondary text (Body copy, hints) on light surfaces.
   static const Color lightTextSecondary = Color(0xFF64748B);
 
+  /// Warm page background used by the establishment form.
+  static const Color warmScaffold = Color(0xFFF7F4EF);
+
+  /// Brown accent for selected establishment choices.
+  static const Color establishmentAccent = Color(0xFF8E4C33);
+
+  /// Soft peach fill behind a selected establishment choice.
+  static const Color establishmentAccentSoft = Color(0xFFF8EEE6);
+
+  /// Hairline around establishment inputs and unselected choices.
+  static const Color establishmentFieldBorder = Color(0xFFE6E1DA);
+
+  /// Gray fill for the country-code chip and idle icon circles.
+  static const Color establishmentMutedFill = Color(0xFFF3F0EB);
+
+  /// Lavender pill behind the optional age badge.
+  static const Color establishmentOptionalFill = Color(0xFFE9E4F3);
+
+  /// Label color for the optional age badge.
+  static const Color establishmentOptionalText = Color(0xFF6D6582);
+
+  /// Floating age menu surface.
+  static const Color establishmentMenu = Color(0xFF3A3A3A);
+
+  /// Privacy note surface.
+  static const Color establishmentPrivacyFill = Color(0xFFEFEBE6);
+
   static const Color shimmerDarkBaseColor = AppColors.darkCard;
   static Color shimmerLightBaseColor = Colors.grey[300]!;
 
