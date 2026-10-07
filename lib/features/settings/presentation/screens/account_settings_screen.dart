@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_solutions/core/error/api_failure_feedback.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
+import 'package:food_solutions/core/utils/custom_snack_bar.dart';
 import 'package:food_solutions/core/utils/service_locator.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';
 import 'package:food_solutions/features/auth/presentation/screens/login_screen.dart';
@@ -36,11 +38,7 @@ class _AccountSettingsView extends StatelessWidget {
             AppColors.lightScaffold,
           );
     return BlocConsumer<SettingsCubit, SettingsState>(
-      listener: (context, state) {
-        if (state is SettingsSessionEnded) {
-          context.go(LoginScreen.routeName);
-        }
-      },
+      listener: _handleSettingsState,
       builder: (context, state) {
         return Scaffold(
           backgroundColor: background,
@@ -54,5 +52,36 @@ class _AccountSettingsView extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+void _handleSettingsState(BuildContext context, SettingsState state) {
+  if (state is SettingsSessionEnded) {
+    final message = state.message.trim();
+    if (message.isNotEmpty) CustomSnackBar.showSuccess(context, message);
+    context.go(LoginScreen.routeName);
+    return;
+  }
+  final feedback = state is SettingsReady ? state.feedback : null;
+  if (feedback == null || !feedback.isError) return;
+  _showDeleteFailure(context, feedback);
+}
+
+void _showDeleteFailure(BuildContext context, SettingsFeedback feedback) {
+  final status = feedback.status;
+  if (status == null) {
+    CustomSnackBar.showError(context, feedback.message);
+    return;
+  }
+  switch (feedbackForApiStatus(status)) {
+    case ApiFailureFeedback.warning:
+      CustomSnackBar.showWarning(context, feedback.message);
+    case ApiFailureFeedback.error:
+      CustomSnackBar.showError(context, feedback.message);
+    case ApiFailureFeedback.endSession:
+      CustomSnackBar.showError(context, feedback.message);
+      context.go(LoginScreen.routeName);
+    case ApiFailureFeedback.ignore:
+      return;
   }
 }

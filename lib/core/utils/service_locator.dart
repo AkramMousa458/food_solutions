@@ -60,6 +60,7 @@ import 'package:food_solutions/features/profile/presentation/manager/create_esta
 import 'package:food_solutions/features/profile/presentation/manager/edit_profile_cubit.dart';
 import 'package:food_solutions/features/profile/presentation/manager/profile_cubit.dart';
 import 'package:food_solutions/features/settings/data/data_sources/settings_local_data_source.dart';
+import 'package:food_solutions/features/settings/data/data_sources/settings_remote_data_source.dart';
 import 'package:food_solutions/features/settings/data/repo/settings_repo.dart';
 import 'package:food_solutions/features/settings/data/repo/settings_repo_impl.dart';
 import 'package:food_solutions/features/settings/presentation/manager/settings_cubit.dart';
@@ -257,9 +258,13 @@ Future<void> setupLocator({Logger? logger}) async {
   locator.registerLazySingleton<SettingsLocalDataSource>(
     () => SettingsLocalDataSourceImpl(locator<LocalStorage>()),
   );
+  locator.registerLazySingleton<SettingsRemoteDataSource>(
+    () => SettingsRemoteDataSourceImpl(locator<ApiService>()),
+  );
   locator.registerLazySingleton<SettingsRepo>(
     () => SettingsRepoImpl(
       locator<SettingsLocalDataSource>(),
+      locator<SettingsRemoteDataSource>(),
       locator<AuthSessionDataSource>(),
     ),
   );

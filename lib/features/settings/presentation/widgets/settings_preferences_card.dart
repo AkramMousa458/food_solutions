@@ -48,13 +48,13 @@ class SettingsPreferencesCard extends StatelessWidget {
     }
   }
 
-  void _setAppearance(BuildContext context, bool isLight) {
+  Future<void> _setAppearance(BuildContext context, bool isLight) async {
     final cubit = context.read<ThemeCubit>();
     if (isLight) {
-      cubit.setLightTheme();
+      await cubit.setLightTheme();
       return;
     }
-    cubit.setDarkTheme();
+    await cubit.setDarkTheme();
   }
 
   @override

@@ -17,7 +17,7 @@ class AccountSettingsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final preferences = settings.preferences;
+    // final preferences = settings.preferences;
     return ListView(
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 24.h),

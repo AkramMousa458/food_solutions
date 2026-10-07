@@ -39,7 +39,33 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   Future<void> logout() => _endSession();
 
-  Future<void> deleteAccount() => _endSession();
+  Future<void> deleteAccount() async {
+    final current = state;
+    if (current is! SettingsReady || current.isDeleting) return;
+    emit(current.copyWith(isDeleting: true, clearFeedback: true));
+    final result = await _settingsRepo.deleteAccount();
+    final latest = state;
+    if (latest is! SettingsReady) return;
+    result.fold(
+      (failure) => emit(
+        latest.copyWith(
+          isDeleting: false,
+          feedback: SettingsFeedback(
+            message: failure.message,
+            isError: true,
+            status: failure.status,
+          ),
+        ),
+      ),
+      (deleted) => emit(
+        SettingsSessionEnded(
+          message: deleted.message.trim().isEmpty
+              ? 'settings_account_deleted'
+              : deleted.message.trim(),
+        ),
+      ),
+    );
+  }
 
   Future<void> _updatePreferences(
     SettingsReady Function(SettingsReady current) update,

@@ -17,6 +17,7 @@ import 'package:food_solutions/features/profile/data/models/delete_establishment
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/data/models/update_profile_request.dart';
 import 'package:food_solutions/features/profile/data/repo/profile_repo.dart';
+import 'package:food_solutions/features/settings/data/models/delete_account_response.dart';
 import 'package:food_solutions/features/settings/data/models/settings_preferences.dart';
 import 'package:food_solutions/features/settings/data/repo/settings_repo.dart';
 import 'package:food_solutions/features/settings/presentation/manager/settings_cubit.dart';
@@ -46,16 +47,42 @@ void main() {
   });
 
   testWidgets('deletes the account after confirmation', (tester) async {
-    await _pumpSettings(tester, repository: _MemorySettingsRepo());
+    final repository = _MemorySettingsRepo();
+    await _pumpSettings(tester, repository: repository);
     await tester.scrollUntilVisible(
       find.byKey(const Key('settings-delete')),
       300,
     );
     await tester.tap(find.byKey(const Key('settings-delete')));
     await tester.pumpAndSettle();
+    expect(
+      find.text(
+        'This permanently deletes your account and all saved data. This action cannot be undone.',
+      ),
+      findsOneWidget,
+    );
     await tester.tap(find.byKey(const Key('settings-delete-confirm')));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('Welcome'), findsOneWidget);
+    expect(repository.deleteCount, 1);
+  });
+
+  testWidgets('keeps the account when the warning is cancelled', (
+    tester,
+  ) async {
+    final repository = _MemorySettingsRepo();
+    await _pumpSettings(tester, repository: repository);
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('settings-delete')),
+      300,
+    );
+    await tester.tap(find.byKey(const Key('settings-delete')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('settings-delete-cancel')));
+    await tester.pumpAndSettle();
+    expect(find.text('Delete account permanently'), findsOneWidget);
+    expect(repository.deleteCount, 0);
   });
 
   testWidgets('arabic settings layout fits the screen', (tester) async {
@@ -217,9 +244,21 @@ class _MemorySettingsRepo implements SettingsRepo {
     isSalesAlertsEnabled: true,
     isBiometricLoginEnabled: false,
   );
+  int deleteCount = 0;
 
   @override
   Future<void> clearSession() async {}
+
+  @override
+  Future<Either<ServerFailure, DeleteAccountResponse>> deleteAccount() async {
+    deleteCount++;
+    return const Right(
+      DeleteAccountResponse(
+        isSuccess: true,
+        message: 'Account deleted successfully.',
+      ),
+    );
+  }
 
   @override
   SettingsPreferences readPreferences() => preferences;

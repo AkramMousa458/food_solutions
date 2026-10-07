@@ -7,6 +7,7 @@ import 'package:food_solutions/features/profile/data/models/delete_establishment
 import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
 import 'package:food_solutions/features/profile/data/models/update_profile_request.dart';
 import 'package:food_solutions/features/profile/data/repo/profile_repo.dart';
+import 'package:food_solutions/features/settings/data/models/delete_account_response.dart';
 import 'package:food_solutions/features/settings/data/models/settings_preferences.dart';
 import 'package:food_solutions/features/settings/data/repo/settings_repo.dart';
 import 'package:food_solutions/features/settings/presentation/manager/settings_cubit.dart';
@@ -67,6 +68,53 @@ void main() {
     await cubit.logout();
     expect(cubit.state, const SettingsSessionEnded());
     expect(mockSettingsRepo.clearCount, 1);
+  });
+
+  test('deletes the account and ends the session', () async {
+    final mockSettingsRepo = _MockSettingsRepo(
+      preferences: const SettingsPreferences(
+        isSalesAlertsEnabled: true,
+        isBiometricLoginEnabled: false,
+      ),
+    );
+    final cubit = SettingsCubit(
+      mockSettingsRepo,
+      _MockProfileRepo(profile: null),
+    );
+    addTearDown(cubit.close);
+    cubit.loadSettings();
+    await cubit.deleteAccount();
+    expect(
+      cubit.state,
+      const SettingsSessionEnded(message: 'Account deleted successfully.'),
+    );
+    expect(mockSettingsRepo.deleteCount, 1);
+  });
+
+  test('keeps the session when delete account fails', () async {
+    const inputMessage = 'Unable to delete account.';
+    final mockSettingsRepo = _MockSettingsRepo(
+      preferences: const SettingsPreferences(
+        isSalesAlertsEnabled: true,
+        isBiometricLoginEnabled: false,
+      ),
+      deleteFailure: const ServerFailure(
+        message: inputMessage,
+        status: ApiFailureStatus.unsuccessful,
+      ),
+    );
+    final cubit = SettingsCubit(
+      mockSettingsRepo,
+      _MockProfileRepo(profile: null),
+    );
+    addTearDown(cubit.close);
+    cubit.loadSettings();
+    await cubit.deleteAccount();
+    final actualState = cubit.state as SettingsReady;
+    expect(actualState.isDeleting, isFalse);
+    expect(actualState.feedback?.message, inputMessage);
+    expect(actualState.feedback?.isError, isTrue);
+    expect(mockSettingsRepo.deleteCount, 1);
   });
 }
 
@@ -148,12 +196,27 @@ class _MockSettingsRepo implements SettingsRepo {
   SettingsPreferences preferences;
   bool? savedSalesAlerts;
   int clearCount = 0;
+  int deleteCount = 0;
+  final ServerFailure? deleteFailure;
 
-  _MockSettingsRepo({required this.preferences});
+  _MockSettingsRepo({required this.preferences, this.deleteFailure});
 
   @override
   Future<void> clearSession() async {
     clearCount++;
+  }
+
+  @override
+  Future<Either<ServerFailure, DeleteAccountResponse>> deleteAccount() async {
+    deleteCount++;
+    final failure = deleteFailure;
+    if (failure != null) return Left(failure);
+    return const Right(
+      DeleteAccountResponse(
+        isSuccess: true,
+        message: 'Account deleted successfully.',
+      ),
+    );
   }
 
   @override

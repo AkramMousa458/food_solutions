@@ -5,6 +5,7 @@ import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
 import 'package:food_solutions/core/utils/app_styles.dart';
 import 'package:food_solutions/features/settings/presentation/manager/settings_cubit.dart';
+import 'package:food_solutions/features/settings/presentation/manager/settings_state.dart';
 
 class SettingsDeleteCard extends StatelessWidget {
   const SettingsDeleteCard({super.key});
@@ -14,10 +15,16 @@ class SettingsDeleteCard extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
+          icon: Icon(
+            Icons.warning_amber_rounded,
+            color: AppColors.error500,
+            size: 28.sp,
+          ),
           title: Text(translate('settings_delete_title')),
           content: Text(translate('settings_delete_confirm')),
           actions: [
             TextButton(
+              key: const Key('settings-delete-cancel'),
               onPressed: () => Navigator.of(context).pop(false),
               child: Text(translate('settings_cancel')),
             ),
@@ -39,12 +46,16 @@ class SettingsDeleteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDeleting = context.select((SettingsCubit cubit) {
+      final current = cubit.state;
+      return current is SettingsReady && current.isDeleting;
+    });
     return Material(
       color: AppColors.error500.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(20.r),
       child: InkWell(
         key: const Key('settings-delete'),
-        onTap: () => _confirmDelete(context),
+        onTap: isDeleting ? null : () => _confirmDelete(context),
         borderRadius: BorderRadius.circular(20.r),
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
@@ -57,11 +68,20 @@ class SettingsDeleteCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                Icons.warning_amber_rounded,
-                color: AppColors.error500,
-                size: 26.sp,
-              ),
+              isDeleting
+                  ? SizedBox(
+                      width: 26.sp,
+                      height: 26.sp,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.error500,
+                      ),
+                    )
+                  : Icon(
+                      Icons.warning_amber_rounded,
+                      color: AppColors.error500,
+                      size: 26.sp,
+                    ),
               SizedBox(width: 10.w),
               Expanded(
                 child: Column(
