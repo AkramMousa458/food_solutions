@@ -13,6 +13,10 @@ class ProfileLoading extends ProfileState {
   const ProfileLoading();
 }
 
+class ProfileGuest extends ProfileState {
+  const ProfileGuest();
+}
+
 class ProfileFeedback extends Equatable {
   final String message;
   final bool isError;

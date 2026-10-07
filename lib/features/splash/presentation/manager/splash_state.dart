@@ -18,3 +18,7 @@ class SplashAuthenticated extends SplashState {
 class SplashUnauthenticated extends SplashState {
   const SplashUnauthenticated();
 }
+
+class SplashGuest extends SplashState {
+  const SplashGuest();
+}

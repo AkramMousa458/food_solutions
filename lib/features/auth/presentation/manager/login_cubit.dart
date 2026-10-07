@@ -42,6 +42,12 @@ class LoginCubit extends Cubit<LoginState> {
     return null;
   }
 
+  Future<void> continueAsGuest() async {
+    if (state is LoginLoading) return;
+    await _authRepo.enterGuestMode();
+    emit(const LoginGuest());
+  }
+
   Future<void> login() async {
     if (state is LoginLoading) return;
     if (!canSubmit) {

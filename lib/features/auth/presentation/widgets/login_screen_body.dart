@@ -15,8 +15,7 @@ class LoginScreenBody extends StatelessWidget {
         const LoginBrandHeader(),
         SizedBox(height: 22.h),
         const LoginMethodCard(),
-        SizedBox(height: 14.h),
-        SizedBox(height: 22.h),
+        SizedBox(height: 36.h),
         const LoginFooterLinks(),
       ],
     );

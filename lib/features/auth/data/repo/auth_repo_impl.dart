@@ -156,6 +156,12 @@ class AuthRepoImpl implements AuthRepo {
     final token = _sessionDataSource.readToken();
     return token != null && token.isNotEmpty;
   }
+
+  @override
+  Future<void> enterGuestMode() => _sessionDataSource.enterGuestMode();
+
+  @override
+  bool isGuest() => _sessionDataSource.isGuest();
 }
 
 ServerFailure _unexpectedFailure() {
@@ -174,4 +180,10 @@ class _InactiveAuthSession implements AuthSessionDataSource {
 
   @override
   Future<void> clearSession() async {}
+
+  @override
+  Future<void> enterGuestMode() async {}
+
+  @override
+  bool isGuest() => false;
 }

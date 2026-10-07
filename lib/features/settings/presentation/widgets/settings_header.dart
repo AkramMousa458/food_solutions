@@ -5,7 +5,6 @@ import 'package:food_solutions/core/utils/app_colors.dart';
 import 'package:food_solutions/core/utils/app_styles.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';
 import 'package:food_solutions/features/auth/presentation/widgets/auth_back_button.dart';
-import 'package:go_router/go_router.dart';
 
 class SettingsHeader extends StatelessWidget {
   const SettingsHeader({super.key});

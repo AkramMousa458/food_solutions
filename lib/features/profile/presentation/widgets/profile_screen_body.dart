@@ -11,6 +11,8 @@ import 'package:food_solutions/features/profile/presentation/screens/create_esta
 import 'package:food_solutions/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_branch_sheet.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_establishment_card.dart';
+import 'package:food_solutions/features/auth/presentation/screens/login_screen.dart';
+import 'package:food_solutions/features/profile/presentation/widgets/profile_guest_view.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_identity_card.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_loading_shimmer.dart';
 import 'package:food_solutions/features/profile/presentation/widgets/profile_settings_tile.dart';
@@ -70,6 +72,11 @@ class ProfileScreenBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
+        if (state is ProfileGuest) {
+          return ProfileGuestView(
+            onSignIn: () => context.go(LoginScreen.routeName),
+          );
+        }
         if (state is ProfileFailure) {
           return ProfileStatusView(
             message: translate(state.message),

@@ -40,9 +40,9 @@ class _SplashViewState extends State<_SplashView> {
     Future<void>.delayed(splashNavigationDelay, () {
       if (!mounted) return;
       final destination = context.read<SplashCubit>().state;
-      final route = destination is SplashAuthenticated
-          ? BaseScreen.routeName
-          : LoginScreen.routeName;
+      final canBrowse =
+          destination is SplashAuthenticated || destination is SplashGuest;
+      final route = canBrowse ? BaseScreen.routeName : LoginScreen.routeName;
       context.go(route);
     });
   }

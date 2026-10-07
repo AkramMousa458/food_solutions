@@ -12,6 +12,10 @@ class SplashCubit extends Cubit<SplashState> {
       emit(const SplashAuthenticated());
       return;
     }
+    if (_authRepo.isGuest()) {
+      emit(const SplashGuest());
+      return;
+    }
     emit(const SplashUnauthenticated());
   }
 }

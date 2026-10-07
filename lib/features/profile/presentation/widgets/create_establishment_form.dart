@@ -91,16 +91,6 @@ class _CreateEstablishmentFormState extends State<CreateEstablishmentForm> {
                 isEnabled: !isLoading,
               ),
               SizedBox(height: 14.h),
-              AuthTextField(
-                labelKey: 'establishment_image_label',
-                hintKey: 'establishment_image_hint',
-                icon: Icons.image_outlined,
-                keyboardType: TextInputType.url,
-                controller: cubit.imageController,
-                validator: cubit.validateOptionalUrl,
-                isEnabled: !isLoading,
-              ),
-              SizedBox(height: 14.h),
               EstablishmentOptionField(
                 labelKey: 'establishment_status_label',
                 value: cubit.status,
@@ -118,7 +108,7 @@ class _CreateEstablishmentFormState extends State<CreateEstablishmentForm> {
                 onChanged: cubit.selectPosition,
                 isEnabled: !isLoading,
               ),
-              SizedBox(height: 20.h),
+              SizedBox(height: 40.h),
               LoginContinueButton(
                 labelKey: cubit.isEditing
                     ? 'establishment_update_action'

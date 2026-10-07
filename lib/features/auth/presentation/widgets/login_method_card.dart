@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_solutions/core/error/failure.dart';
+import 'package:food_solutions/core/language/app_translations.dart';
+import 'package:food_solutions/core/utils/app_colors.dart';
+import 'package:food_solutions/core/utils/app_styles.dart';
 import 'package:food_solutions/core/utils/custom_snack_bar.dart';
+import 'package:food_solutions/core/utils/theme_utils.dart';
 import 'package:food_solutions/features/auth/presentation/manager/login_cubit.dart';
 import 'package:food_solutions/features/auth/presentation/manager/login_state.dart';
 import 'package:food_solutions/features/auth/presentation/screens/register_screen.dart';
@@ -32,7 +36,7 @@ class _LoginMethodCardState extends State<LoginMethodCard> {
   }
 
   void _handleState(BuildContext context, LoginState state) {
-    if (state is LoginSuccess) {
+    if (state is LoginSuccess || state is LoginGuest) {
       context.go(BaseScreen.routeName);
       return;
     }
@@ -74,7 +78,7 @@ class _LoginMethodCardState extends State<LoginMethodCard> {
                   validator: cubit.validatePassword,
                   isEnabled: !isLoading,
                 ),
-                SizedBox(height: 16.h),
+                SizedBox(height: 24.h),
                 LoginContinueButton(isLoading: isLoading, onPressed: _submit),
                 AuthAccountLink(
                   promptKey: 'login_no_account',
@@ -82,6 +86,29 @@ class _LoginMethodCardState extends State<LoginMethodCard> {
                   onActionTap: isLoading
                       ? () {}
                       : () => context.push(RegisterScreen.routeName),
+                ),
+                SizedBox(height: 24.h),
+                OutlinedButton(
+                  key: const Key('login-guest'),
+                  onPressed: isLoading ? null : () => cubit.continueAsGuest(),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: BorderSide(
+                      color: AppColors.primary.withValues(alpha: 0.35),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14.r),
+                    ),
+                    minimumSize: Size(double.infinity, 48.h),
+                  ),
+                  child: Text(
+                    translate('login_continue_as_guest'),
+                    style: AppStyles.textstyle14Bold.copyWith(
+                      color: ThemeUtils.isDark(context)
+                          ? AppColors.primarySoft
+                          : AppColors.primary,
+                    ),
+                  ),
                 ),
               ],
             ),

@@ -6,10 +6,16 @@ import 'package:food_solutions/features/profile/presentation/manager/profile_sta
 
 class ProfileCubit extends Cubit<ProfileState> {
   final ProfileRepo _profileRepo;
+  final bool isGuest;
 
-  ProfileCubit(this._profileRepo) : super(const ProfileLoading());
+  ProfileCubit(this._profileRepo, {this.isGuest = false})
+    : super(const ProfileLoading());
 
   Future<void> loadProfile() async {
+    if (isGuest) {
+      emit(const ProfileGuest());
+      return;
+    }
     emit(const ProfileLoading());
     final result = await _profileRepo.fetchAccount();
     result.fold(_emitCachedOrFailure, _emitProfile);

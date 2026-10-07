@@ -11,6 +11,10 @@ abstract class AuthSessionDataSource {
   String? readToken();
 
   Future<void> clearSession();
+
+  Future<void> enterGuestMode();
+
+  bool isGuest();
 }
 
 class AuthSessionDataSourceImpl implements AuthSessionDataSource {
@@ -27,6 +31,7 @@ class AuthSessionDataSourceImpl implements AuthSessionDataSource {
       jsonEncode(session.user.toJson()),
     );
     _apiService.setAuthToken(session.token);
+    await _localStorage.setBool(AppConstants.guestModeKey, false);
   }
 
   @override
@@ -41,6 +46,16 @@ class AuthSessionDataSourceImpl implements AuthSessionDataSource {
   Future<void> clearSession() async {
     await _localStorage.remove(AppConstants.authTokenKey);
     await _localStorage.remove(AppConstants.userProfileKey);
+    await _localStorage.setBool(AppConstants.guestModeKey, false);
     _apiService.setAuthToken(null);
   }
+
+  @override
+  Future<void> enterGuestMode() async {
+    await _localStorage.setBool(AppConstants.guestModeKey, true);
+    _apiService.setAuthToken(null);
+  }
+
+  @override
+  bool isGuest() => _localStorage.getBool(AppConstants.guestModeKey) ?? false;
 }

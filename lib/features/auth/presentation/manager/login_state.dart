@@ -26,6 +26,10 @@ class LoginSuccess extends LoginState {
   List<Object?> get props => [user.id, user.email, user.name];
 }
 
+class LoginGuest extends LoginState {
+  const LoginGuest();
+}
+
 class LoginFailure extends LoginState {
   final String message;
   final ApiFailureStatus status;

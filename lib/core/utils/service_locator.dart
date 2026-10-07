@@ -247,7 +247,10 @@ Future<void> setupLocator({Logger? logger}) async {
     ),
   );
   locator.registerFactory<ProfileCubit>(
-    () => ProfileCubit(locator<ProfileRepo>()),
+    () => ProfileCubit(
+      locator<ProfileRepo>(),
+      isGuest: locator<AuthRepo>().isGuest(),
+    ),
   );
   locator.registerFactory<CreateEstablishmentCubit>(
     () => CreateEstablishmentCubit(locator<ProfileRepo>()),

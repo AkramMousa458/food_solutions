@@ -27,4 +27,8 @@ abstract class AuthRepo {
   );
 
   bool hasAuthToken();
+
+  Future<void> enterGuestMode();
+
+  bool isGuest();
 }

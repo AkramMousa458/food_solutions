@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
-import 'package:food_solutions/features/settings/presentation/manager/settings_cubit.dart';
 import 'package:food_solutions/features/settings/presentation/manager/settings_state.dart';
 import 'package:food_solutions/features/settings/presentation/widgets/settings_delete_card.dart';
 import 'package:food_solutions/features/settings/presentation/widgets/settings_header.dart';
 import 'package:food_solutions/features/settings/presentation/widgets/settings_preferences_card.dart';
 import 'package:food_solutions/features/settings/presentation/widgets/settings_section_label.dart';
-import 'package:food_solutions/features/settings/presentation/widgets/settings_status_tile.dart';
 
 class AccountSettingsBody extends StatelessWidget {
   final SettingsReady settings;

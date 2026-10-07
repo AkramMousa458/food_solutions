@@ -6,6 +6,7 @@ class AppConstants {
 
   // User preferences keys
   static const String themeModeKey = 'theme_dark';
+  static const String guestModeKey = 'guest_mode';
   static const String languageKey = 'language';
   static const String userProfileKey = 'user_profile';
   static const String salesAlertsKey = 'settings_sales_alerts';
