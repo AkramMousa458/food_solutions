@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/services/url_launcher_service.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
+import 'package:food_solutions/core/utils/media_url.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';
 import 'package:food_solutions/features/contact/data/models/contact_model.dart';
 
@@ -54,7 +55,7 @@ class _SocialButton extends StatelessWidget {
       child: InkWell(
         onTap: () => UrlLauncherService.launchExternalUrl(item.link),
         child: CachedNetworkImage(
-          imageUrl: item.iconImage,
+          imageUrl: resolveMediaUrl(item.iconImage),
           width: 48.w,
           height: 48.w,
         ),

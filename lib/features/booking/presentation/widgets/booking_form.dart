@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
@@ -27,8 +28,26 @@ class BookingForm extends StatefulWidget {
 
 class _BookingFormState extends State<BookingForm> {
   final _formKey = GlobalKey<FormState>();
+  final _scrollController = ScrollController();
 
   int? _selectedServiceId;
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToErrorDetails() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
+  }
 
   @override
   void initState() {
@@ -37,7 +56,7 @@ class _BookingFormState extends State<BookingForm> {
       _selectedServiceId = widget.initialService!.id;
     }
   }
-  
+
   void _submitForm() {
     if (_formKey.currentState?.validate() ?? false) {
       context.read<BookingCubit>().submitBooking(
@@ -74,12 +93,14 @@ class _BookingFormState extends State<BookingForm> {
             Overlay.of(context),
             CustomSnackBar.error(message: state.errorMessage),
           );
+          _scrollToErrorDetails();
         }
       },
       builder: (context, state) {
         final isLoading = state is BookingLoading;
 
         return SingleChildScrollView(
+          controller: _scrollController,
           padding: EdgeInsets.all(20.w),
           physics: const BouncingScrollPhysics(),
           child: Form(
@@ -209,11 +230,90 @@ class _BookingFormState extends State<BookingForm> {
                   isLoading: isLoading,
                   onPressed: _submitForm,
                 ),
+                if (state is BookingFailure)
+                  _BookingErrorDetailsPanel(details: state.errorDetails),
+                BlocBuilder<ServicesCubit, ServicesState>(
+                  builder: (context, servicesState) {
+                    if (servicesState is! ServicesError) {
+                      return const SizedBox.shrink();
+                    }
+                    return _BookingErrorDetailsPanel(
+                      details: servicesState.message,
+                    );
+                  },
+                ),
               ],
             ),
           ),
         );
       },
+    );
+  }
+}
+
+class _BookingErrorDetailsPanel extends StatelessWidget {
+  final String details;
+
+  const _BookingErrorDetailsPanel({required this.details});
+
+  Future<void> _copyDetails(BuildContext context) async {
+    await Clipboard.setData(ClipboardData(text: details));
+    if (!context.mounted) return;
+    showTopSnackBar(
+      Overlay.of(context),
+      CustomSnackBar.success(message: translate('booking_error_copied')),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.only(top: 24.h),
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: AppColors.error500.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: AppColors.error500.withValues(alpha: 0.28)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  translate('booking_error_details'),
+                  style: AppStyles.textstyle14Bold.copyWith(
+                    color: AppColors.error,
+                  ),
+                ),
+              ),
+              IconButton(
+                tooltip: translate('booking_error_copy'),
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints.tight(Size(32.w, 32.w)),
+                onPressed: () => _copyDetails(context),
+                icon: Icon(
+                  Icons.copy_outlined,
+                  color: AppColors.error,
+                  size: 18.sp,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          SelectableText(
+            textAlign: TextAlign.left,
+            details,
+            style: AppStyles.textstyle12.copyWith(
+              color: AppColors.error,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

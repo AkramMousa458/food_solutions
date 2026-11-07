@@ -27,14 +27,44 @@ class BookingCubit extends Cubit<BookingState> {
       );
       await _repo.submitConsultation(model);
       emit(BookingSuccess());
-    } catch (e) {
-      String errorMessage;
-      if (e is DioException) {
-        errorMessage = ServerFailure.fromDioError(e).message;
-      } else {
-        errorMessage = e.toString();
-      }
-      emit(BookingFailure(errorMessage: errorMessage));
+    } catch (error, stackTrace) {
+      emit(
+        BookingFailure(
+          errorMessage: _bookingErrorMessage(error),
+          errorDetails: _bookingErrorDetails(error, stackTrace),
+        ),
+      );
     }
   }
+}
+
+String _bookingErrorMessage(Object error) {
+  if (error is DioException) {
+    return ServerFailure.fromDioError(error).message;
+  }
+  return error.toString();
+}
+
+String _bookingErrorDetails(Object error, StackTrace stackTrace) {
+  final buffer = StringBuffer();
+  if (error is DioException) {
+    final failure = ServerFailure.fromDioError(error);
+    final response = error.response;
+    buffer
+      ..writeln('message: ${failure.message}')
+      ..writeln('status: ${failure.status.name}')
+      ..writeln('statusCode: ${failure.statusCode ?? response?.statusCode}')
+      ..writeln('type: ${error.type.name}')
+      ..writeln('dioMessage: ${error.message}')
+      ..writeln('error: ${error.error}')
+      ..writeln('method: ${error.requestOptions.method}')
+      ..writeln('uri: ${error.requestOptions.uri}')
+      ..writeln('requestData: ${error.requestOptions.data}')
+      ..writeln('response: ${response?.data}')
+      ..writeln('failureData: ${failure.data}');
+  } else {
+    buffer.writeln('error: $error');
+  }
+  buffer.writeln('stackTrace: $stackTrace');
+  return buffer.toString().trim();
 }

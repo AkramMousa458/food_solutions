@@ -100,6 +100,16 @@ class CustomBottomNavBar extends StatelessWidget {
                 isDark: isDark,
                 primaryColor: primaryColor,
               ),
+              _buildNavItem(
+                context: context,
+                icon: Icons.person_outline_rounded,
+                selectedIcon: Icons.person_rounded,
+                label: 'profile',
+                fallbackText: 'حسابي',
+                index: 6,
+                isDark: isDark,
+                primaryColor: primaryColor,
+              ),
             ],
           ),
         ),
@@ -132,29 +142,38 @@ class CustomBottomNavBar extends StatelessWidget {
       child: GestureDetector(
         onTap: () => onTap(index),
         behavior: HitTestBehavior.opaque,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              child: Icon(
-                isSelected ? selectedIcon : icon,
-                key: ValueKey(isSelected),
-                color: color,
-                size: 26.sp,
-              ),
+        child: Center(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    isSelected ? selectedIcon : icon,
+                    key: ValueKey(isSelected),
+                    color: color,
+                    size: 22.sp,
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 200),
+                  style: AppStyles.textstyle10.copyWith(
+                    color: color,
+                    fontSize: 10.sp,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                  ),
+                  child: Text(
+                    translatedText,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
-            // SizedBox(height: 4.h),
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 200),
-              style: AppStyles.textstyle10.copyWith(
-                color: color,
-                fontSize: 10.sp,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-              ),
-              child: Text(translatedText),
-            ),
-          ],
+          ),
         ),
       ),
     );

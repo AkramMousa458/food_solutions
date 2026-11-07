@@ -13,34 +13,27 @@ class ThemeCubit extends Cubit<ThemeData> {
     required Brightness initialBrightness,
   }) : super(initialBrightness == Brightness.dark ? darkTheme : lightTheme);
 
-  void setLightTheme() {
+  Future<void> setLightTheme() async {
     emit(lightTheme);
-    localStorage.setString(_themeKey, 'light');
+    await localStorage.setString(_themeKey, 'light');
   }
 
-  void setDarkTheme() {
+  Future<void> setDarkTheme() async {
     emit(darkTheme);
-    localStorage.setString(_themeKey, 'dark');
+    await localStorage.setString(_themeKey, 'dark');
   }
 
-  void toggleTheme() {
+  Future<void> toggleTheme() async {
     if (state.brightness == Brightness.dark) {
-      setLightTheme();
-    } else {
-      setDarkTheme();
+      await setLightTheme();
+      return;
     }
+    await setDarkTheme();
   }
 
-  // static Brightness getDeviceBrightness() {
-  //   return PlatformDispatcher.instance.platformBrightness;
-  // }
-
-  // static Future<Brightness> getInitialBrightness(
-  //   LocalStorage localStorage,
-  // ) async {
-  //   final saved = localStorage.getString(_themeKey);
-  //   if (saved == 'dark') return Brightness.dark;
-  //   if (saved == 'light') return Brightness.light;
-  //   return getDeviceBrightness();
-  // }
+  static Brightness getInitialBrightness(LocalStorage localStorage) {
+    final saved = localStorage.getString(_themeKey);
+    if (saved == 'dark') return Brightness.dark;
+    return Brightness.light;
+  }
 }

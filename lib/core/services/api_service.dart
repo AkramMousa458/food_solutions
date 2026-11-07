@@ -1,4 +1,6 @@
-import 'package:dio/dio.dart';import 'package:logger/logger.dart';
+import 'package:dio/dio.dart';
+import 'package:logger/logger.dart';
+import 'package:food_solutions/core/constants.dart';
 import 'package:food_solutions/core/utils/local_storage.dart';
 import 'package:food_solutions/core/utils/service_locator.dart';
 
@@ -37,9 +39,19 @@ class ApiService {
     _language = languageCode;
   }
 
+  /// Stores the bearer token used on later requests.
+  void setAuthToken(String? token) {
+    _token = token == null || token.isEmpty ? null : token;
+  }
+
   /// Initializes the service by loading the latest token and language.
   Future<void> _initialize() async {
-    _language = locator<LocalStorage>().language ?? 'ar';
+    final storage = locator<LocalStorage>();
+    _language = storage.language ?? 'ar';
+    final storedToken = storage.getString(AppConstants.authTokenKey);
+    if (storedToken != null && storedToken.isNotEmpty) {
+      _token = storedToken;
+    }
   }
 
   /// Makes a GET request.

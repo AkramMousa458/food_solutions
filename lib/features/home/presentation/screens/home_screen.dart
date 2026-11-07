@@ -3,8 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
 import 'package:food_solutions/core/utils/assets.dart';
 import 'package:food_solutions/core/utils/service_locator.dart';
-import 'package:food_solutions/core/widgets/language_toggle_button.dart';
-import 'package:food_solutions/core/widgets/theme_toggle_button.dart';
 import 'package:food_solutions/features/contact/presentation/manager/contact_cubit.dart';
 import 'package:food_solutions/features/home/presentation/manager/home_sections_cubit.dart';
 import 'package:food_solutions/features/home/presentation/manager/statistics_cubit.dart';
@@ -34,11 +32,11 @@ class HomeScreen extends StatelessWidget {
           toolbarHeight: 70,
           title: Image.asset(Assets.logoHorizontal, height: 45),
           centerTitle: false,
-          actions: const [
-            ThemeToggleButton(),
-            // SizedBox(width: 10),
-            LanguageToggleButton(),
-          ],
+          // actions: const [
+          //   ThemeToggleButton(),
+          //   // SizedBox(width: 10),
+          //   LanguageToggleButton(),
+          // ],
         ),
         body: SafeArea(
           child: RefreshIndicator(

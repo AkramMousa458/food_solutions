@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
 import 'package:food_solutions/core/utils/app_styles.dart';
+import 'package:food_solutions/core/utils/media_url.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';
@@ -217,7 +218,7 @@ class _SectionImage extends StatelessWidget {
             color: isDark ? AppColors.darkInputFill : AppColors.lightScaffold,
           ),
           CachedNetworkImage(
-            imageUrl: imageUrl,
+            imageUrl: resolveMediaUrl(imageUrl),
             fit: BoxFit.cover,
             errorWidget: (context, url, error) => Container(
               color: isDark ? AppColors.darkInputFill : AppColors.lightScaffold,

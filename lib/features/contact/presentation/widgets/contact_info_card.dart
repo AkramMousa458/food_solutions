@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_solutions/core/services/url_launcher_service.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
+import 'package:food_solutions/core/utils/media_url.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';
 import 'package:food_solutions/features/contact/data/models/contact_model.dart';
 
@@ -64,7 +65,7 @@ class ContactInfoCard extends StatelessWidget {
                   ),
                   child: info.iconImage != null
                       ? CachedNetworkImage(
-                          imageUrl: info.iconImage!,
+                          imageUrl: resolveMediaUrl(info.iconImage!),
                           width: 24.w,
                           height: 24.w,
                         )

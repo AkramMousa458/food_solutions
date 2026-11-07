@@ -103,7 +103,7 @@ Future<void> main() async {
       basePath: 'assets/i18n',
     );
 
-    final initialBrightness = Brightness.light;
+    final initialBrightness = ThemeCubit.getInitialBrightness(localStorage);
     await translations.setLocale(initialLocale);
 
     runApp(

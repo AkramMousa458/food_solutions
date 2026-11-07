@@ -1,4 +1,7 @@
 import 'package:food_solutions/core/widgets/error_screen.dart';
+import 'package:food_solutions/features/auth/presentation/screens/login_screen.dart';
+import 'package:food_solutions/features/auth/presentation/screens/otp_screen.dart';
+import 'package:food_solutions/features/auth/presentation/screens/register_screen.dart';
 import 'package:food_solutions/features/splash/presentation/screens/splash_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:food_solutions/features/base/presentation/screens/base_screen.dart';
@@ -6,6 +9,10 @@ import 'package:food_solutions/features/services/data/models/service_item_model.
 import 'package:food_solutions/features/services/presentation/screens/service_details_screen.dart';
 import 'package:food_solutions/features/booking/presentation/screens/booking_screen.dart';
 import 'package:food_solutions/features/contact/presentation/screens/contact_screen.dart';
+import 'package:food_solutions/features/profile/data/models/profile_snapshot.dart';
+import 'package:food_solutions/features/profile/presentation/screens/create_establishment_screen.dart';
+import 'package:food_solutions/features/profile/presentation/screens/edit_profile_screen.dart';
+import 'package:food_solutions/features/settings/presentation/screens/account_settings_screen.dart';
 
 abstract class AppRouter {
   static final router = GoRouter(
@@ -14,6 +21,22 @@ abstract class AppRouter {
       GoRoute(
         path: SplashScreen.routeName,
         builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: LoginScreen.routeName,
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: RegisterScreen.routeName,
+        builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: OtpScreen.routeName,
+        builder: (context, state) {
+          final extra = state.extra;
+          final identifier = extra is String ? extra : '';
+          return OtpScreen(identifier: identifier);
+        },
       ),
       GoRoute(
         path: ErrorScreen.routeName,
@@ -37,6 +60,28 @@ abstract class AppRouter {
       GoRoute(
         path: ContactScreen.routeName,
         builder: (context, state) => const ContactScreen(),
+      ),
+      GoRoute(
+        path: AccountSettingsScreen.routeName,
+        builder: (context, state) => const AccountSettingsScreen(),
+      ),
+      GoRoute(
+        path: CreateEstablishmentScreen.routeName,
+        builder: (context, state) {
+          final extra = state.extra;
+          final establishment = extra is ProfileEstablishmentSnapshot
+              ? extra
+              : null;
+          return CreateEstablishmentScreen(establishment: establishment);
+        },
+      ),
+      GoRoute(
+        path: EditProfileScreen.routeName,
+        builder: (context, state) {
+          final extra = state.extra;
+          final profile = extra is ProfileSnapshot ? extra : null;
+          return EditProfileScreen(profile: profile);
+        },
       ),
     ],
   );

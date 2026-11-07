@@ -44,6 +44,27 @@ import 'package:food_solutions/features/reviews/data/repo/reviews_repo.dart';
 import 'package:food_solutions/features/reviews/data/repo/reviews_repo_impl.dart';
 import 'package:food_solutions/features/reviews/presentation/manager/reviews_cubit.dart';
 
+import 'package:food_solutions/features/auth/data/data_sources/auth_remote_data_source.dart';
+import 'package:food_solutions/features/auth/data/data_sources/auth_session_data_source.dart';
+import 'package:food_solutions/features/auth/data/repo/auth_repo.dart';
+import 'package:food_solutions/features/auth/data/repo/auth_repo_impl.dart';
+import 'package:food_solutions/features/auth/presentation/manager/login_cubit.dart';
+import 'package:food_solutions/features/auth/presentation/manager/otp_cubit.dart';
+import 'package:food_solutions/features/auth/presentation/manager/register_cubit.dart';
+import 'package:food_solutions/features/splash/presentation/manager/splash_cubit.dart';
+import 'package:food_solutions/features/profile/data/data_sources/profile_local_data_source.dart';
+import 'package:food_solutions/features/profile/data/data_sources/profile_remote_data_source.dart';
+import 'package:food_solutions/features/profile/data/repo/profile_repo.dart';
+import 'package:food_solutions/features/profile/data/repo/profile_repo_impl.dart';
+import 'package:food_solutions/features/profile/presentation/manager/create_establishment_cubit.dart';
+import 'package:food_solutions/features/profile/presentation/manager/edit_profile_cubit.dart';
+import 'package:food_solutions/features/profile/presentation/manager/profile_cubit.dart';
+import 'package:food_solutions/features/settings/data/data_sources/settings_local_data_source.dart';
+import 'package:food_solutions/features/settings/data/data_sources/settings_remote_data_source.dart';
+import 'package:food_solutions/features/settings/data/repo/settings_repo.dart';
+import 'package:food_solutions/features/settings/data/repo/settings_repo_impl.dart';
+import 'package:food_solutions/features/settings/presentation/manager/settings_cubit.dart';
+
 final locator = GetIt.instance;
 
 Future<void> setupLocator({Logger? logger}) async {
@@ -190,5 +211,67 @@ Future<void> setupLocator({Logger? logger}) async {
   );
   locator.registerLazySingleton<ReviewsCubit>(
     () => ReviewsCubit(locator<ReviewsRepo>()),
+  );
+
+  locator.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSourceImpl(locator<ApiService>()),
+  );
+  locator.registerLazySingleton<AuthSessionDataSource>(
+    () => AuthSessionDataSourceImpl(
+      locator<LocalStorage>(),
+      locator<ApiService>(),
+    ),
+  );
+  locator.registerLazySingleton<AuthRepo>(
+    () => AuthRepoImpl(
+      locator<AuthRemoteDataSource>(),
+      sessionDataSource: locator<AuthSessionDataSource>(),
+    ),
+  );
+  locator.registerFactory<LoginCubit>(() => LoginCubit(locator<AuthRepo>()));
+  locator.registerFactory<RegisterCubit>(
+    () => RegisterCubit(locator<AuthRepo>()),
+  );
+  locator.registerFactory<OtpCubit>(() => OtpCubit(locator<AuthRepo>()));
+  locator.registerFactory<SplashCubit>(() => SplashCubit(locator<AuthRepo>()));
+  locator.registerLazySingleton<ProfileLocalDataSource>(
+    () => ProfileLocalDataSourceImpl(locator<LocalStorage>()),
+  );
+  locator.registerLazySingleton<ProfileRemoteDataSource>(
+    () => ProfileRemoteDataSourceImpl(locator<ApiService>()),
+  );
+  locator.registerLazySingleton<ProfileRepo>(
+    () => ProfileRepoImpl(
+      locator<ProfileLocalDataSource>(),
+      locator<ProfileRemoteDataSource>(),
+    ),
+  );
+  locator.registerFactory<ProfileCubit>(
+    () => ProfileCubit(
+      locator<ProfileRepo>(),
+      isGuest: locator<AuthRepo>().isGuest(),
+    ),
+  );
+  locator.registerFactory<CreateEstablishmentCubit>(
+    () => CreateEstablishmentCubit(locator<ProfileRepo>()),
+  );
+  locator.registerFactory<EditProfileCubit>(
+    () => EditProfileCubit(locator<ProfileRepo>()),
+  );
+  locator.registerLazySingleton<SettingsLocalDataSource>(
+    () => SettingsLocalDataSourceImpl(locator<LocalStorage>()),
+  );
+  locator.registerLazySingleton<SettingsRemoteDataSource>(
+    () => SettingsRemoteDataSourceImpl(locator<ApiService>()),
+  );
+  locator.registerLazySingleton<SettingsRepo>(
+    () => SettingsRepoImpl(
+      locator<SettingsLocalDataSource>(),
+      locator<SettingsRemoteDataSource>(),
+      locator<AuthSessionDataSource>(),
+    ),
+  );
+  locator.registerFactory<SettingsCubit>(
+    () => SettingsCubit(locator<SettingsRepo>(), locator<ProfileRepo>()),
   );
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_solutions/core/utils/app_colors.dart';
+import 'package:food_solutions/core/utils/media_url.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';
 import 'package:food_solutions/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:food_solutions/features/reviews/presentation/widgets/service_rating_badge.dart';
@@ -65,7 +66,7 @@ class ServiceTileCard extends StatelessWidget {
                       ),
                       child: service.image != null && service.image!.isNotEmpty
                           ? CachedNetworkImage(
-                              imageUrl: service.image!,
+                              imageUrl: resolveMediaUrl(service.image!),
                               fit: BoxFit.cover,
                               placeholder: (context, url) => Shimmer.fromColors(
                                 baseColor: isDark
@@ -143,7 +144,7 @@ class ServiceTileCard extends StatelessWidget {
                       ),
                       child: service.icon.isNotEmpty && service.icon != '-'
                           ? CachedNetworkImage(
-                              imageUrl: service.icon,
+                              imageUrl: resolveMediaUrl(service.icon),
                               width: 32.sp,
                               height: 32.sp,
                               fit: BoxFit.contain,
@@ -183,7 +184,8 @@ class ServiceTileCard extends StatelessWidget {
                               ),
                               ServiceRatingBadge(
                                 serviceId: service.id,
-                                averageRate: service.serviceReviews?.averageRate,
+                                averageRate:
+                                    service.serviceReviews?.averageRate,
                                 reviewCount: service.serviceReviews?.total,
                                 compact: true,
                               ),
