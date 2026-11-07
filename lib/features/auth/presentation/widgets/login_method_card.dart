@@ -9,9 +9,7 @@ import 'package:food_solutions/core/utils/custom_snack_bar.dart';
 import 'package:food_solutions/core/utils/theme_utils.dart';
 import 'package:food_solutions/features/auth/presentation/manager/login_cubit.dart';
 import 'package:food_solutions/features/auth/presentation/manager/login_state.dart';
-import 'package:food_solutions/features/auth/presentation/screens/register_screen.dart';
-import 'package:food_solutions/features/auth/presentation/widgets/auth_account_link.dart';
-import 'package:food_solutions/features/auth/presentation/widgets/auth_password_field.dart';
+import 'package:food_solutions/features/auth/presentation/screens/otp_screen.dart';
 import 'package:food_solutions/features/auth/presentation/widgets/auth_surface_card.dart';
 import 'package:food_solutions/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:food_solutions/features/auth/presentation/widgets/login_continue_button.dart';
@@ -32,11 +30,15 @@ class _LoginMethodCardState extends State<LoginMethodCard> {
     FocusManager.instance.primaryFocus?.unfocus();
     final isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) return;
-    context.read<LoginCubit>().login();
+    context.read<LoginCubit>().sendOtp();
   }
 
   void _handleState(BuildContext context, LoginState state) {
-    if (state is LoginSuccess || state is LoginGuest) {
+    if (state is LoginOtpSent) {
+      context.push(OtpScreen.routeName, extra: state.phone);
+      return;
+    }
+    if (state is LoginGuest) {
       context.go(BaseScreen.routeName);
       return;
     }
@@ -62,31 +64,16 @@ class _LoginMethodCardState extends State<LoginMethodCard> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 AuthTextField(
-                  labelKey: 'login_email_label',
-                  hintKey: 'login_email_hint',
-                  icon: Icons.mail_outline,
-                  keyboardType: TextInputType.emailAddress,
-                  controller: cubit.identifierController,
-                  validator: cubit.validateIdentifier,
-                  isEnabled: !isLoading,
-                ),
-                SizedBox(height: 14.h),
-                AuthPasswordField(
-                  labelKey: 'login_password_label',
-                  hintKey: 'login_password_hint',
-                  controller: cubit.passwordController,
-                  validator: cubit.validatePassword,
+                  labelKey: 'login_phone_label',
+                  hintKey: 'login_phone_hint',
+                  icon: Icons.phone_outlined,
+                  keyboardType: TextInputType.phone,
+                  controller: cubit.phoneController,
+                  validator: cubit.validatePhone,
                   isEnabled: !isLoading,
                 ),
                 SizedBox(height: 24.h),
                 LoginContinueButton(isLoading: isLoading, onPressed: _submit),
-                AuthAccountLink(
-                  promptKey: 'login_no_account',
-                  actionKey: 'login_create_account',
-                  onActionTap: isLoading
-                      ? () {}
-                      : () => context.push(RegisterScreen.routeName),
-                ),
                 SizedBox(height: 24.h),
                 OutlinedButton(
                   key: const Key('login-guest'),

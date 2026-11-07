@@ -66,7 +66,10 @@ class OtpCubit extends Cubit<OtpState> {
     }
     emit(const OtpResending());
     final result = await _authRepo.sendOtp(
-      SendOtpRequestModel(identifier: normalizedIdentifier),
+      SendOtpRequestModel(
+        identifier: normalizedIdentifier,
+        type: SendOtpRequestModel.phoneType,
+      ),
     );
     result.fold(_emitFailure, _emitResent);
   }

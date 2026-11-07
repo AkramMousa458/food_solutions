@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:food_solutions/core/error/failure.dart';
-import 'package:food_solutions/features/auth/data/models/auth_user_model.dart';
 
 abstract class LoginState extends Equatable {
   const LoginState();
@@ -17,13 +16,13 @@ class LoginLoading extends LoginState {
   const LoginLoading();
 }
 
-class LoginSuccess extends LoginState {
-  final AuthUserModel user;
+class LoginOtpSent extends LoginState {
+  final String phone;
 
-  const LoginSuccess({required this.user});
+  const LoginOtpSent({required this.phone});
 
   @override
-  List<Object?> get props => [user.id, user.email, user.name];
+  List<Object?> get props => [phone];
 }
 
 class LoginGuest extends LoginState {

@@ -1,7 +1,6 @@
 import 'package:food_solutions/core/widgets/error_screen.dart';
 import 'package:food_solutions/features/auth/presentation/screens/login_screen.dart';
 import 'package:food_solutions/features/auth/presentation/screens/otp_screen.dart';
-import 'package:food_solutions/features/auth/presentation/screens/register_screen.dart';
 import 'package:food_solutions/features/splash/presentation/screens/splash_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:food_solutions/features/base/presentation/screens/base_screen.dart';
@@ -25,10 +24,6 @@ abstract class AppRouter {
       GoRoute(
         path: LoginScreen.routeName,
         builder: (context, state) => const LoginScreen(),
-      ),
-      GoRoute(
-        path: RegisterScreen.routeName,
-        builder: (context, state) => const RegisterScreen(),
       ),
       GoRoute(
         path: OtpScreen.routeName,

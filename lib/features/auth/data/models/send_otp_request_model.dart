@@ -1,5 +1,6 @@
 class SendOtpRequestModel {
   static const String emailType = 'email';
+  static const String phoneType = 'phone';
 
   final String identifier;
   final String type;

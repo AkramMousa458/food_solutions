@@ -9,11 +9,11 @@ import 'package:food_solutions/core/utils/app_styles.dart';
 import 'package:food_solutions/core/utils/custom_snack_bar.dart';
 import 'package:food_solutions/features/auth/presentation/manager/otp_cubit.dart';
 import 'package:food_solutions/features/auth/presentation/manager/otp_state.dart';
-import 'package:food_solutions/features/auth/presentation/screens/login_screen.dart';
 import 'package:food_solutions/features/auth/presentation/widgets/auth_account_link.dart';
 import 'package:food_solutions/features/auth/presentation/widgets/auth_surface_card.dart';
 import 'package:food_solutions/features/auth/presentation/widgets/login_continue_button.dart';
 import 'package:food_solutions/features/auth/presentation/widgets/otp_code_field.dart';
+import 'package:food_solutions/features/base/presentation/screens/base_screen.dart';
 import 'package:go_router/go_router.dart';
 
 class OtpVerifyCard extends StatefulWidget {
@@ -134,7 +134,7 @@ class _OtpVerifiedContentState extends State<_OtpVerifiedContent> {
     super.initState();
     Future<void>.delayed(otpVerifiedNavigationDelay, () {
       if (!mounted) return;
-      context.go(LoginScreen.routeName);
+      context.go(BaseScreen.routeName);
     });
   }
 

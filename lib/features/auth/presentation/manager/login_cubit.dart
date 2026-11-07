@@ -2,43 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_solutions/core/error/failure.dart';
 import 'package:food_solutions/core/language/app_translations.dart';
-import 'package:food_solutions/features/auth/data/models/login_request_model.dart';
-import 'package:food_solutions/features/auth/data/models/login_response_model.dart';
+import 'package:food_solutions/features/auth/data/models/send_otp_request_model.dart';
+import 'package:food_solutions/features/auth/data/models/send_otp_response_model.dart';
 import 'package:food_solutions/features/auth/data/repo/auth_repo.dart';
 import 'package:food_solutions/features/auth/presentation/manager/login_state.dart';
 
-final RegExp _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-
 class LoginCubit extends Cubit<LoginState> {
   final AuthRepo _authRepo;
-  final TextEditingController identifierController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
 
   LoginCubit(this._authRepo) : super(const LoginInitial());
 
-  bool get canSubmit {
-    return validateIdentifier(identifierController.text) == null &&
-        validatePassword(passwordController.text) == null;
-  }
+  bool get canSubmit => validatePhone(phoneController.text) == null;
 
-  String? validateIdentifier(String? value) {
+  String? validatePhone(String? value) {
     final input = value?.trim() ?? '';
     if (input.isEmpty) return translate('booking_validation_required');
-    if (input.contains('@')) {
-      if (!_emailPattern.hasMatch(input)) {
-        return translate('booking_validation_email');
-      }
-      return null;
-    }
     final digits = input.replaceAll(RegExp(r'\D'), '');
     if (digits.length < 9) return translate('login_identifier_invalid');
-    return null;
-  }
-
-  String? validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return translate('booking_validation_required');
-    }
     return null;
   }
 
@@ -48,7 +29,7 @@ class LoginCubit extends Cubit<LoginState> {
     emit(const LoginGuest());
   }
 
-  Future<void> login() async {
+  Future<void> sendOtp() async {
     if (state is LoginLoading) return;
     if (!canSubmit) {
       emit(
@@ -60,13 +41,14 @@ class LoginCubit extends Cubit<LoginState> {
       return;
     }
     emit(const LoginLoading());
-    final result = await _authRepo.login(
-      LoginRequestModel(
-        emailOrPhone: identifierController.text.trim(),
-        password: passwordController.text,
+    final phone = phoneController.text.trim();
+    final result = await _authRepo.sendOtp(
+      SendOtpRequestModel(
+        identifier: phone,
+        type: SendOtpRequestModel.phoneType,
       ),
     );
-    result.fold(_emitFailure, _emitSuccess);
+    result.fold(_emitFailure, (response) => _emitOtpSent(phone, response));
   }
 
   void _emitFailure(ServerFailure failure) {
@@ -79,14 +61,14 @@ class LoginCubit extends Cubit<LoginState> {
     );
   }
 
-  void _emitSuccess(LoginResponseModel response) {
-    emit(LoginSuccess(user: response.user));
+  void _emitOtpSent(String phone, SendOtpResponseModel response) {
+    final identifier = response.identifier.trim();
+    emit(LoginOtpSent(phone: identifier.isEmpty ? phone : identifier));
   }
 
   @override
   Future<void> close() {
-    identifierController.dispose();
-    passwordController.dispose();
+    phoneController.dispose();
     return super.close();
   }
 }
