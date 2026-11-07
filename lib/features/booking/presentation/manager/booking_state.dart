@@ -15,9 +15,13 @@ class BookingSuccess extends BookingState {}
 
 class BookingFailure extends BookingState {
   final String errorMessage;
+  final String errorDetails;
 
-  const BookingFailure({required this.errorMessage});
+  const BookingFailure({
+    required this.errorMessage,
+    required this.errorDetails,
+  });
 
   @override
-  List<Object> get props => [errorMessage];
+  List<Object> get props => [errorMessage, errorDetails];
 }
